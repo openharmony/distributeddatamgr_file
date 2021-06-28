@@ -51,7 +51,7 @@ static DirentEntity *GetDirentEntity(napi_env env, napi_callback_info info)
     return direntEntity;
 }
 
-static napi_value CheckDirentDType(napi_env env, napi_callback_info info, __mode_t dType)
+static napi_value CheckDirentDType(napi_env env, napi_callback_info info, unsigned char dType)
 {
     DirentEntity *direntEntity = GetDirentEntity(env, info);
     if (!direntEntity) {
