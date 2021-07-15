@@ -39,6 +39,11 @@
 #include "../class_stream/stream_n_exporter.h"
 #include "../common_func.h"
 
+#include "create_stream.h"
+#include "fdopen_stream.h"
+#include "opendir.h"
+#include "stat.h"
+
 namespace OHOS {
 namespace DistributedFS {
 namespace ModuleFileIO {
@@ -698,23 +703,27 @@ napi_value PropNExporter::WriteSync(napi_env env, napi_callback_info info)
 bool PropNExporter::Export()
 {
     return exports_.AddProp({
-        NVal::DeclareNapiFunction("openSync", OpenSync),
         NVal::DeclareNapiFunction("accessSync", AccessSync),
         NVal::DeclareNapiFunction("chmodSync", ChmodSync),
         NVal::DeclareNapiFunction("chownSync", ChownSync),
         NVal::DeclareNapiFunction("closeSync", CloseSync),
         NVal::DeclareNapiFunction("copyFileSync", CopyFileSync),
+        NVal::DeclareNapiFunction("createStreamSync", CreateStream::Sync),
         NVal::DeclareNapiFunction("fchmodSync", FchmodSync),
         NVal::DeclareNapiFunction("fchownSync", FchownSync),
+        NVal::DeclareNapiFunction("fdopenStreamSync", FdopenStream::Sync),
         NVal::DeclareNapiFunction("fstatSync", FstatSync),
+        NVal::DeclareNapiFunction("fsyncSync", FsyncSync),
         NVal::DeclareNapiFunction("ftruncateSync", FtruncateSync),
         NVal::DeclareNapiFunction("mkdirSync", MkdirSync),
+        NVal::DeclareNapiFunction("opendirSync", Opendir::Sync),
+        NVal::DeclareNapiFunction("openSync", OpenSync),
         NVal::DeclareNapiFunction("readSync", ReadSync),
         NVal::DeclareNapiFunction("renameSync", RenameSync),
         NVal::DeclareNapiFunction("rmdirSync", RmdirSync),
-        NVal::DeclareNapiFunction("unlinkSync", UnlinkSync),
-        NVal::DeclareNapiFunction("fsyncSync", FsyncSync),
+        NVal::DeclareNapiFunction("statSync", Stat::Sync),
         NVal::DeclareNapiFunction("truncateSync", TruncateSync),
+        NVal::DeclareNapiFunction("unlinkSync", UnlinkSync),
         NVal::DeclareNapiFunction("writeSync", WriteSync),
     });
 }
