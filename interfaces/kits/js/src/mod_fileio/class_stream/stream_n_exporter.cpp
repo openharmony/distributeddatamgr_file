@@ -36,102 +36,6 @@ namespace DistributedFS {
 namespace ModuleFileIO {
 using namespace std;
 
-static NVal InstantiateStream(napi_env env, unique_ptr<FILE, decltype(&fclose)> fp)
-{
-    napi_value objStream = NClass::InstantiateClass(env, StreamNExporter::className_, {});
-    if (!objStream) {
-        UniError(EIO).ThrowErr(env, "INNER BUG. Cannot instantiate stream");
-        return NVal();
-    }
-
-    auto streamEntity = NClass::GetEntityOf<StreamEntity>(env, objStream);
-    if (!streamEntity) {
-        UniError(EIO).ThrowErr(env, "Cannot instantiate stream because of void entity");
-        return NVal();
-    }
-
-    streamEntity->fp.swap(fp);
-    return { env, objStream };
-}
-
-static tuple<bool, string, string> GetCreateStreamArgs(napi_env env, const NFuncArg &funcArg)
-{
-    bool succ = false;
-    unique_ptr<char[]> path;
-    tie(succ, path, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
-    if (!succ) {
-        UniError(EINVAL).ThrowErr(env, "Invalid path");
-        return { false, "", "" };
-    }
-
-    unique_ptr<char[]> mode;
-    tie(succ, mode, ignore) = NVal(env, funcArg[NARG_POS::SECOND]).ToUTF8String();
-    if (!succ) {
-        UniError(EINVAL).ThrowErr(env, "Invalid mode");
-        return { false, "", "" };
-    }
-
-    return { true, path.get(), mode.get() };
-}
-
-napi_value StreamNExporter::CreateStreamSync(napi_env env, napi_callback_info info)
-{
-    NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::TWO)) {
-        UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
-        return nullptr;
-    }
-
-    bool succ = false;
-    string argPath;
-    string argMode;
-    tie(succ, argPath, argMode) = GetCreateStreamArgs(env, funcArg);
-    if (!succ) {
-        return nullptr;
-    }
-
-    unique_ptr<FILE, decltype(&fclose)> fp = { fopen(argPath.c_str(), argMode.c_str()), fclose };
-    if (!fp) {
-        UniError(errno).ThrowErr(env);
-        return nullptr;
-    }
-    return InstantiateStream(env, move(fp)).val_;
-}
-
-napi_value StreamNExporter::FdopenStreamSync(napi_env env, napi_callback_info info)
-{
-    NFuncArg funcArg(env, info);
-
-    if (!funcArg.InitArgs(NARG_CNT::TWO)) {
-        UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
-        return nullptr;
-    }
-
-    bool succ = false;
-
-    int fd;
-    tie(succ, fd) = NVal(env, funcArg[NARG_POS::FIRST]).ToInt32();
-    if (!succ) {
-        UniError(EINVAL).ThrowErr(env, "Arg fd is required to be type integer");
-        return nullptr;
-    }
-
-    unique_ptr<char[]> mode;
-    tie(succ, mode, ignore) = NVal(env, funcArg[NARG_POS::SECOND]).ToUTF8String();
-    if (!succ) {
-        UniError(EINVAL).ThrowErr(env, "Arg mode is required to be type string");
-        return nullptr;
-    }
-
-    unique_ptr<FILE, decltype(&fclose)> fp = { fdopen(fd, mode.get()), fclose };
-    if (!fp) {
-        UniError(errno).ThrowErr(env);
-        return nullptr;
-    }
-
-    return InstantiateStream(env, move(fp)).val_;
-}
-
 napi_value StreamNExporter::ReadSync(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
@@ -278,8 +182,6 @@ napi_value StreamNExporter::Constructor(napi_env env, napi_callback_info info)
 bool StreamNExporter::Export()
 {
     vector<napi_property_descriptor> props = {
-        NVal::DeclareNapiStaticFunction("createStreamSync", CreateStreamSync),
-        NVal::DeclareNapiStaticFunction("fdopenStreamSync", FdopenStreamSync),
         NVal::DeclareNapiFunction("writeSync", WriteSync),
         NVal::DeclareNapiFunction("flushSync", FlushSync),
         NVal::DeclareNapiFunction("readSync", ReadSync),

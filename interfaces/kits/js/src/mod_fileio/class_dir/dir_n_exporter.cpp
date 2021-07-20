@@ -58,43 +58,6 @@ static DirEntity *GetDirEntity(napi_env env, napi_callback_info info)
     return dirEntity;
 }
 
-napi_value DirNExporter::OpenDirSync(napi_env env, napi_callback_info info)
-{
-    NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::ONE)) {
-        UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
-        return nullptr;
-    }
-
-    bool succ = false;
-    unique_ptr<char[]> path;
-    tie(succ, path, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
-    if (!succ) {
-        UniError(EINVAL).ThrowErr(env, "Invalid path");
-        return nullptr;
-    }
-
-    std::unique_ptr<DIR, std::function<void(DIR *)>> dir = { opendir(path.get()), closedir };
-    if (!dir) {
-        UniError(errno).ThrowErr(env);
-        return nullptr;
-    }
-
-    napi_value objDir = NClass::InstantiateClass(env, DirNExporter::className_, {});
-    if (!objDir) {
-        UniError(EINVAL).ThrowErr(env, "Cannot instantiate class DirSync");
-        return nullptr;
-    }
-
-    auto dirEntity = NClass::GetEntityOf<DirEntity>(env, objDir);
-    if (!dirEntity) {
-        UniError(EINVAL).ThrowErr(env, "Cannot get the entity of objDir");
-        return nullptr;
-    }
-    dirEntity->dir_.swap(dir);
-    return objDir;
-}
-
 napi_value DirNExporter::CloseSync(napi_env env, napi_callback_info info)
 {
     DirEntity *dirEntity = GetDirEntity(env, info);
@@ -171,7 +134,6 @@ napi_value DirNExporter::Constructor(napi_env env, napi_callback_info info)
 bool DirNExporter::Export()
 {
     vector<napi_property_descriptor> props = {
-        NVal::DeclareNapiStaticFunction("opendirSync", OpenDirSync),
         NVal::DeclareNapiFunction("readSync", ReadSync),
         NVal::DeclareNapiFunction("closeSync", CloseSync),
     };

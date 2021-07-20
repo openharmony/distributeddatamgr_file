@@ -34,43 +34,6 @@ namespace DistributedFS {
 namespace ModuleFileIO {
 using namespace std;
 
-napi_value StatNExporter::StatSync(napi_env env, napi_callback_info info)
-{
-    NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::ONE)) {
-        UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
-        return nullptr;
-    }
-
-    bool succ = false;
-    unique_ptr<char[]> pathPtr;
-    tie(succ, pathPtr, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
-    if (!succ) {
-        UniError(EINVAL).ThrowErr(env, "The first argument requires type string");
-        return nullptr;
-    }
-
-    struct stat buf;
-    int ret = stat(pathPtr.get(), &buf);
-    if (ret == -1) {
-        UniError(errno).ThrowErr(env);
-        return nullptr;
-    }
-
-    napi_value objStat = NClass::InstantiateClass(env, StatNExporter::className_, {});
-    if (!objStat) {
-        return nullptr;
-    }
-
-    auto statEntity = NClass::GetEntityOf<StatEntity>(env, objStat);
-    if (!statEntity) {
-        return nullptr;
-    }
-
-    statEntity->stat_ = buf;
-    return objStat;
-}
-
 static napi_value CheckStatMode(napi_env env, napi_callback_info info, mode_t mode)
 {
     NFuncArg funcArg(env, info);
@@ -352,8 +315,6 @@ napi_value StatNExporter::Constructor(napi_env env, napi_callback_info info)
 bool StatNExporter::Export()
 {
     vector<napi_property_descriptor> props = {
-        NVal::DeclareNapiStaticFunction("statSync", StatSync),
-
         NVal::DeclareNapiFunction("isBlockDevice", IsBlockDevice),
         NVal::DeclareNapiFunction("isCharacterDevice", IsCharacterDevice),
         NVal::DeclareNapiFunction("isDirectory", IsDirectory),

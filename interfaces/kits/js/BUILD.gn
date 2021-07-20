@@ -37,7 +37,11 @@ ohos_shared_library("fileio") {
     "src/mod_fileio/class_stream/stream_n_exporter.cpp",
     "src/mod_fileio/common_func.cpp",
     "src/mod_fileio/module.cpp",
+    "src/mod_fileio/properties/create_stream.cpp",
+    "src/mod_fileio/properties/fdopen_stream.cpp",
+    "src/mod_fileio/properties/opendir.cpp",
     "src/mod_fileio/properties/prop_n_exporter.cpp",
+    "src/mod_fileio/properties/stat.cpp",
   ]
 
   deps = [
