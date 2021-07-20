@@ -13,6 +13,14 @@
 
 import("//build/ohos.gni")
 
+file_common_src = [
+  "src/common/fd_guard.cpp",
+  "src/common/napi/n_class.cpp",
+  "src/common/napi/n_func_arg.cpp",
+  "src/common/napi/n_val.cpp",
+  "src/common/uni_error.cpp",
+]
+
 ohos_shared_library("fileio") {
   subsystem_name = "distributeddatamgr"
   part_name = "distributedfilejs"
@@ -25,12 +33,8 @@ ohos_shared_library("fileio") {
     "//utils/native/base/include",
   ]
 
-  sources = [
-    "src/common/fd_guard.cpp",
-    "src/common/napi/n_class.cpp",
-    "src/common/napi/n_func_arg.cpp",
-    "src/common/napi/n_val.cpp",
-    "src/common/uni_error.cpp",
+  sources = file_common_src
+  sources += [
     "src/mod_fileio/class_dir/dir_n_exporter.cpp",
     "src/mod_fileio/class_dirent/dirent_n_exporter.cpp",
     "src/mod_fileio/class_stat/stat_n_exporter.cpp",
@@ -54,8 +58,46 @@ ohos_shared_library("fileio") {
   ]
 }
 
+ohos_shared_library("file") {
+  subsystem_name = "distributeddatamgr"
+  part_name = "distributedfilejs"
+
+  relative_install_dir = "module"
+
+  include_dirs = [
+    "//third_party/node/src",
+    "//foundation/ace/napi/interfaces/kits",
+    "//utils/native/base/include",
+  ]
+
+  sources = file_common_src
+  sources += [
+    "src/common/ability_helper.cpp",
+    "src/mod_file/module.cpp",
+    "src/mod_file/common_func.cpp",
+    "src/mod_file/class_file/file_n_exporter.cpp",
+  ]
+
+  deps = [
+    "//foundation/ace/napi:ace_napi",
+    "//utils/native/base:utilsecurec",
+    "//foundation/aafwk/standard/frameworks/kits/ability/native:abilitykit_native",
+  ]
+
+  external_deps = [
+    "aafwk_standard:ability_manager",
+    "aafwk_standard:want",
+    "appexecfwk_standard:appexecfwk_core",
+    "appexecfwk_standard:appexecfwk_base",
+    "appexecfwk_standard:libeventhandler",
+    "ipc:ipc_core",
+    "hiviewdfx_hilog_native:libhilog",
+  ]
+}
+
 group("build_kits_js") {
   deps = [
     ":fileio",
+    ":file",
   ]
 }
