@@ -681,16 +681,20 @@ void WriteArrayBufferExec(napi_env env, void *data)
     if (statPath == COMMON_NUM::ZERO || statPath == ENOENT) {
         if (asyncCallbackInfo->append) {
             fd = open(path.c_str(), O_WRONLY | O_APPEND | O_CREAT, S_IRUSR | S_IWUSR);
+            if (fd == FAILD) {
+                return;
+            }
         } else {
             fd = open(path.c_str(), O_WRONLY | O_TRUNC | O_CREAT, S_IRUSR | S_IWUSR);
+            if (fd == FAILD) {
+                return;
+            }
             lseek(fd, asyncCallbackInfo->position, SEEK_CUR);
         }
-        if (fd != FAILD) {
-            if (write(fd, asyncCallbackInfo->buf, asyncCallbackInfo->length) != FAILD) {
-                asyncCallbackInfo->result = SUCCESS;
-            }
-            close(fd);
+        if (write(fd, asyncCallbackInfo->buf, asyncCallbackInfo->length) != FAILD) {
+            asyncCallbackInfo->result = SUCCESS;
         }
+        close(fd);
     }
 }
 
