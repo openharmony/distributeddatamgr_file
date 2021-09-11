@@ -17,23 +17,16 @@ ohos_shared_library("libfs_manager") {
   visibility = [ "*" ]
   sources = [
     "./fs_manager/src/filesystem_manager.cpp",
-    "./fs_manager/src/fs_mount_tab.cpp"
+    "./fs_manager/src/fs_mount_tab.cpp",
   ]
 
   include_dirs = [
     "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services/fs_manager/include",
-    "//foundation/aafwk/standard/interfaces/innerkits/want/include/"
+    "//foundation/aafwk/standard/interfaces/innerkits/want/include/",
   ]
 
-  deps = [
-    "//utils/native/base:utils",
-  ]
-  external_deps = [
-    "hiviewdfx_hilog_native:libhilog",
-  ]
+  deps = [ "//utils/native/base:utils" ]
+  external_deps = [ "hiviewdfx_hilog_native:libhilog" ]
   subsystem_name = "distributeddatamgr"
   part_name = "storage_standard"
 }
-
-
-
