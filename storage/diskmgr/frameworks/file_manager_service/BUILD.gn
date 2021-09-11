@@ -1,0 +1,40 @@
+import("//build/ohos.gni")
+
+
+ohos_shared_library("file_share_ability") {
+  subsystem_name = "distributeddatamgr"
+  part_name = "storage_standard"
+
+  include_dirs = [
+
+  ]
+
+  sources = [
+    "src/fms_utils.cpp",
+    "src/file_info.cpp",
+    "src/file_share_ability.cpp",
+    "src/shared_path_strategy.cpp",
+  ]
+
+  deps = [
+    "//foundation/aafwk/standard/frameworks/kits/ability/native:abilitykit_native",
+    "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/uri:zuri",
+    "//foundation/distributeddatamgr/appdatamgr/interfaces/innerkits/native_rdb:native_rdb",
+    "//foundation/aafwk/standard/frameworks/kits/ability/native:abilitykit_native",
+    "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/uri:zuri",
+    "//utils/native/base:utils",
+    "//foundation/aafwk/standard/frameworks/kits/ability/native:dummy_classes",
+    "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+  ]
+
+  external_deps = [
+    "aafwk_standard:ability_manager",
+    "aafwk_standard:want",
+    "appexecfwk_standard:appexecfwk_core",
+    "appexecfwk_standard:appexecfwk_base",
+    "appexecfwk_standard:libeventhandler",
+    "ipc:ipc_core",
+    "hiviewdfx_hilog_native:libhilog",
+  ]
+}
+
