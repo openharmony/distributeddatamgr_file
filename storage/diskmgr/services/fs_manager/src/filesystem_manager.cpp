@@ -177,7 +177,7 @@ int FileSystemManager::GetFormatParameters(const FormatInfo &stFormatInfo,
                                            std::vector<std::string> &formatParameters)
 {
     constexpr int blockSize = 4096;
-    
+
     if(stFormatInfo.type == "ext4") {
         formatParameters.push_back("-F");
         formatParameters.push_back("-f");
@@ -231,7 +231,6 @@ int FileSystemManager::DoMount(const std::string &mountAttr)
     if (mountRet != 0) {
         return -1;
     }
-    //SendMountOption(mountAttr);
     return 0;
 }
 
