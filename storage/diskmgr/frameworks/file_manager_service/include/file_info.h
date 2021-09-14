@@ -12,11 +12,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #ifndef FOUNDATION_FILEMANAGER_STANDARD_FRAMEWORKS_FILE_MANAGER_INCLUDE_FILE_INFO_H
 #define FOUNDATION_FILEMANAGER_STANDARD_FRAMEWORKS_FILE_MANAGER_INCLUDE_FILE_INFO_H
 
 #include <string>
+
 #include "parcel.h"
 
 namespace OHOS {
@@ -33,7 +33,6 @@ struct FileInfo : public Parcelable {
     bool ReadFromParcel(Parcel &parcel);
     virtual bool Marshalling(Parcel &parcel) const override;
     static FileInfo *Unmarshalling(Parcel &parcel);
-    void Dump(std::string prefix, int fd);
 };
 } // namespace FileManager
 } // namespace OHOS

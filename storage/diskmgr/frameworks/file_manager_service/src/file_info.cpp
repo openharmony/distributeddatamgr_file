@@ -12,9 +12,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #include "../include/file_info.h"
+
 #include <cstring>
+
 #include "string_ex.h"
 
 namespace OHOS {
@@ -50,7 +51,5 @@ bool FileInfo::Marshalling(Parcel &parcel) const
     }
     return true;
 }
-
-void FileInfo::Dump(std::string prefix, int fd) {}
 } // namespace FileManager
 } // namespace OHOS

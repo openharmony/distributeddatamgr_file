@@ -14,6 +14,7 @@
  */
 #ifndef FOUNDATION_FILEMANAGER_STANDARD_FRAMEWORKS_FILE_MANAGER_INCLUDE_FMS_UTILS_H
 #define FOUNDATION_FILEMANAGER_STANDARD_FRAMEWORKS_FILE_MANAGER_INCLUDE_FMS_UTILS_H
+
 #include <cstdio>
 #include <cstring>
 #include <dirent.h>
@@ -33,9 +34,11 @@
 #include "dummy_result_set.h"
 #include "file_info.h"
 #include "parcel.h"
+#include "root_info.h"
+
 namespace OHOS {
 namespace FileManager {
-enum STATUS_NUM {
+enum class STATUS_NUM {
     PARAMETER_EXCEPTION = 202,
     IO_EXCEPTION = 300,
     URI_EXCEPTION = 302,
@@ -43,7 +46,7 @@ enum STATUS_NUM {
     FAIL = -1,
     OK = 0,
 };
-enum COMMON_NUM {
+enum class COMMON_NUM {
     ZERO = 0,
     ONE = 1,
     TWO = 2,
@@ -58,31 +61,36 @@ public:
     bool IsRootDirectory(const Uri &uri) const;
     bool IsPrimaryUser(const Uri &uri) const;
     bool IsPublicStorage(const Uri &uri) const;
+    bool IsUpdateRootInfo(const Uri &uri) const;
     bool IsCreateDir(const Uri &uri) const;
     bool IsSaveFiles(const Uri &uri) const;
     std::string GetCurrentPath(const Uri &uri) const;
     std::string GetCurrentUser(const Uri &uri) const;
     std::shared_ptr<AppExecFwk::ResultSet> VectorToResultset1(const std::vector<std::string> &columns) const;
+    std::shared_ptr<AppExecFwk::ResultSet> VectorToResultset2(const std::vector<RootInfo> &columns) const;
     std::shared_ptr<AppExecFwk::ResultSet> Int32ToResultset(int32_t parm) const;
     std::shared_ptr<AppExecFwk::ResultSet> VectorToResultset(const std::vector<FileInfo> &columns) const;
     int GetCurrentDirFileInfoList(std::string path, std::vector<FileInfo> &fileInfoList) const;
     int32_t Mkdirs(std::string path) const;
     size_t GetFileSize(const std::string &fileName) const;
     std::string GetFileType(const std::string &fileName) const;
-    FileInfo GetFileInfo(std::string sourcePath, std::string sourceName, bool isDir) const;
+    FileInfo GetFileInfo(std::string sourcePath, std::string sourceName) const;
     int GetDirNum(std::string path) const;
-    void
-    GetSearchFileInfoList(std::string dirPath, std::string fileName, std::vector<FileInfo> &fileList) const;
+    int GetSearchFileInfoList(std::string dirPath, std::string fileName, std::vector<FileInfo> &fileList) const;
+    std::string RealPathToUri(const std::string &realPath) const;
 
 private:
     static std::unique_ptr<FmsUtils> mInstance;
+    const std::string SCHEMEOHOS = "dataability";
     const std::string PUBLIC_STORAGE_ABILITY = "public.storage.ability";
     const std::string PRIMARY_USER = "primary";
     const std::string MATCH_ROOTS = "root";
     const std::string MATCH_FILE = "document";
     const std::string MATCH_FILE_CHILDREN = "leaf";
+    const std::string UPDATE_ROOT_INFO = "UpdateRootInfo";
     const std::string CREATE_DIR = "CreateDir";
     const std::string SAVE_FILES = "SaveFiles";
+    const std::string PATTERN = "/";
 };
 } // namespace FileManager
 } // namespace OHOS

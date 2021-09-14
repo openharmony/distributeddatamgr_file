@@ -14,24 +14,23 @@
  */
 #ifndef FOUNDATION_FILEMANAGER_STANDARD_FRAMEWORKS_FILE_MANAGER_INCLUDE_FILE_SHARE_ABILITY_H
 #define FOUNDATION_FILEMANAGER_STANDARD_FRAMEWORKS_FILE_MANAGER_INCLUDE_FILE_SHARE_ABILITY_H
+
 #include <cstdio>
 #include <string>
+
 #include "ability.h"
 #include "shared_path_strategy.h"
 
 namespace OHOS {
 namespace FileManager {
-
 const std::string ROOT_PATH = "root-path";
 const std::string FILES_PATH = "files-path";
 const std::string CACHE_PATH = "cache-path";
 const std::string EXTERNAL_FILES_PATH = "external-files-path";
 const std::string EXTERNAL_CACHE_PATH = "external-cache-path";
-
 const std::string ATTR_TYPE = "type";
 const std::string ATTR_NAME = "name";
 const std::string ATTR_PATH = "path";
-
 class FileShareAbility : public AppExecFwk::Ability {
 public:
     /**
@@ -58,9 +57,10 @@ public:
      *
      * @return Returns the query result.
      */
-    virtual std::shared_ptr<AAFwk::ResultSet> Query(const Uri &uri,
-                                                    const std::vector<std::string> &columns,
-                                                    const AAFwk::DataAbilityPredicates &predicates) override;
+    virtual std::shared_ptr<AppExecFwk::ResultSet> Query(
+        const Uri &uri,
+        const std::vector<std::string> &columns,
+        const AAFwk::DataAbilityPredicates &predicates) override;
     /**
      * @brief Obtains the MIME type matching the data specified by the URI of the Data ability. This method
      * should be implemented by a Data ability. Data abilities supports general data types, including text,

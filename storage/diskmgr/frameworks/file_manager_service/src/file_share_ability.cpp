@@ -94,10 +94,12 @@ std::shared_ptr<ResultSet> FileShareAbility::Query(const Uri &uri,
     FmsUtils *fm = FmsUtils::Instance();
     SharedPathStrategy rootStrat = ParsePathStrategy();
     std::string filePath = rootStrat.ParseFileInUri(const_cast<Uri &>(uri));
+    int32_t uriException = static_cast<int32_t>(STATUS_NUM::URI_EXCEPTION);
+    int32_t iOException = static_cast<int32_t>(STATUS_NUM::IO_EXCEPTION);
     if (filePath == "302") {
-        return fm->Int32ToResultset(STATUS_NUM::URI_EXCEPTION);
+        return fm->Int32ToResultset(uriException);
     } else if (CheckUri(filePath)) {
-        return fm->Int32ToResultset(STATUS_NUM::IO_EXCEPTION);
+        return fm->Int32ToResultset(iOException);
     }
     int punctuation = filePath.find_last_of("/");
     std::string fileName = filePath.substr(punctuation + 1);
@@ -109,10 +111,10 @@ std::shared_ptr<ResultSet> FileShareAbility::Query(const Uri &uri,
     if (wenhao >= 0 && findPath >= 0) {
         displayName = path.substr(findPath + DISPLAYNAME_LEN);
     } else {
-        int punctuation = filePath.find_last_of("/");
+        punctuation = filePath.find_last_of("/");
         displayName = filePath.substr(punctuation + 1);
     }
-    FileInfo fi = fm->GetFileInfo(filePath, fileName, false);
+    FileInfo fi = fm->GetFileInfo(filePath, fileName);
     std::vector<std::string> queryResult;
     std::vector<std::string> listing = const_cast<vector<std::string> &>(columns);
     if (listing.size() == 0) {

@@ -12,15 +12,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/**
- * Strategy for mapping between File and Uri.
- *
- */
 #ifndef FOUNDATION_FILEMANAGER_STANDARD_FRAMEWORKS_FILE_MANAGER_INCLUDE_SIMPLE_PATH_STRATEGY_H
 #define FOUNDATION_FILEMANAGER_STANDARD_FRAMEWORKS_FILE_MANAGER_INCLUDE_SIMPLE_PATH_STRATEGY_H
+
 #include <cstdio>
 #include <map>
 #include <string>
+
 #include "path_strategy.h"
 
 namespace OHOS {
