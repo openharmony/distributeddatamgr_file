@@ -23,50 +23,46 @@
 #if !defined(_WIN32) && !defined(O_BINARY)
 #define O_BINARY 0
 #endif
-namespace OHOS
-{
-    enum MountStatus : int
-    {
-        MOUNT_ERROR = -1,
-        MOUNT_UMOUNTED = 0,
-        MOUNT_MOUNTED = 1,
+namespace OHOS {
+enum MountStatus : int {
+    MOUNT_ERROR = -1,
+    MOUNT_UMOUNTED = 0,
+    MOUNT_MOUNTED = 1,
+};
+
+enum Figures : int {
+    MOUNT_ZERO = 0,
+    MOUNT_ONE = 1,
+    MOUNT_TWO = 2,
+    MOUNT_THREE = 3,
+    MOUNT_FOUR = 4,
+    MOUNT_FIVE = 5,
+    MOUNT_SIX = 6,
+};
+
+class FileSystemManager {
+public:
+    static int DoMount(const std::string &mountAttr);
+    static int DoUMount(const std::string &mountAttr);
+    static int DoFormat(const std::string &formatAttr);
+
+    struct FormatInfo {
+        std::string source;
+        std::string type;
+        std::string cmd;
     };
 
-    enum Figures : int
-    {
-        MOUNT_ZERO = 0,
-        MOUNT_ONE = 1,
-        MOUNT_TWO = 2,
-        MOUNT_THREE = 3,
-        MOUNT_FOUR = 4,
-        MOUNT_FIVE = 5,
-        MOUNT_SIX = 6,
-    };
-
-    class FileSystemManager
-    {
-    public:
-        static int DoMount(const std::string &mountAttr);
-        static int DoUMount(const std::string &mountAttr);
-        static int DoFormat(const std::string &formatAttr);
-
-        struct FormatInfo
-        {
-            std::string source;
-            std::string type;
-            std::string cmd;
-        };
-
-    private:
-        static int FsMount(const FsMountTab::FsMountEntry &entry);
-        static int FsUMount(const std::string &target);
-        static int FormatCommandPatch(FormatInfo &stFormatAttr);
-        static int GetFormatParameters(const FormatInfo &stFormatInfo, std::vector<std::string> &formatParameters);
-        static int PerformFormatting(std::vector<std::string> &formatParameters);
-        static int FsIsSupport(const std::string &fsType);
-        static int ParseFormatAttr(const std::string &formatAttr, FormatInfo &stFormatAttr);
-        static bool SendMountOption(const std::string &mountOption);
-    };
-} // OHOS
+private:
+    static int FsMount(const FsMountTab::FsMountEntry &entry);
+    static int FsUMount(const std::string &target);
+    static int FormatCommandPatch(FormatInfo &stFormatAttr);
+    static int GetFormatParameters(const FormatInfo &stFormatInfo,
+                                   std::vector<std::string> &formatParameters);
+    static int PerformFormatting(std::vector<std::string> &formatParameters);
+    static int FsIsSupport(const std::string &fsType);
+    static int ParseFormatAttr(const std::string &formatAttr, FormatInfo &stFormatAttr);
+    static bool SendMountOption(const std::string &mountOption);
+};
+} // namespace OHOS
 
 #endif // STORAGE_SERVICES_FILESYSTEMMANAGER_H

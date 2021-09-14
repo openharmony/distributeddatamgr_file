@@ -16,12 +16,8 @@
 #define STORAGE_SERVICE_FILESYSTEM_LOG_H
 
 #include "hilog/log.h"
-namespace OHOS
-{
-    static constexpr OHOS::HiviewDFX::HiLogLabel LOG_LABEL = {
-        LOG_CORE,
-        0,
-        "fs_manager"};
+namespace OHOS {
+static constexpr OHOS::HiviewDFX::HiLogLabel LOG_LABEL = { LOG_CORE, 0, "fs_manager" };
 
 #define SSLOG_F(...) (void)OHOS::HiviewDFX::HiLog::Fatal(LOG_LABEL, __VA_ARGS__)
 #define SSLOG_E(...) (void)OHOS::HiviewDFX::HiLog::Error(LOG_LABEL, __VA_ARGS__)
@@ -34,8 +30,7 @@ namespace OHOS
 #define _SS_WFUNCTION HiviewDFX::HiLog::Warn
 #define _SS_EFUNCTION HiviewDFX::HiLog::Error
 
-#define _SS_LOGCPRINTF(func, fmt, ...) \
-    func(LABEL, "<%{public}d>" fmt, __LINE__, ##__VA_ARGS__)
+#define _SS_LOGCPRINTF(func, fmt, ...) func(LABEL, "<%{public}d>" fmt, __LINE__, ##__VA_ARGS__)
 
 #define SSLOGD(fmt, ...) _SS_LOGCPRINTF(_SS_DFUNCTION, " DEBUG " fmt, ##__VA_ARGS__)
 #define SSLOGI(fmt, ...) _SS_LOGCPRINTF(_SS_IFUNCTION, fmt, ##__VA_ARGS__)
