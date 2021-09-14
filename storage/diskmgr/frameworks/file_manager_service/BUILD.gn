@@ -12,28 +12,66 @@
 # limitations under the License.
 import("//build/ohos.gni")
 
+ohos_shared_library("native_file_manager") {
+  subsystem_name = "storage"
+  part_name = "storage_standard"
+
+  include_dirs = [
+    "//third_party/node/src",
+    "//foundation/ace/napi/interfaces/kits",
+    "//utils/native/base/include",
+    "//utils/system/safwk/native/include",
+    "//foundation/distributeddatamgr/appdatamgr/frameworks/innerkitsimpl/native_rdb/include",
+    "//foundation/distributeddatamgr/appdatamgr/frameworks/innerkitsimpl/native_appdatafwk/include",
+    "//third_party/sqlite/include",
+    "//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler/include",
+  ]
+
+  sources = [
+    "src/fd_holder.cpp",
+    "src/file_info.cpp",
+    "src/fms_utils.cpp",
+    "src/root_info.cpp",
+  ]
+
+  deps = [
+    "//foundation/aafwk/standard/frameworks/kits/ability/native:abilitykit_native",
+    "//foundation/aafwk/standard/frameworks/kits/ability/native:dummy_classes",
+    "//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler:libeventhandler",
+    "//foundation/distributeddatamgr/appdatamgr/interfaces/innerkits/native_rdb:native_rdb",
+    "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/uri:zuri",
+    "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "//utils/native/base:utils",
+    "//utils/native/base:utilsecurec",
+  ]
+
+  external_deps = [
+    "aafwk_standard:ability_manager",
+    "aafwk_standard:want",
+    "appexecfwk_standard:appexecfwk_base",
+    "appexecfwk_standard:appexecfwk_core",
+    "appexecfwk_standard:libeventhandler",
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+  ]
+}
+
 ohos_shared_library("file_share_ability") {
-  subsystem_name = "distributeddatamgr"
+  subsystem_name = "storage"
   part_name = "storage_standard"
 
   include_dirs = []
 
   sources = [
-    "src/file_info.cpp",
     "src/file_share_ability.cpp",
-    "src/fms_utils.cpp",
     "src/shared_path_strategy.cpp",
   ]
 
   deps = [
+    ":native_file_manager",
     "//foundation/aafwk/standard/frameworks/kits/ability/native:abilitykit_native",
-    "//foundation/aafwk/standard/frameworks/kits/ability/native:abilitykit_native",
-    "//foundation/aafwk/standard/frameworks/kits/ability/native:dummy_classes",
-    "//foundation/distributeddatamgr/appdatamgr/interfaces/innerkits/native_rdb:native_rdb",
     "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/uri:zuri",
-    "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/uri:zuri",
-    "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
-    "//utils/native/base:utils",
   ]
 
   external_deps = [
