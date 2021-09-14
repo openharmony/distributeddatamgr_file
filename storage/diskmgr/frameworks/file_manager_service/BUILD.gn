@@ -13,7 +13,7 @@
 import("//build/ohos.gni")
 
 ohos_shared_library("native_file_manager") {
-  subsystem_name = "storage"
+  subsystem_name = "distributeddatamgr"
   part_name = "storage_standard"
 
   include_dirs = [
@@ -58,7 +58,7 @@ ohos_shared_library("native_file_manager") {
 }
 
 ohos_shared_library("file_share_ability") {
-  subsystem_name = "storage"
+  subsystem_name = "distributeddatamgr"
   part_name = "storage_standard"
 
   include_dirs = []

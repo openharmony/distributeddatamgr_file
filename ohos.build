@@ -14,7 +14,7 @@
       "module_list": [
         "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/frameworks/file_manager_service:file_share_ability",
         "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services:libfs_manager",
-        "//foundation/storage/diskmgr/frameworks/file_manager_service:native_file_manager"
+        "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/frameworks/file_manager_service:native_file_manager"
       ]
     },
     "e2fsprogs": {
