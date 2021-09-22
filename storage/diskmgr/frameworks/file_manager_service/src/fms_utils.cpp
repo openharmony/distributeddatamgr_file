@@ -177,13 +177,14 @@ std::shared_ptr<ResultSet> FmsUtils::VectorToResultset1(const std::vector<std::s
         return nullptr;
     }
     result = parcel.WriteStringVector(columns);
-    if (result) {
-        ResultSet *value = ResultSet::Unmarshalling(parcel);
-        std::shared_ptr<ResultSet> ptr(value);
-        return ptr;
-    } else {
-        return nullptr;
-    }
+    // if (result) {
+    //     ResultSet *value = ResultSet::Unmarshalling(parcel);
+    //     std::shared_ptr<ResultSet> ptr(value);
+    //     return ptr;
+    // } else {
+    //     return nullptr;
+    // }
+    return nullptr;
 }
 
 std::shared_ptr<ResultSet> FmsUtils::Int32ToResultset(int32_t parm) const
@@ -192,9 +193,10 @@ std::shared_ptr<ResultSet> FmsUtils::Int32ToResultset(int32_t parm) const
     bool result = false;
     result = parcel.WriteInt32(parm);
     if (result) {
-        ResultSet *value = ResultSet::Unmarshalling(parcel);
-        std::shared_ptr<ResultSet> ptr(value);
-        return ptr;
+        // ResultSet *value = ResultSet::Unmarshalling(parcel);
+        // std::shared_ptr<ResultSet> ptr(value);
+        // return ptr;
+        return nullptr;
     } else {
         return nullptr;
     }
@@ -209,9 +211,10 @@ std::shared_ptr<ResultSet> FmsUtils::VectorToResultset(const std::vector<FileInf
         Parcel parcel(nullptr);
         bool result = false;
         if (result) {
-            ResultSet *value = ResultSet::Unmarshalling(parcel);
-            std::shared_ptr<ResultSet> ptr(value);
-            return ptr;
+            // ResultSet *value = ResultSet::Unmarshalling(parcel);
+            // std::shared_ptr<ResultSet> ptr(value);
+            // return ptr;
+            return nullptr;
         } else {
             return nullptr;
         }
@@ -228,9 +231,10 @@ std::shared_ptr<ResultSet> FmsUtils::VectorToResultset2(const std::vector<RootIn
     Parcel parcel(nullptr);
     bool result = false;
     if (result) {
-        ResultSet *value = ResultSet::Unmarshalling(parcel);
-        std::shared_ptr<ResultSet> ptr(value);
-        return ptr;
+        // ResultSet *value = ResultSet::Unmarshalling(parcel);
+        // std::shared_ptr<ResultSet> ptr(value);
+        // return ptr;
+        return nullptr;
     } else {
         return nullptr;
     }
