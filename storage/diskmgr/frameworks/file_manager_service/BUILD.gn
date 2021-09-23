@@ -21,10 +21,13 @@ ohos_shared_library("native_file_manager") {
     "//foundation/ace/napi/interfaces/kits",
     "//utils/native/base/include",
     "//utils/system/safwk/native/include",
-    "//foundation/distributeddatamgr/appdatamgr/frameworks/innerkitsimpl/native_rdb/include",
-    "//foundation/distributeddatamgr/appdatamgr/frameworks/innerkitsimpl/native_appdatafwk/include",
+    # "//foundation/distributeddatamgr/appdatamgr/frameworks/innerkitsimpl/native_rdb/include",
+    # "//foundation/distributeddatamgr/appdatamgr/frameworks/innerkitsimpl/native_appdatafwk/include",
     "//third_party/sqlite/include",
     "//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler/include",
+    "//foundation/distributeddatamgr/appdatamgr/frameworks/jskitsimpl/native_rdb/include",
+    "//foundation/distributeddatamgr/appdatamgr/frameworks/jskitsimpl/common/include",
+    "//foundation/distributeddatamgr/appdatamgr/frameworks/jskitsimpl/native_dataability/include",
   ]
 
   sources = [
@@ -43,6 +46,8 @@ ohos_shared_library("native_file_manager") {
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//utils/native/base:utils",
     "//utils/native/base:utilsecurec",
+    # "//foundation/aafwk/standard/interfaces/innerkits/ability_manager:ability_manager",
+    # "//foundation/aafwk/standard/interfaces/innerkits/dataobs_manager:dataobs_manager",
   ]
 
   external_deps = [
@@ -54,6 +59,9 @@ ohos_shared_library("native_file_manager") {
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
+    "native_appdatamgr:native_appdatafwk",
+    "native_appdatamgr:native_dataability",
+    "native_appdatamgr:native_rdb",
   ]
 }
 
@@ -61,7 +69,11 @@ ohos_shared_library("file_share_ability") {
   subsystem_name = "distributeddatamgr"
   part_name = "storage_standard"
 
-  include_dirs = []
+  include_dirs = [
+    "//foundation/distributeddatamgr/appdatamgr/frameworks/jskitsimpl/native_rdb/include",
+    "//foundation/distributeddatamgr/appdatamgr/frameworks/jskitsimpl/common/include",
+    "//foundation/distributeddatamgr/appdatamgr/frameworks/jskitsimpl/native_dataability/include",
+  ]
 
   sources = [
     "src/file_share_ability.cpp",
@@ -72,6 +84,8 @@ ohos_shared_library("file_share_ability") {
     ":native_file_manager",
     "//foundation/aafwk/standard/frameworks/kits/ability/native:abilitykit_native",
     "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/uri:zuri",
+    # "//foundation/aafwk/standard/interfaces/innerkits/ability_manager:ability_manager",
+    # "//foundation/aafwk/standard/interfaces/innerkits/dataobs_manager:dataobs_manager",
   ]
 
   external_deps = [
@@ -82,6 +96,9 @@ ohos_shared_library("file_share_ability") {
     "appexecfwk_standard:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
+    "native_appdatamgr:native_appdatafwk",
+    "native_appdatamgr:native_dataability",
+    "native_appdatamgr:native_rdb",
   ]
 }
 
