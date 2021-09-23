@@ -29,6 +29,7 @@ namespace OHOS {
 namespace FileManager {
 using namespace OHOS::AAFwk;
 using namespace OHOS::AppExecFwk;
+using namespace OHOS::NativeRdb;
 using namespace std;
 using json = nlohmann::json;
 constexpr int DISPLAYNAME_LEN = 12;
@@ -62,6 +63,7 @@ void FileShareAbility::OnStart(const Want &want)
         Ability::OnStart(want);
     }
 }
+
 std::string GetRealPath(std::string path)
 {
     unique_ptr<char[]> absPath = make_unique<char[]>(PATH_MAX + 1);
@@ -86,9 +88,10 @@ bool CheckUri(std::string filePath)
     }
     return isDirUri;
 }
-std::shared_ptr<ResultSet> FileShareAbility::Query(const Uri &uri,
-                                                   const std::vector<std::string> &columns,
-                                                   const DataAbilityPredicates &predicates)
+std::shared_ptr<NativeRdb::AbsSharedResultSet> FileShareAbility::Query(
+    const Uri &uri,
+    const std::vector<std::string> &columns,
+    const NativeRdb::DataAbilityPredicates &predicates)
 {
     printf("===============fms FileShareAbility::Query================== \n");
     FmsUtils *fm = FmsUtils::Instance();
@@ -133,7 +136,7 @@ std::shared_ptr<ResultSet> FileShareAbility::Query(const Uri &uri,
     }
     return fm->VectorToResultset1(queryResult);
 }
-int FileShareAbility::Delete(const Uri &uri, const DataAbilityPredicates &predicates)
+int FileShareAbility::Delete(const Uri &uri, const NativeRdb::DataAbilityPredicates &predicates)
 {
     SharedPathStrategy rootStrat = ParsePathStrategy();
     int deleteSymbol = 0;
