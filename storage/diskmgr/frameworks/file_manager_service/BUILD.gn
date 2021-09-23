@@ -21,10 +21,11 @@ ohos_shared_library("native_file_manager") {
     "//foundation/ace/napi/interfaces/kits",
     "//utils/native/base/include",
     "//utils/system/safwk/native/include",
-    "//foundation/distributeddatamgr/appdatamgr/frameworks/innerkitsimpl/native_rdb/include",
-    "//foundation/distributeddatamgr/appdatamgr/frameworks/innerkitsimpl/native_appdatafwk/include",
     "//third_party/sqlite/include",
     "//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler/include",
+    "//foundation/distributeddatamgr/appdatamgr/frameworks/jskitsimpl/native_rdb/include",
+    "//foundation/distributeddatamgr/appdatamgr/frameworks/jskitsimpl/common/include",
+    "//foundation/distributeddatamgr/appdatamgr/frameworks/jskitsimpl/native_dataability/include",
   ]
 
   sources = [
@@ -53,6 +54,9 @@ ohos_shared_library("native_file_manager") {
     "appexecfwk_standard:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
+    "native_appdatamgr:native_appdatafwk",
+    "native_appdatamgr:native_dataability",
+    "native_appdatamgr:native_rdb",
     "safwk:system_ability_fwk",
   ]
 }
@@ -61,7 +65,11 @@ ohos_shared_library("file_share_ability") {
   subsystem_name = "distributeddatamgr"
   part_name = "storage_standard"
 
-  include_dirs = []
+  include_dirs = [
+    "//foundation/distributeddatamgr/appdatamgr/frameworks/jskitsimpl/native_rdb/include",
+    "//foundation/distributeddatamgr/appdatamgr/frameworks/jskitsimpl/common/include",
+    "//foundation/distributeddatamgr/appdatamgr/frameworks/jskitsimpl/native_dataability/include",
+  ]
 
   sources = [
     "src/file_share_ability.cpp",
@@ -82,6 +90,9 @@ ohos_shared_library("file_share_ability") {
     "appexecfwk_standard:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
+    "native_appdatamgr:native_appdatafwk",
+    "native_appdatamgr:native_dataability",
+    "native_appdatamgr:native_rdb",
   ]
 }
 

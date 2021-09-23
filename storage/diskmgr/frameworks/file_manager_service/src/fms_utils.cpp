@@ -20,10 +20,12 @@
 #include "../include/log_util.h"
 #include "../include/root_info.h"
 #include "parcel.h"
+#include "message_parcel.h"
 
 namespace OHOS {
 namespace FileManager {
 using namespace OHOS::AppExecFwk;
+using namespace OHOS::NativeRdb;
 using namespace std;
 using Uri = OHOS::Uri;
 unique_ptr<FmsUtils> FmsUtils::mInstance = nullptr;
@@ -162,14 +164,14 @@ string FmsUtils::GetCurrentUser(const Uri &uri) const
     }
     return mUserPath;
 }
-std::shared_ptr<ResultSet> FmsUtils::VectorToResultset1(const std::vector<std::string> &columns) const
+std::shared_ptr<NativeRdb::AbsSharedResultSet> FmsUtils::VectorToResultset1(const std::vector<std::string> &columns) const
 {
     int listSize = columns.size();
     string column = "";
     for (int i = 0; i < listSize; i++) {
         column = columns.at(i);
     }
-    Parcel parcel(nullptr);
+    MessageParcel parcel(nullptr);
     bool result = false;
 
     int size = columns.size();
@@ -177,64 +179,61 @@ std::shared_ptr<ResultSet> FmsUtils::VectorToResultset1(const std::vector<std::s
         return nullptr;
     }
     result = parcel.WriteStringVector(columns);
-    // if (result) {
-    //     ResultSet *value = ResultSet::Unmarshalling(parcel);
-    //     std::shared_ptr<ResultSet> ptr(value);
-    //     return ptr;
-    // } else {
-    //     return nullptr;
-    // }
+    if (result) {
+        NativeRdb::AbsSharedResultSet *value = NativeRdb::AbsSharedResultSet::Unmarshalling(parcel);
+        std::shared_ptr<NativeRdb::AbsSharedResultSet> ptr(value);
+        return ptr;
+    } else {
+        return nullptr;
+    }
     return nullptr;
 }
 
-std::shared_ptr<ResultSet> FmsUtils::Int32ToResultset(int32_t parm) const
+std::shared_ptr<NativeRdb::AbsSharedResultSet> FmsUtils::Int32ToResultset(int32_t parm) const
 {
-    Parcel parcel(nullptr);
+    MessageParcel parcel(nullptr);
     bool result = false;
     result = parcel.WriteInt32(parm);
     if (result) {
-        // ResultSet *value = ResultSet::Unmarshalling(parcel);
-        // std::shared_ptr<ResultSet> ptr(value);
-        // return ptr;
-        return nullptr;
+        NativeRdb::AbsSharedResultSet *value = NativeRdb::AbsSharedResultSet::Unmarshalling(parcel);
+        std::shared_ptr<NativeRdb::AbsSharedResultSet> ptr(value);
+        return ptr;
     } else {
         return nullptr;
     }
 }
 
-std::shared_ptr<ResultSet> FmsUtils::VectorToResultset(const std::vector<FileInfo> &columns) const
+std::shared_ptr<NativeRdb::AbsSharedResultSet> FmsUtils::VectorToResultset(const std::vector<FileInfo> &columns) const
 {
     int listSize = columns.size();
     FileInfo fileInfo;
     for (int i = 0; i < listSize; i++) {
         fileInfo = columns.at(i);
-        Parcel parcel(nullptr);
+        MessageParcel parcel(nullptr);
         bool result = false;
         if (result) {
-            // ResultSet *value = ResultSet::Unmarshalling(parcel);
-            // std::shared_ptr<ResultSet> ptr(value);
-            // return ptr;
-            return nullptr;
+            NativeRdb::AbsSharedResultSet *value = NativeRdb::AbsSharedResultSet::Unmarshalling(parcel);
+            std::shared_ptr<NativeRdb::AbsSharedResultSet> ptr(value);
+            return ptr;
         } else {
             return nullptr;
         }
     }
     return nullptr;
 }
-std::shared_ptr<ResultSet> FmsUtils::VectorToResultset2(const std::vector<RootInfo> &columns) const
+std::shared_ptr<NativeRdb::AbsSharedResultSet> FmsUtils::VectorToResultset2(const std::vector<RootInfo> &columns) const
 {
     int listSize = columns.size();
     RootInfo rootInfo;
     for (int i = 0; i < listSize; i++) {
         rootInfo = columns.at(i);
     }
-    Parcel parcel(nullptr);
+    MessageParcel parcel(nullptr);
     bool result = false;
     if (result) {
-        // ResultSet *value = ResultSet::Unmarshalling(parcel);
-        // std::shared_ptr<ResultSet> ptr(value);
-        // return ptr;
-        return nullptr;
+        NativeRdb::AbsSharedResultSet *value = NativeRdb::AbsSharedResultSet::Unmarshalling(parcel);
+        std::shared_ptr<NativeRdb::AbsSharedResultSet> ptr(value);
+        return ptr;
     } else {
         return nullptr;
     }

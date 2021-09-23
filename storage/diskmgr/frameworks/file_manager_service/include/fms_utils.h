@@ -31,10 +31,14 @@
 #include <uri.h>
 #include <vector>
 
+#include "abs_shared_result_set.h"
+#include "data_ability_predicates.h"
 #include "dummy_result_set.h"
 #include "file_info.h"
 #include "parcel.h"
 #include "root_info.h"
+
+#include "values_bucket.h"
 
 namespace OHOS {
 namespace FileManager {
@@ -66,10 +70,10 @@ public:
     bool IsSaveFiles(const Uri &uri) const;
     std::string GetCurrentPath(const Uri &uri) const;
     std::string GetCurrentUser(const Uri &uri) const;
-    std::shared_ptr<AppExecFwk::ResultSet> VectorToResultset1(const std::vector<std::string> &columns) const;
-    std::shared_ptr<AppExecFwk::ResultSet> VectorToResultset2(const std::vector<RootInfo> &columns) const;
-    std::shared_ptr<AppExecFwk::ResultSet> Int32ToResultset(int32_t parm) const;
-    std::shared_ptr<AppExecFwk::ResultSet> VectorToResultset(const std::vector<FileInfo> &columns) const;
+    std::shared_ptr<NativeRdb::AbsSharedResultSet> VectorToResultset1(const std::vector<std::string> &columns) const;
+    std::shared_ptr<NativeRdb::AbsSharedResultSet> VectorToResultset2(const std::vector<RootInfo> &columns) const;
+    std::shared_ptr<NativeRdb::AbsSharedResultSet> Int32ToResultset(int32_t parm) const;
+    std::shared_ptr<NativeRdb::AbsSharedResultSet> VectorToResultset(const std::vector<FileInfo> &columns) const;
     int GetCurrentDirFileInfoList(std::string path, std::vector<FileInfo> &fileInfoList) const;
     int32_t Mkdirs(std::string path) const;
     size_t GetFileSize(const std::string &fileName) const;
