@@ -20,6 +20,7 @@
 #include "../include/log_util.h"
 #include "../include/root_info.h"
 #include "parcel.h"
+#include "message_parcel.h"
 
 namespace OHOS {
 namespace FileManager {
