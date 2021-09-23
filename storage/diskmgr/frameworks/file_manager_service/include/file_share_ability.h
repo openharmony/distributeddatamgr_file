@@ -19,7 +19,12 @@
 #include <string>
 
 #include "ability.h"
+#include "abs_shared_result_set.h"
+#include "data_ability_predicates.h"
+
 #include "shared_path_strategy.h"
+
+#include "values_bucket.h"
 
 namespace OHOS {
 namespace FileManager {
@@ -57,10 +62,10 @@ public:
      *
      * @return Returns the query result.
      */
-    // virtual std::shared_ptr<AppExecFwk::ResultSet> Query(
-    //     const Uri &uri,
-    //     const std::vector<std::string> &columns,
-    //     const AAFwk::DataAbilityPredicates &predicates) override;
+    virtual std::shared_ptr<NativeRdb::AbsSharedResultSet> Query(
+        const Uri &uri,
+        const std::vector<std::string> &columns,
+        const NativeRdb::DataAbilityPredicates &predicates) override;
     /**
      * @brief Obtains the MIME type matching the data specified by the URI of the Data ability. This method
      * should be implemented by a Data ability. Data abilities supports general data types, including text,
@@ -80,7 +85,7 @@ public:
      *
      * @return Returns the number of data records deleted.
      */
-    // virtual int Delete(const Uri &uri, const AAFwk::DataAbilityPredicates &predicates) override;
+    virtual int Delete(const Uri &uri, const NativeRdb::DataAbilityPredicates &predicates) override;
     /**
      * @brief Opens a file. This method should be implemented by a Data ability.
      *

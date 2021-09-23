@@ -29,9 +29,10 @@ namespace OHOS {
 namespace FileManager {
 using namespace OHOS::AAFwk;
 using namespace OHOS::AppExecFwk;
+using namespace OHOS::NativeRdb;
 using namespace std;
 using json = nlohmann::json;
-//constexpr int DISPLAYNAME_LEN = 12;
+constexpr int DISPLAYNAME_LEN = 12;
 unique_ptr<FileShareAbility> FileShareAbility::mInstance = nullptr;
 FileShareAbility *FileShareAbility::Instance()
 {
@@ -62,6 +63,7 @@ void FileShareAbility::OnStart(const Want &want)
         Ability::OnStart(want);
     }
 }
+
 std::string GetRealPath(std::string path)
 {
     unique_ptr<char[]> absPath = make_unique<char[]>(PATH_MAX + 1);
@@ -86,71 +88,72 @@ bool CheckUri(std::string filePath)
     }
     return isDirUri;
 }
-// std::shared_ptr<ResultSet> FileShareAbility::Query(const Uri &uri,
-//                                                    const std::vector<std::string> &columns,
-//                                                    const DataAbilityPredicates &predicates)
-// {
-//     printf("===============fms FileShareAbility::Query================== \n");
-//     FmsUtils *fm = FmsUtils::Instance();
-//     SharedPathStrategy rootStrat = ParsePathStrategy();
-//     std::string filePath = rootStrat.ParseFileInUri(const_cast<Uri &>(uri));
-//     int32_t uriException = static_cast<int32_t>(STATUS_NUM::URI_EXCEPTION);
-//     int32_t iOException = static_cast<int32_t>(STATUS_NUM::IO_EXCEPTION);
-//     if (filePath == "302") {
-//         return fm->Int32ToResultset(uriException);
-//     } else if (CheckUri(filePath)) {
-//         return fm->Int32ToResultset(iOException);
-//     }
-//     int punctuation = filePath.find_last_of("/");
-//     std::string fileName = filePath.substr(punctuation + 1);
-//     std::string displayName = "";
-//     Uri uriCopy = uri;
-//     std::string path = uriCopy.GetQuery();
-//     int wenhao = path.find("?");
-//     int findPath = path.find("displayName=");
-//     if (wenhao >= 0 && findPath >= 0) {
-//         displayName = path.substr(findPath + DISPLAYNAME_LEN);
-//     } else {
-//         punctuation = filePath.find_last_of("/");
-//         displayName = filePath.substr(punctuation + 1);
-//     }
-//     FileInfo fi = fm->GetFileInfo(filePath, fileName);
-//     std::vector<std::string> queryResult;
-//     std::vector<std::string> listing = const_cast<vector<std::string> &>(columns);
-//     if (listing.size() == 0) {
-//         queryResult.push_back(displayName);
-//         queryResult.push_back(to_string(fi.fileSize));
-//     }
-//     for (size_t i = 0; i < listing.size(); i++) {
-//         if (listing[i] == "fileName") {
-//             queryResult.push_back(displayName);
-//         } else if (listing[i] == "fileSize") {
-//             queryResult.push_back(to_string(fi.fileSize));
-//         }
-//     }
-//     if (queryResult.size() == 0) {
-//         return nullptr;
-//     }
-//     return fm->VectorToResultset1(queryResult);
-// }
-// int FileShareAbility::Delete(const Uri &uri, const DataAbilityPredicates &predicates)
-// {
-//     SharedPathStrategy rootStrat = ParsePathStrategy();
-//     int deleteSymbol = 0;
-//     std::string file = rootStrat.ParseFileInUri(const_cast<Uri &>(uri));
-//     if (CheckUri(file)) {
-//         printf("=================result test Delete start=================== \n");
-//         printf("Delete result = %d \n", deleteSymbol);
-//         printf("=================result test Delete end=================== \n");
-//         return deleteSymbol;
-//     }
-//     const char *path = file.data();
-//     deleteSymbol = remove(path) ? 0 : 1;
-//     printf("=================result test Delete start=================== \n");
-//     printf("Delete result = %d \n", deleteSymbol);
-//     printf("=================result test Delete end=================== \n");
-//     return deleteSymbol;
-// }
+std::shared_ptr<NativeRdb::AbsSharedResultSet> FileShareAbility::Query(
+    const Uri &uri,
+    const std::vector<std::string> &columns,
+    const NativeRdb::DataAbilityPredicates &predicates)
+{
+    printf("===============fms FileShareAbility::Query================== \n");
+    FmsUtils *fm = FmsUtils::Instance();
+    SharedPathStrategy rootStrat = ParsePathStrategy();
+    std::string filePath = rootStrat.ParseFileInUri(const_cast<Uri &>(uri));
+    int32_t uriException = static_cast<int32_t>(STATUS_NUM::URI_EXCEPTION);
+    int32_t iOException = static_cast<int32_t>(STATUS_NUM::IO_EXCEPTION);
+    if (filePath == "302") {
+        return fm->Int32ToResultset(uriException);
+    } else if (CheckUri(filePath)) {
+        return fm->Int32ToResultset(iOException);
+    }
+    int punctuation = filePath.find_last_of("/");
+    std::string fileName = filePath.substr(punctuation + 1);
+    std::string displayName = "";
+    Uri uriCopy = uri;
+    std::string path = uriCopy.GetQuery();
+    int wenhao = path.find("?");
+    int findPath = path.find("displayName=");
+    if (wenhao >= 0 && findPath >= 0) {
+        displayName = path.substr(findPath + DISPLAYNAME_LEN);
+    } else {
+        punctuation = filePath.find_last_of("/");
+        displayName = filePath.substr(punctuation + 1);
+    }
+    FileInfo fi = fm->GetFileInfo(filePath, fileName);
+    std::vector<std::string> queryResult;
+    std::vector<std::string> listing = const_cast<vector<std::string> &>(columns);
+    if (listing.size() == 0) {
+        queryResult.push_back(displayName);
+        queryResult.push_back(to_string(fi.fileSize));
+    }
+    for (size_t i = 0; i < listing.size(); i++) {
+        if (listing[i] == "fileName") {
+            queryResult.push_back(displayName);
+        } else if (listing[i] == "fileSize") {
+            queryResult.push_back(to_string(fi.fileSize));
+        }
+    }
+    if (queryResult.size() == 0) {
+        return nullptr;
+    }
+    return fm->VectorToResultset1(queryResult);
+}
+int FileShareAbility::Delete(const Uri &uri, const NativeRdb::DataAbilityPredicates &predicates)
+{
+    SharedPathStrategy rootStrat = ParsePathStrategy();
+    int deleteSymbol = 0;
+    std::string file = rootStrat.ParseFileInUri(const_cast<Uri &>(uri));
+    if (CheckUri(file)) {
+        printf("=================result test Delete start=================== \n");
+        printf("Delete result = %d \n", deleteSymbol);
+        printf("=================result test Delete end=================== \n");
+        return deleteSymbol;
+    }
+    const char *path = file.data();
+    deleteSymbol = remove(path) ? 0 : 1;
+    printf("=================result test Delete start=================== \n");
+    printf("Delete result = %d \n", deleteSymbol);
+    printf("=================result test Delete end=================== \n");
+    return deleteSymbol;
+}
 std::string FileShareAbility::GetType(const Uri &uri)
 {
     SharedPathStrategy rootStrat = ParsePathStrategy();
