@@ -180,13 +180,10 @@ std::shared_ptr<NativeRdb::AbsSharedResultSet> FmsUtils::VectorToResultset1(cons
     }
     result = parcel.WriteStringVector(columns);
     if (result) {
-        NativeRdb::AbsSharedResultSet *value = NativeRdb::AbsSharedResultSet::Unmarshalling(parcel);
-        std::shared_ptr<NativeRdb::AbsSharedResultSet> ptr(value);
-        return ptr;
+        return make_shared<NativeRdb::AbsSharedResultSet>();
     } else {
         return nullptr;
     }
-    return nullptr;
 }
 
 std::shared_ptr<NativeRdb::AbsSharedResultSet> FmsUtils::Int32ToResultset(int32_t parm) const
@@ -195,9 +192,7 @@ std::shared_ptr<NativeRdb::AbsSharedResultSet> FmsUtils::Int32ToResultset(int32_
     bool result = false;
     result = parcel.WriteInt32(parm);
     if (result) {
-        NativeRdb::AbsSharedResultSet *value = NativeRdb::AbsSharedResultSet::Unmarshalling(parcel);
-        std::shared_ptr<NativeRdb::AbsSharedResultSet> ptr(value);
-        return ptr;
+        return make_shared<NativeRdb::AbsSharedResultSet>();
     } else {
         return nullptr;
     }
@@ -210,14 +205,7 @@ std::shared_ptr<NativeRdb::AbsSharedResultSet> FmsUtils::VectorToResultset(const
     for (int i = 0; i < listSize; i++) {
         fileInfo = columns.at(i);
         MessageParcel parcel(nullptr);
-        bool result = false;
-        if (result) {
-            NativeRdb::AbsSharedResultSet *value = NativeRdb::AbsSharedResultSet::Unmarshalling(parcel);
-            std::shared_ptr<NativeRdb::AbsSharedResultSet> ptr(value);
-            return ptr;
-        } else {
-            return nullptr;
-        }
+        return make_shared<NativeRdb::AbsSharedResultSet>();
     }
     return nullptr;
 }
@@ -229,14 +217,7 @@ std::shared_ptr<NativeRdb::AbsSharedResultSet> FmsUtils::VectorToResultset2(cons
         rootInfo = columns.at(i);
     }
     MessageParcel parcel(nullptr);
-    bool result = false;
-    if (result) {
-        NativeRdb::AbsSharedResultSet *value = NativeRdb::AbsSharedResultSet::Unmarshalling(parcel);
-        std::shared_ptr<NativeRdb::AbsSharedResultSet> ptr(value);
-        return ptr;
-    } else {
-        return nullptr;
-    }
+    return nullptr;
 }
 int32_t FmsUtils::Mkdirs(string path) const
 {
