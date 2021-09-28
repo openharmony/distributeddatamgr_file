@@ -19,7 +19,7 @@
 #include "../include/file_info.h"
 #include "../include/log_util.h"
 #include "../include/root_info.h"
-#include "parcel.h"
+#include "device_storage_manager.h"
 #include "message_parcel.h"
 
 namespace OHOS {
@@ -125,9 +125,22 @@ bool FmsUtils::IsChildDirectory(const Uri &uri) const
     }
     return false;
 }
+shared_ptr<DeviceStorageManager> storageService = DelayedSingleton<DeviceStorageManager>::GetInstance();
 string GetInternalPath(void)
 {
-    string internalPath = "/data/ss/d4ab5596-a98b-4753-8e8f-7cbf342ab15d";
+    string internalPath = "";
+    if (storageService->Connect() != 0) {
+        return internalPath;
+    }
+    vector<shared_ptr<DS::VolumeInfo>> volumeInfos;
+    if (storageService->GetVolumes(volumeInfos)) {
+        for (auto volumeInfo : volumeInfos) {
+            if ((volumeInfo->GetState() == static_cast<int>(COMMON_NUM::TWO)) &&
+                (!volumeInfo->GetDiskId().empty())) {
+                internalPath = volumeInfo->GetInternalPath();
+            }
+        }
+    }
     return internalPath;
 }
 string FmsUtils::GetCurrentPath(const Uri &uri) const
@@ -164,16 +177,11 @@ string FmsUtils::GetCurrentUser(const Uri &uri) const
     }
     return mUserPath;
 }
-std::shared_ptr<NativeRdb::AbsSharedResultSet> FmsUtils::VectorToResultset1(const std::vector<std::string> &columns) const
+std::shared_ptr<NativeRdb::AbsSharedResultSet> FmsUtils::VectorToResultset(
+    const std::vector<std::string> &columns) const
 {
-    int listSize = columns.size();
-    string column = "";
-    for (int i = 0; i < listSize; i++) {
-        column = columns.at(i);
-    }
     MessageParcel parcel(nullptr);
     bool result = false;
-
     int size = columns.size();
     if (size <= 0) {
         return nullptr;
@@ -185,7 +193,6 @@ std::shared_ptr<NativeRdb::AbsSharedResultSet> FmsUtils::VectorToResultset1(cons
         return nullptr;
     }
 }
-
 std::shared_ptr<NativeRdb::AbsSharedResultSet> FmsUtils::Int32ToResultset(int32_t parm) const
 {
     MessageParcel parcel(nullptr);
@@ -197,28 +204,6 @@ std::shared_ptr<NativeRdb::AbsSharedResultSet> FmsUtils::Int32ToResultset(int32_
         return nullptr;
     }
 }
-
-std::shared_ptr<NativeRdb::AbsSharedResultSet> FmsUtils::VectorToResultset(const std::vector<FileInfo> &columns) const
-{
-    int listSize = columns.size();
-    FileInfo fileInfo;
-    for (int i = 0; i < listSize; i++) {
-        fileInfo = columns.at(i);
-        MessageParcel parcel(nullptr);
-        return make_shared<NativeRdb::AbsSharedResultSet>();
-    }
-    return nullptr;
-}
-std::shared_ptr<NativeRdb::AbsSharedResultSet> FmsUtils::VectorToResultset2(const std::vector<RootInfo> &columns) const
-{
-    int listSize = columns.size();
-    RootInfo rootInfo;
-    for (int i = 0; i < listSize; i++) {
-        rootInfo = columns.at(i);
-    }
-    MessageParcel parcel(nullptr);
-    return nullptr;
-}
 int32_t FmsUtils::Mkdirs(string path) const
 {
     constexpr int DIR_FAULT_PERM = 0775;
@@ -226,8 +211,7 @@ int32_t FmsUtils::Mkdirs(string path) const
         if (path[i] == '/') {
             path[i] = '\0';
             if (access(path.c_str(), 0) != 0) {
-                int t = mkdir(path.c_str(), DIR_FAULT_PERM);
-                if (t == -1) {
+                if (mkdir(path.c_str(), DIR_FAULT_PERM) == -1) {
                     return static_cast<int>(STATUS_NUM::FAIL);
                 }
             }
@@ -235,8 +219,7 @@ int32_t FmsUtils::Mkdirs(string path) const
         }
     }
     if (path.length() > 0 && access(path.c_str(), 0) != 0) {
-        int t = mkdir(path.c_str(), DIR_FAULT_PERM);
-        if (t == -1) {
+        if (mkdir(path.c_str(), DIR_FAULT_PERM) == -1) {
             return static_cast<int>(STATUS_NUM::FAIL);
         }
     }

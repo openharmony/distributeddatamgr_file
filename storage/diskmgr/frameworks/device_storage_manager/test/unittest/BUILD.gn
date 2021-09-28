@@ -1,0 +1,4 @@
+group("unittest") {
+  testonly = true
+  deps = [ "device_storage_manager_test:test" ]
+}

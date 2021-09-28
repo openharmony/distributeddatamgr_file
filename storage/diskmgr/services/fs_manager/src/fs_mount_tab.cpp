@@ -69,7 +69,8 @@ bool ParseMountEntry(const std::string &strOpt, FsMountEntry &entry)
         ret = ParseMountFlags(attrs[MOUNT_MOUNTFLAGS], entry);
     }
     if (attrs.size() == MOUNT_OTHER) {
-        ret = ParseFsMgrFlags(attrs[MOUNT_FSMGRFLAGS], entry);
+        entry.mountExtra  = attrs[MOUNT_FSMGRFLAGS];
+        ret = ParseFsMountEntry(attrs[MOUNT_FSMGRFLAGS], entry);
     }
     return ret;
 }
@@ -153,7 +154,47 @@ bool ParseMountFlags(const std::string &mountStr, FsMountEntry &entry)
     }
     return true;
 }
-bool ParseFsMgrFlags(const std::string &strFsmgr, FsMountEntry &entry)
+
+bool ParseFsMgrFlags(const std::string &item, FsMountEntry &entry)
+{
+    if (item == "wait") {
+        entry.fsMgrFlags.wait = true;
+        return true;
+    } else if (item == "check") {
+        entry.fsMgrFlags.check = true;
+        return true;
+    } else if (item == "nonremovable") {
+        entry.fsMgrFlags.nonremovable = true;
+        return true;
+    } else if (item == "recoveryonly") {
+        entry.fsMgrFlags.onlyRecovery = true;
+        return true;
+    } else if (item == "noemulatedsd") {
+        entry.fsMgrFlags.noEmulatedSd = true;
+        return true;
+    } else if (item == "notrim") {
+        entry.fsMgrFlags.noTrim = true;
+        return true;
+    } else if (item == "formattable") {
+        entry.fsMgrFlags.formattable = true;
+        return true;
+    } else if (item == "latemount") {
+        entry.fsMgrFlags.lateMount = true;
+        return true;
+    } else if (item == "nofail") {
+        entry.fsMgrFlags.noFail = true;
+        return true;
+    } else if (item == "quota") {
+        entry.fsMgrFlags.quota = true;
+        return true;
+    } else if (item == "wrappedkey") {
+        entry.fsMgrFlags.wrappedKey = true;
+        return true;
+    }
+    return false;
+}
+
+bool ParseFsMountEntry(const std::string &strFsmgr, FsMountEntry &entry)
 {
     std::vector<std::string> flags;
     Split(strFsmgr, ",", flags);
@@ -173,40 +214,7 @@ bool ParseFsMgrFlags(const std::string &strFsmgr, FsMountEntry &entry)
             continue;
         }
         if (equalSignPosition == std::string::npos) {
-            if (item == "wait") {
-                entry.fsMgrFlags.wait = true;
-                continue;
-            } else if (item == "check") {
-                entry.fsMgrFlags.check = true;
-                continue;
-            } else if (item == "nonremovable") {
-                entry.fsMgrFlags.nonremovable = true;
-                continue;
-            } else if (item == "recoveryonly") {
-                entry.fsMgrFlags.onlyRecovery = true;
-                continue;
-            } else if (item == "noemulatedsd") {
-                entry.fsMgrFlags.noEmulatedSd = true;
-                continue;
-            } else if (item == "notrim") {
-                entry.fsMgrFlags.noTrim = true;
-                continue;
-            } else if (item == "formattable") {
-                entry.fsMgrFlags.formattable = true;
-                continue;
-            } else if (item == "latemount") {
-                entry.fsMgrFlags.lateMount = true;
-                continue;
-            } else if (item == "nofail") {
-                entry.fsMgrFlags.noFail = true;
-                continue;
-            } else if (item == "quota") {
-                entry.fsMgrFlags.quota = true;
-                continue;
-            } else if (item == "wrappedkey") {
-                entry.fsMgrFlags.wrappedKey = true;
-                continue;
-            }
+            ParseFsMgrFlags(item, entry);
         } else {
             value = item.substr(equalSignPosition + 1);
         }
@@ -241,6 +249,5 @@ int Split(std::string source, const std::string &delim, std::vector<std::string>
     }
     return 0;
 }
-
 } // namespace FsMountTab
 } // namespace OHOS

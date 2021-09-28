@@ -51,8 +51,6 @@ public:
         std::string type;
         std::string cmd;
     };
-
-private:
     static int FsMount(const FsMountTab::FsMountEntry &entry);
     static int FsUMount(const std::string &target);
     static int FormatCommandPatch(FormatInfo &stFormatAttr);

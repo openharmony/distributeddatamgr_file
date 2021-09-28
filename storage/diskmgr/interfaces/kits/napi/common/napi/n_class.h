@@ -41,7 +41,7 @@ public:
     static bool SaveClass(napi_env env, std::string className, napi_value exClass);
     static napi_value InstantiateClass(napi_env env, std::string className, std::vector<napi_value> args);
 
-    template <class T> static T *GetEntityOf(napi_env env, napi_value objStat)
+    template<class T> static T *GetEntityOf(napi_env env, napi_value objStat)
     {
         if (!env || !objStat) {
             HILOGE("Empty input: env %d, obj %d", env == nullptr, objStat == nullptr);
@@ -56,7 +56,7 @@ public:
         return t;
     }
 
-    template <class T> static bool SetEntityFor(napi_env env, napi_value obj, std::unique_ptr<T> entity)
+    template<class T> static bool SetEntityFor(napi_env env, napi_value obj, std::unique_ptr<T> entity)
     {
         napi_status status = napi_wrap(
             env,

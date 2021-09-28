@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "module.h"
 
 #include <memory>
 #include <vector>
@@ -26,7 +27,7 @@ namespace DistributedFS {
 namespace ModuleFMSExpoter {
 static napi_value Export(napi_env env, napi_value exports)
 {
-    std::vector<unique_ptr<NExporter>> products;
+    std::vector<std::unique_ptr<OHOS::DistributedFS::NExporter>> products;
     products.emplace_back(make_unique<FileShareExporter>(env, exports));
 
     for (auto &&product : products) {

@@ -10,6 +10,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 import("//build/ohos.gni")
 
 ohos_shared_library("native_file_manager") {
@@ -23,6 +24,9 @@ ohos_shared_library("native_file_manager") {
     "//utils/system/safwk/native/include",
     "//third_party/sqlite/include",
     "//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler/include",
+    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services/device_storage_service/include",
+    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services/device_storage_manager/include",
+    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/frameworks/device_storage_manager/include",
     "//foundation/distributeddatamgr/appdatamgr/frameworks/jskitsimpl/native_rdb/include",
     "//foundation/distributeddatamgr/appdatamgr/frameworks/jskitsimpl/common/include",
     "//foundation/distributeddatamgr/appdatamgr/frameworks/jskitsimpl/native_dataability/include",
@@ -40,6 +44,7 @@ ohos_shared_library("native_file_manager") {
     "//foundation/aafwk/standard/frameworks/kits/ability/native:dummy_classes",
     "//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler:libeventhandler",
     "//foundation/distributeddatamgr/appdatamgr/interfaces/innerkits/native_rdb:native_rdb",
+    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/frameworks/device_storage_manager:device_storage_manager",
     "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/uri:zuri",
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//utils/native/base:utils",
@@ -93,6 +98,41 @@ ohos_shared_library("file_share_ability") {
     "native_appdatamgr:native_appdatafwk",
     "native_appdatamgr:native_dataability",
     "native_appdatamgr:native_rdb",
+  ]
+}
+ohos_shared_library("storage_ability") {
+  subsystem_name = "distributeddatamgr"
+  part_name = "storage_standard"
+
+  include_dirs = [
+    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services/device_storage_service/include",
+    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services/device_storage_manager/include",
+    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/frameworks/device_storage_manager/include",
+    "//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler/include",
+    "//utils/system/safwk/native/include",
+  ]
+
+  sources = [ "src/storage_ability.cpp" ]
+
+  deps = [
+    ":native_file_manager",
+    "//foundation/aafwk/standard/frameworks/kits/ability/native:abilitykit_native",
+    "//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler:libeventhandler",
+    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/frameworks/device_storage_manager:device_storage_manager",
+    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services/device_storage_service:device_storage_service",
+    "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/uri:zuri",
+    "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "//utils/native/base:utilsecurec",
+  ]
+
+  external_deps = [
+    "aafwk_standard:ability_manager",
+    "aafwk_standard:want",
+    "appexecfwk_standard:appexecfwk_base",
+    "appexecfwk_standard:appexecfwk_core",
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+    "safwk:system_ability_fwk",
   ]
 }
 

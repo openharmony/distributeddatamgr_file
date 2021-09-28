@@ -24,6 +24,7 @@
 #include "../include/log_util.h"
 #include "../include/path_strategy.h"
 #include "../include/shared_path_strategy.h"
+#include "message_parcel.h"
 
 namespace OHOS {
 namespace FileManager {
@@ -63,12 +64,12 @@ void FileShareAbility::OnStart(const Want &want)
         Ability::OnStart(want);
     }
 }
-
 std::string GetRealPath(std::string path)
 {
+    string errStr = "";
     unique_ptr<char[]> absPath = make_unique<char[]>(PATH_MAX + 1);
     if (realpath(path.c_str(), absPath.get()) == nullptr) {
-        return "";
+        return errStr;
     }
     return absPath.get();
 }
@@ -134,7 +135,7 @@ std::shared_ptr<NativeRdb::AbsSharedResultSet> FileShareAbility::Query(
     if (queryResult.size() == 0) {
         return nullptr;
     }
-    return fm->VectorToResultset1(queryResult);
+    return fm->VectorToResultset(queryResult);
 }
 int FileShareAbility::Delete(const Uri &uri, const NativeRdb::DataAbilityPredicates &predicates)
 {

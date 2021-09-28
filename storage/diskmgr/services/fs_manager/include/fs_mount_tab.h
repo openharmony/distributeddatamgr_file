@@ -68,7 +68,8 @@ struct FsMountEntry {
 
 bool ParseMountEntry(const std::string &strEnt, FsMountEntry &entry);
 bool ParseMountFlags(const std::string &strMount, FsMountEntry &entry);
-bool ParseFsMgrFlags(const std::string &strFsmgr, FsMountEntry &entry);
+bool ParseFsMountEntry(const std::string &strFsmgr, FsMountEntry &entry);
+bool ParseFsMgrFlags(const std::string &item, FsMountEntry &entry);
 void WaitForFile(const std::string &source, unsigned int maxCount);
 int Split(std::string source, const std::string &delim, std::vector<std::string> &items);
 inline bool StartsWith(std::string s, std::string preFix)

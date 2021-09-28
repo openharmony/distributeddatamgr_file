@@ -25,24 +25,24 @@ static constexpr OHOS::HiviewDFX::HiLogLabel LOG_LABEL = { LOG_CORE, 0, "fs_mana
 #define SSLOG_I(...) (void)OHOS::HiviewDFX::HiLog::Info(LOG_LABEL, __VA_ARGS__)
 #define SSLOG_D(...) (void)OHOS::HiviewDFX::HiLog::Debug(LOG_LABEL, __VA_ARGS__)
 
-#define _SS_DFUNCTION HiviewDFX::HiLog::Info
-#define _SS_IFUNCTION HiviewDFX::HiLog::Info
-#define _SS_WFUNCTION HiviewDFX::HiLog::Warn
-#define _SS_EFUNCTION HiviewDFX::HiLog::Error
+#define SS_DFUNCTION HiviewDFX::HiLog::Info
+#define SS_IFUNCTION HiviewDFX::HiLog::Info
+#define SS_WFUNCTION HiviewDFX::HiLog::Warn
+#define SS_EFUNCTION HiviewDFX::HiLog::Error
 
-#define _SS_LOGCPRINTF(func, fmt, ...) func(LABEL, "<%{public}d>" fmt, __LINE__, ##__VA_ARGS__)
+#define SS_LOGCPRINTF(func, fmt, ...) func(LABEL, "<%{public}d>" fmt, __LINE__, ##__VA_ARGS__)
 
-#define SSLOGD(fmt, ...) _SS_LOGCPRINTF(_SS_DFUNCTION, " DEBUG " fmt, ##__VA_ARGS__)
-#define SSLOGI(fmt, ...) _SS_LOGCPRINTF(_SS_IFUNCTION, fmt, ##__VA_ARGS__)
-#define SSLOGW(fmt, ...) _SS_LOGCPRINTF(_SS_WFUNCTION, fmt, ##__VA_ARGS__)
-#define SSLOGE(fmt, ...) _SS_LOGCPRINTF(_SS_EFUNCTION, fmt, ##__VA_ARGS__)
+#define SSLOGD(fmt, ...) SS_LOGCPRINTF(SS_DFUNCTION, " DEBUG " fmt, ##__VA_ARGS__)
+#define SSLOGI(fmt, ...) SS_LOGCPRINTF(SS_IFUNCTION, fmt, ##__VA_ARGS__)
+#define SSLOGW(fmt, ...) SS_LOGCPRINTF(SS_WFUNCTION, fmt, ##__VA_ARGS__)
+#define SSLOGE(fmt, ...) SS_LOGCPRINTF(SS_EFUNCTION, fmt, ##__VA_ARGS__)
 
-#define _SS_FUNCTION __func__
+#define SS_FUNCTION __func__
 
-#define SSLOGFD(fmt, ...) SSLOGD("%{public}s: " fmt, _SS_FUNCTION, ##__VA_ARGS__)
-#define SSLOGFI(fmt, ...) SSLOGI("%{public}s: " fmt, _SS_FUNCTION, ##__VA_ARGS__)
-#define SSLOGFW(fmt, ...) SSLOGW("%{public}s: " fmt, _SS_FUNCTION, ##__VA_ARGS__)
-#define SSLOGFE(fmt, ...) SSLOGE("%{public}s: " fmt, _SS_FUNCTION, ##__VA_ARGS__)
+#define SSLOGFD(fmt, ...) SSLOGD("%{public}s: " fmt, SS_FUNCTION, ##__VA_ARGS__)
+#define SSLOGFI(fmt, ...) SSLOGI("%{public}s: " fmt, SS_FUNCTION, ##__VA_ARGS__)
+#define SSLOGFW(fmt, ...) SSLOGW("%{public}s: " fmt, SS_FUNCTION, ##__VA_ARGS__)
+#define SSLOGFE(fmt, ...) SSLOGE("%{public}s: " fmt, SS_FUNCTION, ##__VA_ARGS__)
 } // namespace OHOS
 
 #endif // STORAGE_SERVICE_FILESYSTEM_LOG_H

@@ -43,14 +43,14 @@ public:
      * @param  uriStr Indicates the path of data to query.
      * @param  scheme Be used to check the validity of uri.
      * @param  absoluteUri Save the path of data to query.
-     * 
+     *
      * @return Return a status code which indicates the result of execute function.
      */
     int CheckUri(std::string &uriStr, const std::string &scheme, std::string &absoluteUri) const;
     /**
      * @param  uri Indicates the path of data to query.
      * @param  result Save all the files which contained in the requested directory.
-     * 
+     *
      * @return Return a status code which indicates the result of execute function.
      */
     int QueryFiles(const Uri &uri, std::vector<FileInfo> &result);
@@ -64,7 +64,7 @@ public:
      * Device name should always be set. In case it isn't, though,all back to a localized "Internal Storage"
      * string.
      * Other storage devices： like an SD card or USB OTG drive plugged in.
-     * 
+     *
      * @return  Return a status code which indicates the result of execute function.
      */
     int QueryDeviceInfo(std::vector<RootInfo> &result);
@@ -72,7 +72,7 @@ public:
      * @param uri Indicates the path of data to query.
      * @param fileName Query all the files which include "filename" in the directory.
      * @param result Save the children files contained in the requested directory.
-     * 
+     *
      * @return Return a status code which indicates the result of execute function.
      */
     int SearchFiles(const Uri &uri, const std::string &fileName, std::vector<FileInfo> &result);
@@ -80,14 +80,14 @@ public:
      * @param uri Indicates the target path which the file to be saved.
      * @param srcPath Indicates the source path which the files to be saved.
      * @param result Save the result whether one or more files saved successful.
-     * 
+     *
      * @return Return a status code which indicates the result of execute function.
      */
     int SaveFiles(const Uri &uri, const std::vector<std::string> &srcPath, std::vector<SaveFileInfo> &result);
     /**
      * @param uri Indicates the path which the directory to be created.
      * @param result Save the result whether make directory successful.
-     * 
+     *
      * @return Return a status code which indicates the result of execute function.
      */
     int CreateDir(const Uri &uri);

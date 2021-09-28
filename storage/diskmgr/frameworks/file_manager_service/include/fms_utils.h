@@ -37,7 +37,6 @@
 #include "file_info.h"
 #include "parcel.h"
 #include "root_info.h"
-
 #include "values_bucket.h"
 
 namespace OHOS {
@@ -70,10 +69,8 @@ public:
     bool IsSaveFiles(const Uri &uri) const;
     std::string GetCurrentPath(const Uri &uri) const;
     std::string GetCurrentUser(const Uri &uri) const;
-    std::shared_ptr<NativeRdb::AbsSharedResultSet> VectorToResultset1(const std::vector<std::string> &columns) const;
-    std::shared_ptr<NativeRdb::AbsSharedResultSet> VectorToResultset2(const std::vector<RootInfo> &columns) const;
+    std::shared_ptr<NativeRdb::AbsSharedResultSet> VectorToResultset(const std::vector<std::string> &columns) const;
     std::shared_ptr<NativeRdb::AbsSharedResultSet> Int32ToResultset(int32_t parm) const;
-    std::shared_ptr<NativeRdb::AbsSharedResultSet> VectorToResultset(const std::vector<FileInfo> &columns) const;
     int GetCurrentDirFileInfoList(std::string path, std::vector<FileInfo> &fileInfoList) const;
     int32_t Mkdirs(std::string path) const;
     std::string GetFileType(const std::string &fileName) const;

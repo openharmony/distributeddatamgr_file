@@ -16,6 +16,7 @@
 #include "fms_file_share_ability_test.h"
 
 #include "../include/fd_holder.h"
+#include "../include/file_data_ability.h"
 #include "../include/file_share_ability.h"
 #include "../include/fms_utils.h"
 #include "../include/log_util.h"
