@@ -246,7 +246,7 @@ int32_t FmsUtils::Mkdirs(string path) const
 int FmsUtils::GetCurrentDirFileInfoList(std::string path, std::vector<FileInfo> &fileList) const
 {
     DIR *pDir = nullptr;
-    struct dirent *ptr;
+    struct dirent *ptr = nullptr;
     FileInfo fileInfo;
     string fullPath;
     if (!(pDir = opendir(path.c_str()))) {
@@ -266,22 +266,11 @@ int FmsUtils::GetCurrentDirFileInfoList(std::string path, std::vector<FileInfo> 
     closedir(pDir);
     return static_cast<int>(STATUS_NUM::OK);
 }
-
-size_t FmsUtils::GetFileSize(const std::string &fileName) const
-{
-    FILE *fp = fopen(fileName.c_str(), "r");
-    size_t size = static_cast<int>(STATUS_NUM::FAIL);
-    if (fseek(fp, 0, SEEK_END) == 0) {
-        size = ftell(fp);
-    }
-    fclose(fp);
-    return size;
-}
 int FmsUtils::GetDirNum(string path) const
 {
     int size = 0;
     DIR *pDir = nullptr;
-    struct dirent *ptr;
+    struct dirent *ptr = nullptr;
     if ((pDir = opendir(path.c_str())) == nullptr) {
         return -1;
     }
@@ -291,6 +280,7 @@ int FmsUtils::GetDirNum(string path) const
         }
         size = size + 1;
     }
+    closedir(pDir);
     return size;
 }
 
@@ -321,7 +311,7 @@ int FmsUtils::GetSearchFileInfoList(string dirPath,
                                     std::vector<FileInfo> &fileInfoList) const
 {
     DIR *pDir = nullptr;
-    struct dirent *ptr;
+    struct dirent *ptr = nullptr;
     FileInfo fileInfo;
     string mCurrentFileName;
     if ((pDir = opendir(dirPath.c_str())) == nullptr) {

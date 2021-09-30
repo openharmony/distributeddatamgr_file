@@ -76,7 +76,6 @@ public:
     std::shared_ptr<NativeRdb::AbsSharedResultSet> VectorToResultset(const std::vector<FileInfo> &columns) const;
     int GetCurrentDirFileInfoList(std::string path, std::vector<FileInfo> &fileInfoList) const;
     int32_t Mkdirs(std::string path) const;
-    size_t GetFileSize(const std::string &fileName) const;
     std::string GetFileType(const std::string &fileName) const;
     FileInfo GetFileInfo(std::string sourcePath, std::string sourceName) const;
     int GetDirNum(std::string path) const;
