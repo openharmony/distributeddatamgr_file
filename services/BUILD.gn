@@ -1,0 +1,220 @@
+# Copyright (c) 2021 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/ohos.gni")
+import(
+    "//foundation/appexecfwk/standard/services/bundlemgr/appexecfwk_bundlemgr.gni")
+
+## Install storage.rc to /system/etc/init/storage.rc {{{
+ohos_prebuilt_etc("storage.rc") {
+  if (use_musl) {
+    source = "storage.cfg"
+  } else {
+    source = "storage.rc"
+  }
+  relative_install_dir = "init"
+  part_name = "storage_standard"
+  subsystem_name = "distributeddatamgr"
+}
+
+## Install storage.rc to /system/etc/init/storage.rc }}}
+
+config("storage_diskmgr_config") {
+  visibility = [ ":*" ]
+
+  include_dirs = [
+    "include",
+    "//utils/system/safwk/native/include",
+    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/frameworks/device_storage_manager/include",
+    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services/storage_service/interface/include",
+    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services/storage_service/interface/include/interface",
+    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services/device_storage_service/include",
+  ]
+
+  cflags = [
+    "-Wall",
+    "-Werror",
+    "-g3",
+  ]
+}
+ohos_shared_library("storage_service") {
+  sources = [
+    "device_storage_service/src/ipc/storage_service_proxy.cpp",
+    "device_storage_service/src/ipc/storage_service_task_proxy.cpp",
+    "storage_service/base/src/storage_base.cpp",
+    "storage_service/base/src/storage_dm_crypt.cpp",
+    "storage_service/disk/src/storage_disk.cpp",
+    "storage_service/event_handler/src/local_envent_poll.cpp",
+    "storage_service/event_handler/src/local_event_handle_data.cpp",
+    "storage_service/event_handler/src/local_event_listen.cpp",
+    "storage_service/event_handler/src/local_event_packet.cpp",
+    "storage_service/event_handler/src/local_event_send.cpp",
+    "storage_service/event_handler/src/local_event_socket.cpp",
+    "storage_service/file_manager/src/exfatmgr.cpp",
+    "storage_service/file_manager/src/ext4mgr.cpp",
+    "storage_service/file_manager/src/f2fsmgr.cpp",
+    "storage_service/file_manager/src/ntfsmgr.cpp",
+    "storage_service/file_manager/src/vfatmgr.cpp",
+    "storage_service/idle_maintain/src/idle_maintain.cpp",
+    "storage_service/idle_maintain/src/mount_info.cpp",
+    "storage_service/interface/src/interface/storage_service_callback_death_recipient.cpp",
+    "storage_service/interface/src/interface/storage_service_callback_proxy.cpp",
+    "storage_service/interface/src/storage_service.cpp",
+    "storage_service/interface/src/storage_service_stub.cpp",
+    "storage_service/manager/src/ss_tab_mgr.cpp",
+    "storage_service/manager/src/storage_manager.cpp",
+    "storage_service/volume/src/storage_emulated_volume.cpp",
+    "storage_service/volume/src/storage_private_volume.cpp",
+    "storage_service/volume/src/storage_public_volume.cpp",
+  ]
+
+  include_dirs = [
+    "storage_service/file_manager/include",
+    "storage_service/event_handler/include",
+    "storage_service/utils/include",
+    "storage_service/manager/include",
+    "storage_service/disk/include",
+    "storage_service/base/include",
+    "storage_service/volume/include",
+    "//foundation/aafwk/standard/interfaces/innerkits/want/include/",
+    "storage_service/crypto/include",
+    "storage_service/idle_maintain/include",
+    "device_storage_service/include/ipc",
+    "storage_service/interface/include",
+    "//base/startup/init_lite/services/include",
+    "//third_party/cJSON",
+    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services/fs_manager/include",
+  ]
+
+  configs = [ ":storage_diskmgr_config" ]
+
+  deps = [
+    ":libfs_manager",
+    "storage_service/crypto:ss_crypto",
+    "storage_service/utils:libss_utils",
+    "//third_party/cJSON:cjson_static",
+    "//third_party/zlib:libz",
+    "//utils/native/base:utils",
+  ]
+
+  external_deps = [
+    "aafwk_standard:want",
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+    "samgr_L2:samgr_proxy",
+  ]
+
+  subsystem_name = "distributeddatamgr"
+  part_name = "storage_standard"
+}
+ohos_executable("ss_exe") {
+  install_enable = true
+
+  sources = [ "storage_service/main.cpp" ]
+
+  include_dirs = [
+    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services/storage_service/file_manager/include",
+    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services/storage_service/event_handler/include",
+    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services/storage_service/utils/include",
+    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services/storage_service/manager/include",
+    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services/storage_service/disk/include",
+    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services/storage_service/base/include",
+    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services/storage_service/volume/include",
+    "//foundation/aafwk/standard/interfaces/innerkits/want/include/",
+    "//foundation/communication/ipc/interfaces/innerkits/ipc_core/include/",
+    "fs_manager/include",
+  ]
+
+  configs = [ ":storage_diskmgr_config" ]
+
+  deps = [
+    ":libfs_manager",
+    ":storage_service",
+    "//foundation/aafwk/standard/interfaces/innerkits/want:want",
+    "//utils/native/base:utils",
+  ]
+
+  external_deps = [
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+    "samgr_L2:samgr_proxy",
+  ]
+
+  subsystem_name = "distributeddatamgr"
+  part_name = "storage_standard"
+}
+
+ohos_executable("ss_test") {
+  install_enable = true
+
+  sources = [
+    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/interfaces/kits/native/storage_service/ss_crypto_api.cpp",
+    "test/ss_test.cpp",
+  ]
+
+  configs = [ ":storage_diskmgr_config" ]
+  include_dirs = [
+    "//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler/include",
+    "//foundation/aafwk/standard/interfaces/innerkits/want/include/",
+    "device_storage_service/include",
+    "device_storage_service/include/ipc",
+    "storage_service/crypto/include",
+    "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy/include",
+  ]
+  deps = [
+    "../frameworks/device_storage_manager:device_storage_manager",
+    "storage_service/crypto:ss_crypto",
+    "//foundation/aafwk/standard/interfaces/innerkits/want:want",
+    "//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler:libeventhandler",
+    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services/device_storage_service:device_storage_service",
+    "//third_party/zlib:libz",
+    "//utils/native/base:utils",
+  ]
+
+  external_deps = [
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+    "samgr_L2:samgr_proxy",
+  ]
+
+  subsystem_name = "distributeddatamgr"
+  part_name = "storage_standard"
+}
+ohos_shared_library("libfs_manager") {
+  visibility = [ "*" ]
+  sources = [
+    "./fs_manager/src/filesystem_manager.cpp",
+    "./fs_manager/src/fs_mount_tab.cpp",
+  ]
+
+  include_dirs = [
+    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services/fs_manager/include",
+    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services/storage_service/interface/include",
+    "//foundation/aafwk/standard/interfaces/innerkits/want/include/",
+  ]
+  configs = [ ":storage_diskmgr_config" ]
+  deps = [ "//utils/native/base:utils" ]
+  external_deps = [ "hiviewdfx_hilog_native:libhilog" ]
+  subsystem_name = "distributeddatamgr"
+  part_name = "storage_standard"
+}
+
+# Unittest
+group("test") {
+  testonly = true
+
+  deps = [ "test:test" ]
+}

@@ -53,9 +53,7 @@ ohos_shared_library("fileio") {
     "//utils/native/base:utilsecurec",
   ]
 
-  external_deps = [
-    "hiviewdfx_hilog_native:libhilog",
-  ]
+  external_deps = [ "hiviewdfx_hilog_native:libhilog" ]
 }
 
 ohos_shared_library("file") {
@@ -73,31 +71,31 @@ ohos_shared_library("file") {
   sources = file_common_src
   sources += [
     "src/common/ability_helper.cpp",
-    "src/mod_file/module.cpp",
-    "src/mod_file/common_func.cpp",
     "src/mod_file/class_file/file_n_exporter.cpp",
+    "src/mod_file/common_func.cpp",
+    "src/mod_file/module.cpp",
   ]
 
   deps = [
+    "//foundation/aafwk/standard/frameworks/kits/ability/native:abilitykit_native",
     "//foundation/ace/napi:ace_napi",
     "//utils/native/base:utilsecurec",
-    "//foundation/aafwk/standard/frameworks/kits/ability/native:abilitykit_native",
   ]
 
   external_deps = [
     "aafwk_standard:ability_manager",
     "aafwk_standard:want",
-    "appexecfwk_standard:appexecfwk_core",
     "appexecfwk_standard:appexecfwk_base",
+    "appexecfwk_standard:appexecfwk_core",
     "appexecfwk_standard:libeventhandler",
-    "ipc:ipc_core",
     "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
   ]
 }
 
 group("build_kits_js") {
   deps = [
-    ":fileio",
     ":file",
+    ":fileio",
   ]
 }
