@@ -1,0 +1,67 @@
+# Copyright (c) 2021 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/test.gni")
+
+ohos_unittest("idle_maintain_test") {
+  module_out_path = "storage_standard/idle_maintain"
+
+  sources = [ "idle_maintain_test.cpp" ]
+
+  include_dirs = [
+    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services/storage_service/file_manager/include",
+    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services/storage_service/event_handler/include",
+    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services/storage_service/utils/include",
+    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services/storage_service/manager/include",
+    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services/storage_service/disk/include",
+    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services/storage_service/base/include",
+    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services/storage_service/volume/include",
+    "//foundation/aafwk/standard/interfaces/innerkits/want/include/",
+    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services/storage_service/crypto/include",
+    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services/storage_service/idle_maintain/include",
+    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services/device_storage_service/include/ipc",
+    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services/storage_service/interface/include",
+    "//base/startup/init_lite/services/include",
+    "//third_party/cJSON",
+    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services/fs_manager/include",
+  ]
+
+  configs = [
+    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services:storage_diskmgr_config",
+    "//build/config/compiler:exceptions",
+  ]
+
+  deps = [
+    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services:libfs_manager",
+    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services:storage_service",
+    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services/device_storage_service:device_storage_service",
+    "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "//third_party/cJSON:cjson_static",
+    "//third_party/zlib:libz",
+    "//utils/native/base:utils",
+  ]
+
+  external_deps = [
+    "aafwk_standard:want",
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+    "samgr_L2:samgr_proxy",
+  ]
+}
+
+group("test") {
+  testonly = true
+
+  deps = [ ":idle_maintain_test" ]
+}

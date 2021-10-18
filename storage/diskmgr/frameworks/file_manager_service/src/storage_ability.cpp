@@ -32,6 +32,7 @@
 #include "../include/fms_utils.h"
 #include "../include/log_util.h"
 #include "../include/root_info.h"
+#include "device_storage_manager.h"
 
 namespace OHOS {
 namespace FileManager {
@@ -98,15 +99,28 @@ int StorageAbility::QueryFiles(const Uri &uri, vector<FileInfo> &result)
     }
     return static_cast<int>(STATUS_NUM::SUCCESS);
 }
+shared_ptr<DeviceStorageManager> storageService = DelayedSingleton<DeviceStorageManager>::GetInstance();
 int StorageAbility::QueryDeviceInfo(vector<RootInfo> &result)
 {
-    RootInfo rootInfo;
-    rootInfo.path = "/storage/d4ab5596-a98b-4753-8e8f-7cbf342ab15d";
-    rootInfo.deviceId = "d4ab5596-a98b-4753-8e8f-7cbf342ab15d";
-    rootInfo.id = "public:197.24";
-    rootInfo.mountFlags = 2;
-    rootInfo.diskId = "public";
-    result.push_back(rootInfo);
+    if (storageService->Connect() != 0) {
+        return static_cast<int>(STATUS_NUM::IO_EXCEPTION);
+    }
+    vector<shared_ptr<DS::VolumeInfo>> volumeInfos;
+    if (storageService->GetVolumes(volumeInfos)) {
+        RootInfo rootInfo;
+        for (auto volumeInfo : volumeInfos) {
+            if ((volumeInfo->GetState() == static_cast<int>(COMMON_NUM::TWO)) &&
+                (!volumeInfo->GetDiskId().empty())) {
+                rootInfo.path = volumeInfo->GetPath();
+                rootInfo.deviceId = volumeInfo->GetPath().substr(volumeInfo->GetPath().find_last_of("/") +
+                                                                 static_cast<int>(COMMON_NUM::ONE));
+                rootInfo.id = volumeInfo->GetId();
+                rootInfo.mountFlags = volumeInfo->GetMountFlags();
+                rootInfo.diskId = volumeInfo->GetDiskId();
+                result.push_back(rootInfo);
+            }
+        }
+    }
     return static_cast<int>(STATUS_NUM::SUCCESS);
 }
 int StorageAbility::SearchFiles(const Uri &uri, const string &fileName, vector<FileInfo> &result)

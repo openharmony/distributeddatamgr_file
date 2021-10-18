@@ -227,9 +227,11 @@ napi_value FileShareExporter::FuzzyFileToUri(napi_env env, napi_callback_info in
     string displaynameStr = (displayname == nullptr) ? "" : displayname.get();
 
     AppExecFwk::Ability *ability = AbilityHelper::GetJsAbility(env);
+    if (ability == nullptr) {
+        return nullptr;
+    }
     bool checkPathResult = CheckUri(ability, env, path);
     int realPathResult = GetRealPath(path);
-
     if (CheckArgumentsError(env, napiFailFun, deviceIdStr, authorityStr) == FAILED ||
         CheckUriError(env, napiFailFun, ability, checkPathResult, path) == FAILED ||
         CheckFilePathError(env, napiFailFun, realPathResult) == FAILED ||
@@ -256,7 +258,7 @@ napi_value FileShareExporter::FuzzyFileToUri(napi_env env, napi_callback_info in
 
 bool FileShareExporter::Export()
 {
-    return exports_.AddProp({
+    return exports_.AddProp ({
         NVal::DeclareNapiFunction("fuzzyFileToUri", FuzzyFileToUri),
     });
 }

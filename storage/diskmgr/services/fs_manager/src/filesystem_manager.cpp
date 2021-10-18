@@ -36,38 +36,6 @@
 
 #include "filesystem_log.h"
 
-/*
-MS_RDONLY
-MS_NOSUID
-MS_NODEV
-MS_NOEXEC
-MS_SYNCHRONOUS
-MS_REMOUNT
-MS_MANDLOCK
-MS_DIRSYNC
-MS_NOATIME
-MS_NODIRATIME
-MS_BIND
-MS_MOVE
-MS_REC
-MS_SILENT
-MS_POSIXACL
-MS_UNBINDABLE
-MS_PRIVATE
-MS_SLAVE
-MS_SHARED
-MS_RELATIME
-MS_KERNMOUNT
-MS_I_VERSION
-MS_STRICTATIME
-MS_LAZYTIME
-MS_ACTIVE
-MS_NOUSER
-MS_RMT_MASK
-MS_MGC_VAL
-MS_MGC_MSK
-*/
-
 using namespace OHOS::FsMountTab;
 namespace OHOS {
 constexpr int MAX_FORMAT_OPTION_COUNT = 2;
@@ -122,11 +90,13 @@ int FileSystemManager::FsIsSupport(const std::string &fsType)
 
 int FileSystemManager::FormatCommandPatch(FormatInfo &stFormatAttr)
 {
-    static std::map<std::string, std::string> formatCommandMap = { { "ext4", "/system/bin/mke2fs" },
-                                                                   { "f2fs", "/system/bin/make_f2fs" },
-                                                                   { "vfat", "/system/bin/newfs_msdos" },
-                                                                   { "exfat", "/system/bin/mkfs.exfat" },
-                                                                   { "ntfs", "/system/bin/mkfs.ntfs" } };
+    static std::map<std::string, std::string> formatCommandMap = { 
+        { "ext4", "/system/bin/mke2fs" },
+        { "f2fs", "/system/bin/make_f2fs" },
+        { "vfat", "/system/bin/newfs_msdos" },
+        { "exfat", "/system/bin/mkfs.exfat" },
+        { "ntfs", "/system/bin/mkfs.ntfs" } 
+    };
     auto it = formatCommandMap.find(stFormatAttr.type);
     if (it == formatCommandMap.end()) {
         return -1;
@@ -175,19 +145,24 @@ int FileSystemManager::GetFormatParameters(const FormatInfo &stFormatInfo,
     constexpr int blockSize = 4096;
 
     if (stFormatInfo.type == "ext4") {
+        formatParameters.push_back(stFormatInfo.cmd);
         formatParameters.push_back("-F");
-        formatParameters.push_back("-f");
+        formatParameters.push_back("-t");
         formatParameters.push_back("ext4");
         formatParameters.push_back("-b");
         formatParameters.push_back(std::to_string(blockSize));
+        formatParameters.push_back(stFormatInfo.source);
     } else if (stFormatInfo.type == "vfat") {
+        formatParameters.push_back(stFormatInfo.cmd);
         formatParameters.push_back("-p");
         formatParameters.push_back("-f");
         formatParameters.push_back("-y");
+        formatParameters.push_back(stFormatInfo.source);
     } else {
+        formatParameters.push_back(stFormatInfo.cmd);
+        formatParameters.push_back(stFormatInfo.source);
         SSLOG_I("No Need add Extra paramter");
     }
-    formatParameters.push_back(stFormatInfo.source);
     if (PerformFormatting(formatParameters) < 0) {
         SSLOG_E("call PerformFormatting failed\n");
         return -1;
@@ -197,6 +172,7 @@ int FileSystemManager::GetFormatParameters(const FormatInfo &stFormatInfo,
 
 int FileSystemManager::PerformFormatting(std::vector<std::string> &formatParameters)
 {
+    pid_t pidFormat;
     int formatParaSize = 0;
     std::vector<char *> cmds;
     std::vector<char *> newenviron = {};
@@ -207,11 +183,16 @@ int FileSystemManager::PerformFormatting(std::vector<std::string> &formatParamet
         cmds.emplace_back(const_cast<char *>(formatParameters[i].c_str()));
     }
     cmds.emplace_back(nullptr);
-
-    if (MOUNT_ERROR == (execve(formatParameters[0].data(), cmds.data(), newenviron.data()))) {
-        SSLOG_E("call execve failed\n");
-        return -1;
+    pidFormat = fork();
+    if (pidFormat < MOUNT_ERROR) {
+        return MOUNT_ERROR;
+    } else if (MOUNT_ZERO == pidFormat) {
+        if (MOUNT_ERROR == (execve(formatParameters[0].data(), cmds.data(), newenviron.data()))) {
+            SSLOG_E("call execve failed\n");
+            return -1;
+        }
     }
+
     return 0;
 }
 
@@ -227,7 +208,6 @@ int FileSystemManager::DoMount(const std::string &mountAttr)
     if (mountRet != 0) {
         return -1;
     }
-    // SendMountOption(mountAttr);
     return 0;
 }
 
@@ -266,7 +246,6 @@ int FileSystemManager::DoFormat(const std::string &formatAttr)
 
     return 0;
 }
-
 } // namespace OHOS
 
 extern "C" void DoMountTo(const char *mountAttr, int maxArg)

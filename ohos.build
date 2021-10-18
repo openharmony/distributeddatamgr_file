@@ -12,9 +12,20 @@
     },
     "storage_standard": {
       "module_list": [
+        "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services:ss_exe",
+        "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services:storage_service",
+        "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services/device_storage_service:device_storage_service",
+        "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/frameworks/device_storage_manager:device_storage_manager",
+        "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services:storage.rc",
+        "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/sa_profile:storage_sa_profile",
+        "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services:ss_test",
+        "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/frameworks/file_manager_service:native_file_manager",
         "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/frameworks/file_manager_service:file_share_ability",
         "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services:libfs_manager",
-        "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/frameworks/file_manager_service:native_file_manager"
+        "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services/storage_service/ss_sdcard:ss_sdcard",
+        "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/interfaces/kits/napi:build_kits_napi",
+        "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/interfaces/kits/native/storage_service:ss_crypto_api",
+        "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/frameworks/file_manager_service:storage_ability"
       ]
     },
     "e2fsprogs": {
