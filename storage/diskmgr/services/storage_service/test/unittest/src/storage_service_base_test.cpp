@@ -14,15 +14,17 @@
  */
 
 #include "storage_service_base_test.h"
+
 #include <csignal>
 #include <cstring>
 #include <iostream>
-#include <refbase.h>
 #include <if_system_ability_manager.h>
 #include <ipc_skeleton.h>
 #include <iservice_registry.h>
+#include <refbase.h>
 #include <sys/sysmacros.h>
 #include <system_ability_definition.h>
+
 #include "storage_base.h"
 #include "storage_manager.h"
 

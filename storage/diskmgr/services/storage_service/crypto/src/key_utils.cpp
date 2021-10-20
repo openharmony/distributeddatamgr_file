@@ -35,7 +35,7 @@
 #include "storage_utils.h"
 #include "hks_api.h"
 #include "hks_param.h"
-#define CAL_ARRAY_SIZE(arr) ((sizeof(arr)) / (sizeof((arr)[0])))
+#define CalArraySize(arr) ((sizeof(arr)) / (sizeof((arr)[0])))
 
 const int SSCRYPTO_AES_AAD_LEN = 16;
 const int SSCRYPTO_MAX_KEY_SIZE = 64;
@@ -45,7 +45,7 @@ namespace OHOS {
 const std::vector<std::string> SSCRYPTO_KEY_NAME_PREFIX = { "ext4:", "f2fs:", "fscrypt:" };
 bool KeyUtils::InitKeyring()
 {
-    key_serial_t devKeyring = KeyCtrl::AddKey("keyring", "fscrypt", 0, 0, KEY_SPEC_SESSION_KEYRING);
+    int32_t devKeyring = KeyCtrl::AddKey("keyring", "fscrypt", 0, 0, KEY_SPEC_SESSION_KEYRING);
     if (devKeyring == -1) {
         SSLOGFE("Error in create keyring");
         return false;
@@ -60,7 +60,7 @@ void KeyUtils::FreeKeyBlob(HksBlob &key)
         if (key.data != nullptr) {
             memset(key.data, 0, key.size);
             free(key.data);
-        }   
+        }
         key.size = 0;
     } else {
         SSLOGFI("Keyblob is empty");
@@ -87,7 +87,7 @@ int32_t KeyUtils::GenerateKey(HksBlob &rawkey)
     if (HksGenerateRandom(nullptr, &rawkey) != 0) {
         std::string randKey;
         if (SsUtils::ReadRandom(rawkey.size, randKey) == 0) {
-            memcpy(rawkey.data,randKey.data(),rawkey.size);
+            memcpy(rawkey.data, randKey.data(), rawkey.size);
         } else {
             FreeKeyBlob(rawkey);
             SSLOGFE("Error in rawkey generator!");
@@ -100,14 +100,14 @@ int32_t KeyUtils::GenerateKey(HksBlob &rawkey)
 
 int32_t KeyUtils::RemoveKey(CryptoPolicy &policy)
 {
-    key_serial_t krid = KeyCtrl::Search(KEY_SPEC_SESSION_KEYRING, "keyring", "fscrypt", 0);
+    int32_t krid = KeyCtrl::Search(KEY_SPEC_SESSION_KEYRING, "keyring", "fscrypt", 0);
     if (krid == -1) {
         SSLOG_E("Error searching session keyring for fscrypt-provisioning key for fscrypt");
         return -1;
     }
     for (auto prefix : SSCRYPTO_KEY_NAME_PREFIX) {
         std::string keyref = GenKeyName(prefix, policy.keyAlias_);
-        key_serial_t ks = KeyCtrl::Search(krid, "logon", keyref.c_str(), 0);
+        int32_t ks = KeyCtrl::Search(krid, "logon", keyref.c_str(), 0);
         if (KeyCtrl::Unlink(ks, krid) != 0) {
             SSLOG_E("Failed to unlink key with serial %d ref %s", krid, keyref.c_str());
             return -1;
@@ -140,22 +140,22 @@ int32_t KeyUtils::InstallKey(CryptoPolicy &policy)
     fskey.mode = FS_ENCRYPTION_MODE_AES_256_XTS;
     fskey.size = policy.rawKey_.size;
     memcpy(fskey.raw, policy.rawKey_.data, fskey.size);
-    key_serial_t devKeyring = KeyCtrl::Search(KEY_SPEC_SESSION_KEYRING, "keyring", "fscrypt", 0);
+    int32_t devKeyring = KeyCtrl::Search(KEY_SPEC_SESSION_KEYRING, "keyring", "fscrypt", 0);
     if (devKeyring == -1) {
         SSLOG_E("Error searching session keyring for fscrypt-provisioning key for fscrypt");
         return -1;
     }
     for (auto prefix : SSCRYPTO_KEY_NAME_PREFIX) {
         std::string keyref = GenKeyName(prefix, policy.keyAlias_);
-        key_serial_t ks =
+        int32_t ks =
             KeyCtrl::AddKey("logon", keyref.c_str(), static_cast<void *>(&fskey), sizeof(fskey), devKeyring);
         if (ks == -1) {
             // Add key failed
             SSLOG_E("Failed to insert key into keyring %{public}d", devKeyring);
             return -1;
         }
-        SSLOG_D("Added key %{public}d (%{public}s) to keyring %{public}d in process %{public}d",
-                             ks, keyref.c_str(), devKeyring, getpid());
+        SSLOG_D("Added key %{public}d (%{public}s) to keyring %{public}d in process %{public}d", ks,
+                keyref.c_str(), devKeyring, getpid());
     }
     // remove the raw key after installed
     FreeKeyBlob(policy.rawKey_);
@@ -184,7 +184,7 @@ int32_t KeyUtils::SetKeyParamSet(HksParamSet **paramin)
         SSLOG_E("init param set failed, ret = %d", ret);
         return -1;
     }
-    ret = HksAddParams(*paramin, keyParam, CAL_ARRAY_SIZE(keyParam));
+    ret = HksAddParams(*paramin, keyParam, CalArraySize(&keyParam));
     if (ret != HKS_SUCCESS) {
         SSLOG_E("add param failed, ret = %d", ret);
         HksFreeParamSet(paramin);
@@ -215,7 +215,7 @@ int32_t KeyUtils::SetEncryptParam(HksParamSet **param, bool isencrypt)
         SSLOG_E("init ecrypt param set failed, ret = %d", ret);
         return -1;
     }
-    ret = HksAddParams(*param, EncryParam, CAL_ARRAY_SIZE(EncryParam));
+    ret = HksAddParams(*param, EncryParam, CalArraySize(&EncryParam));
     if (ret != HKS_SUCCESS) {
         SSLOG_E("add ecrypt / decrypt param failed, ret = %d", ret);
         HksFreeParamSet(param);
@@ -229,7 +229,7 @@ int32_t KeyUtils::SetEncryptParam(HksParamSet **param, bool isencrypt)
         purposeParam.uint32Param = HKS_KEY_PURPOSE_DECRYPT;
     }
     ret = HksAddParams(*param, (const struct HksParam *)&purposeParam, 1);
-    if (ret != 0) {	
+    if (ret != 0) {
         SSLOG_E("add ecrypt / decrypt param failed\n");
         HksFreeParamSet(param);
         return -1;
@@ -237,8 +237,10 @@ int32_t KeyUtils::SetEncryptParam(HksParamSet **param, bool isencrypt)
     return 0;
 }
 static const uint8_t g_base64Table[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-int32_t KeyUtils::Base64Encode(const uint8_t *srcData, const uint32_t srcDataSize,
-                                                                   uint8_t *outData, const uint32_t outDataSize)
+int32_t KeyUtils::Base64Encode(const uint8_t *srcData,
+                               const uint32_t srcDataSize,
+                               uint8_t *outData,
+                               const uint32_t outDataSize)
 {
     uint32_t j = 0;
     uint32_t i = 0;
@@ -270,14 +272,14 @@ int32_t KeyUtils::Base64Encode(const uint8_t *srcData, const uint32_t srcDataSiz
     }
     return 0;
 }
-void KeyUtils::NormalizeKey(HksBlob &key) 
+void KeyUtils::NormalizeKey(HksBlob &key)
 {
     SSLOGFE("entry NormalizeKey");
-    if(key.size <= 0) {
+    if (key.size <= 0) {
         return;
     }
     uint8_t *pDst = (uint8_t *)malloc(key.size);
-    Base64Encode(key.data,key.size,pDst,key.size);
+    Base64Encode(key.data, key.size, pDst, key.size);
     memset(key.data, 0, key.size);
     memcpy(key.data, pDst, key.size);
 }
@@ -308,7 +310,6 @@ int32_t KeyUtils::GenKeyAlias(HksBlob &keyalias, HksBlob &key)
     InitKeyBlob(keyalias, SSCRYPTO_KEY_DESCRIPTOR_SIZE);
     memcpy(keyalias.data, key_ref2, SSCRYPTO_KEY_DESCRIPTOR_SIZE);
     NormalizeKey(keyalias);
-    // SSLOGFE("GenKeyAlias:keyalias.data= %{public}s\n", keyalias.data);
     return 0;
 }
 
@@ -318,7 +319,7 @@ void KeyUtils::FreeParamSet(HksParamSet **param)
     if (param == nullptr) {
         return;
     }
-    for(uint32_t i = 0; i < (*param)->paramsCnt; i++) {
+    for (uint32_t i = 0; i < (*param)->paramsCnt; i++) {
         if (((*param)->params[i].tag & HKS_TAG_TYPE_MASK) == HKS_TAG_TYPE_BYTES) {
             if ((*param)->params[i].blob.data != nullptr) {
                 free((*param)->params[i].blob.data);
@@ -342,7 +343,7 @@ void KeyUtils::AppendEncryptParam(HksParamSet **param, const std::string &token)
     StringToKey(aadToken, aad);
     struct HksParam addParam[] = { { .tag = HKS_TAG_NONCE, .blob = { nonce.size, nonce.data } },
                                    { .tag = HKS_TAG_ASSOCIATED_DATA, .blob = { aad.size, aad.data } } };
-    int ret = HksAddParams(*param, addParam, CAL_ARRAY_SIZE(addParam));
+    int ret = HksAddParams(*param, addParam, CalArraySize(&addParam));
     if (ret != 0) {
         SSLOG_E("add ecrypt / decrypt param failed\n");
         FreeParamSet(param);
@@ -401,7 +402,7 @@ int32_t KeyUtils::EncryptKey(HksBlob &keyalias, HksBlob &raw, HksBlob &encrypt, 
     // Need add Aad & Nonce paramter
     if (HksEncrypt(&keyalias, paramSet, &raw, &encrypt) != 0) {
         SSLOG_E("Error in Generate ecryption parameter!");
-        
+
         FreeKeyBlob(encrypt);
         ret = -1;
     }
@@ -434,7 +435,7 @@ int32_t KeyUtils::DecryptKey(HksBlob &keyalias, HksBlob &encrypt, HksBlob &raw, 
     }
     raw.data = nullptr;
     InitKeyBlob(raw, SSCRYPTO_MAX_KEY_SIZE);
-    for(int i = 0; i < SSCRYPTO_MAX_KEY_SIZE; i++) {
+    for (int i = 0; i < SSCRYPTO_MAX_KEY_SIZE; i++) {
         raw.data[i] = tmpKey.data[i];
         SSLOGFE("%{public}d, ", raw.data[i]);
     }

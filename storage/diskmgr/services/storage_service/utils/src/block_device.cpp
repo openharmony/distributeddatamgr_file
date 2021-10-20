@@ -13,18 +13,20 @@
  * limitations under the License.
  */
 #include "block_device.h"
+
 #include <cerrno>
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
 #include <fcntl.h>
-#include <linux/fs.h>
 #include <mntent.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
 #include <sys/sysmacros.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <linux/fs.h>
+
 #include "storage_hilog.h"
 #include "utils_file.h"
 #include "utils_string.h"

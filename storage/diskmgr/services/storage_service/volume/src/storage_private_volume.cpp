@@ -58,7 +58,6 @@ StoragePrivateVolume::StoragePrivateVolume(dev_t device, const std::string &keyr
     , mRawDevice(device)
     , mKeyRaw(keyraw)
 {
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     SetInfo("", "", StringPrintf("private:%u,%u", major(device), minor(device)), -1, -1, true,
             SWITCH_FLAGS_SETID);
     mRawDevPath = StringPrintf("/dev/block/platform/%s", getId().c_str());
@@ -90,7 +89,6 @@ int StoragePrivateVolume::DoCreate()
 
 int StoragePrivateVolume::DoDestroy()
 {
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     if (DmCrypt::RemoveExtVolume(getId()) != 0) {
         return -EIO;
     }
@@ -103,8 +101,6 @@ int StoragePrivateVolume::DoDestroy()
 }
 int StoragePrivateVolume::DoMount()
 {
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
-
     privateVolMapStringValues["ext4"] = privateVolEXT4;
     privateVolMapStringValues["f2fs"] = privateVolF2FS;
 
@@ -137,11 +133,10 @@ int StoragePrivateVolume::DoMount()
                 break;
             }
             case privateVolF2FS: {
-                if (F2fsMgr::Check(mDmDevPath) == 0) {
-                    if (F2fsMgr::Mount(mDmDevPath, mPath)) {
-                        return -EIO;
-                    }
-                } else {
+                if (F2fsMgr::Check(mDmDevPath) != 0) {
+                    return -EIO;
+                }
+                if (F2fsMgr::Mount(mDmDevPath, mPath)) {
                     return -EIO;
                 }
                 break;
@@ -158,7 +153,6 @@ int StoragePrivateVolume::DoMount()
 
 void StoragePrivateVolume::DoPostMount()
 {
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     auto vol_manager = StorageManager::Instance();
     std::string mediaPath(mPath + "/media");
     for (int user : vol_manager->getStartedUsers()) {
@@ -172,7 +166,6 @@ void StoragePrivateVolume::DoPostMount()
 
 int StoragePrivateVolume::DoUnMount()
 {
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     ForceUnMount(mPath);
     TEMP_FAILURE_RETRY(rmdir(mPath.c_str()));
     return OK;
@@ -180,8 +173,6 @@ int StoragePrivateVolume::DoUnMount()
 
 int StoragePrivateVolume::DoFormat(const std::string &fsType)
 {
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
-
     privateVolMapStringValues["auto"] = privateVolAUTO;
     privateVolMapStringValues["ext4"] = privateVolEXT4;
     privateVolMapStringValues["f2fs"] = privateVolF2FS;
@@ -226,6 +217,5 @@ bool StoragePrivateVolume::PrepareAllDir()
            PrepareDir(mPath + "/local", DIGITAL0751, AID_ROOT, AID_ROOT) ||
            PrepareDir(mPath + "/local/tmp", DIGITAL0771, AID_SHELL, AID_SHELL);
 }
-
 } // namespace StorageService
 } // namespace OHOS

@@ -88,7 +88,7 @@ static void do_coldboot(DIR *d, int lvl)
         }
 
         d2 = fdopendir(fd);
-        if (d2 == 0) {
+        if (d2 == nullptr) {
             close(fd);
         } else {
             do_coldboot(d2, lvl + 1);
@@ -108,7 +108,6 @@ static void coldboot(const char *path)
 
 int main()
 {
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     LocalEventSocket *nm = nullptr;
     StorageManager *sm = nullptr;
 
@@ -120,7 +119,6 @@ int main()
     if (nm->Start()) {}
 
     StartStorageService();
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     coldboot("/sys/block");
     while (1) {
         sleep(1);

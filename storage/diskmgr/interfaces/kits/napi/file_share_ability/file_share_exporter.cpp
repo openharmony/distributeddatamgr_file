@@ -49,7 +49,7 @@ const int FILE_IO_ERROR = 300;
 const int FILE_PATH_ERROR = 301;
 const int SUCCESS = 0;
 const int FAILED = -1;
-enum COMMON_NUM {
+enum class COMMON_NUM {
     ZERO = 0,
     ONE = 1,
     TWO = 2,
@@ -82,7 +82,7 @@ void CallBackError(napi_env env, napi_ref failFuncRef, string errorProp, int err
     if (failFunc == nullptr) {
         return;
     }
-    napi_call_function(env, global, failFunc, COMMON_NUM::TWO, argvFail, &results);
+    napi_call_function(env, global, failFunc, (int) COMMON_NUM::TWO, argvFail, &results);
 }
 
 void CallComplete(napi_env env, napi_ref completeFuncRef)
@@ -95,7 +95,7 @@ void CallComplete(napi_env env, napi_ref completeFuncRef)
     if (completeFunc == nullptr) {
         return;
     }
-    napi_call_function(env, global, completeFunc, COMMON_NUM::ZERO, nullptr, &results);
+    napi_call_function(env, global, completeFunc, (int) COMMON_NUM::ZERO, nullptr, &results);
 }
 
 bool CheckUri(AppExecFwk::Ability *ability, napi_env env, string &path)
@@ -109,23 +109,23 @@ bool CheckUri(AppExecFwk::Ability *ability, napi_env env, string &path)
     string pathTmp = pathOrigin + pattern;
     size_t pos = pathTmp.find(pattern);
     while (pos != pathTmp.npos) {
-        string temp = pathTmp.substr(COMMON_NUM::ZERO, pos);
+        string temp = pathTmp.substr((int) COMMON_NUM::ZERO, pos);
         uriSplit.push_back(temp);
         pathTmp = pathTmp.substr(pos + 1, pathTmp.size());
         pos = pathTmp.find(pattern);
     }
-    if (uriSplit[COMMON_NUM::ZERO] != "internal:" || uriSplit[COMMON_NUM::ONE] != "" ||
-        uriSplit.size() <= COMMON_NUM::TWO) {
+    if (uriSplit[(int) COMMON_NUM::ZERO] != "internal:" || uriSplit[(int) COMMON_NUM::ONE] != "" ||
+        uriSplit.size() <= (int) COMMON_NUM::TWO) {
         return false;
     }
-    if (uriSplit[COMMON_NUM::TWO] == "app") {
+    if (uriSplit[(int) COMMON_NUM::TWO] == "app") {
         path = ability->GetDataDir();
-    } else if (uriSplit[COMMON_NUM::TWO] == "cache") {
+    } else if (uriSplit[(int) COMMON_NUM::TWO] == "cache") {
         path = ability->GetCacheDir();
     } else {
         return false;
     }
-    for (size_t i = COMMON_NUM::THREE; i < uriSplit.size(); ++i) {
+    for (size_t i = (int) COMMON_NUM::THREE; i < uriSplit.size(); ++i) {
         path = path + "/" + uriSplit[i];
     }
     return true;
@@ -150,7 +150,7 @@ void CallbackUriResult(napi_env env, napi_ref napiFailFun, napi_ref napiSuccFun,
     } else if (uriRet == "ERROR_JSON_CONFIG") {
         CallBackError(env, napiFailFun, "error: invalid json config", FILE_IO_ERROR);
     } else {
-        CallBackSuccess(env, napiSuccFun, COMMON_NUM::ONE, NVal::CreateUTF8String(env, uriRet).val_);
+        CallBackSuccess(env, napiSuccFun, (int) COMMON_NUM::ONE, NVal::CreateUTF8String(env, uriRet).val_);
     }
 }
 
@@ -200,27 +200,27 @@ int CheckIOError(napi_env env, napi_ref napiFailFun, int realPathResult, string 
 napi_value FileShareExporter::FuzzyFileToUri(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::ONE)) {
+    if (!funcArg.InitArgs((int) NARG_CNT::ONE)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
     bool succ = false;
     napi_ref napiSuccFun, napiCompFun, napiFailFun;
     tie(succ, napiSuccFun, napiFailFun, napiCompFun) =
-        CommonFunc::GetCallbackHandles(env, funcArg[NARG_POS::FIRST]);
+        CommonFunc::GetCallbackHandles(env, funcArg[(int) NARG_POS::FIRST]);
 
     unique_ptr<char[]> uri = nullptr;
-    tie(succ, uri, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("uri").ToUTF8String();
+    tie(succ, uri, ignore) = NVal(env, funcArg[(int) NARG_POS::FIRST]).GetProp("uri").ToUTF8String();
 
     unique_ptr<char[]> deviceId = nullptr;
-    tie(succ, deviceId, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("deviceId").ToUTF8String();
+    tie(succ, deviceId, ignore) = NVal(env, funcArg[(int) NARG_POS::FIRST]).GetProp("deviceId").ToUTF8String();
 
     unique_ptr<char[]> authority = nullptr;
-    tie(succ, authority, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("authority").ToUTF8String();
+    tie(succ, authority, ignore) = NVal(env, funcArg[(int) NARG_POS::FIRST]).GetProp("authority").ToUTF8String();
 
     unique_ptr<char[]> displayname = nullptr;
     tie(succ, displayname, ignore) =
-        NVal(env, funcArg[NARG_POS::FIRST]).GetProp("displayName").ToUTF8String();
+        NVal(env, funcArg[(int) NARG_POS::FIRST]).GetProp("displayName").ToUTF8String();
     string path = (uri == nullptr) ? "" : uri.get();
     string deviceIdStr = (deviceId == nullptr) ? "" : deviceId.get();
     string authorityStr = (authority == nullptr) ? "" : authority.get();

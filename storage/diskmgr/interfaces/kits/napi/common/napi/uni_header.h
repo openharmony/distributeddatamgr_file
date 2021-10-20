@@ -12,6 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef STORAGE_DISKMGR_INTERFACE_KITS_NAPI_COMMON_NAPI_UNI_HEADER_H
+#define STORAGE_DISKMGR_INTERFACE_KITS_NAPI_COMMON_NAPI_UNI_HEADER_H
 
 #pragma once
 
@@ -21,3 +23,5 @@
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
 #endif
+
+#endif // STORAGE_DISKMGR_INTERFACE_KITS_NAPI_COMMON_NAPI_UNI_HEADER_H

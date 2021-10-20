@@ -90,12 +90,12 @@ int FileSystemManager::FsIsSupport(const std::string &fsType)
 
 int FileSystemManager::FormatCommandPatch(FormatInfo &stFormatAttr)
 {
-    static std::map<std::string, std::string> formatCommandMap = { 
+    static std::map<std::string, std::string> formatCommandMap = {
         { "ext4", "/system/bin/mke2fs" },
         { "f2fs", "/system/bin/make_f2fs" },
         { "vfat", "/system/bin/newfs_msdos" },
         { "exfat", "/system/bin/mkfs.exfat" },
-        { "ntfs", "/system/bin/mkfs.ntfs" } 
+        { "ntfs", "/system/bin/mkfs.ntfs" }
     };
     auto it = formatCommandMap.find(stFormatAttr.type);
     if (it == formatCommandMap.end()) {

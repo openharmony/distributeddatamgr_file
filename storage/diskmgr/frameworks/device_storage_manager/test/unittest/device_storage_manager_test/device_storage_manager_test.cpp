@@ -1437,207 +1437,6 @@ HWTEST_F(DeviceStorageManagerTest, DSM_Function_3200, testing::ext::TestSize.Lev
 }
 
 /**
- * @tc.number SUB_STORAGE_DSM_Function_3300
- * @tc.name DSM_Function_3300
- * @tc.desc Test function of GetVolumes interface.
- */
-HWTEST_F(DeviceStorageManagerTest, DSM_Function_3300, testing::ext::TestSize.Level1)
-{
-    cout << "begin DSM_Function_3300" << endl;
-    try {
-        std::shared_ptr<DeviceStorageManager> dsm = DelayedSingleton<DeviceStorageManager>::GetInstance();
-        std::vector<std::shared_ptr<DS::VolumeInfo>> volumeInfos;
-        bool result = dsm->GetVolumes(volumeInfos);
-        int count = volumeInfos.size();
-        EXPECT_TRUE(result);
-        for (int i = 0; i < count; i++) {
-            std::string mId = volumeInfos[i]->GetId();
-            std::string nId = "emulate";
-            if (strstr(mId.c_str(), nId.c_str())) {
-                int32_t userid = volumeInfos[i]->GetMountUserId();
-                cout << "mId:" << volumeInfos[i]->GetId() << endl;
-                cout << "mDiskId:" << volumeInfos[i]->GetDiskId() << endl;
-                cout << "mPartGuid:" << volumeInfos[i]->GetPartGuid() << endl;
-                cout << "mFsUuid:" << volumeInfos[i]->GetFsUuid() << endl;
-                cout << "mType:" << volumeInfos[i]->GetType() << endl;
-                cout << "mMountFlags:" << volumeInfos[i]->GetMountFlags() << endl;
-                cout << "mMountUserId:" << volumeInfos[i]->GetMountUserId() << endl;
-                cout << "mState:" << volumeInfos[i]->GetState() << endl;
-                cout << "mPath:" << volumeInfos[i]->GetPath() << endl;
-                cout << "mInternalPath:" << volumeInfos[i]->GetInternalPath() << endl;
-                cout << "mFsLabel:" << volumeInfos[i]->GetFsLabel() << endl;
-                cout << "GetDescription:" << volumeInfos[i]->GetDescription() << endl;
-                cout << "IsVisibleForUser:" << volumeInfos[i]->IsVisibleForUser(userid) << endl;
-                cout << "IsEmulated:" << volumeInfos[i]->IsEmulated() << endl;
-                cout << "IsPrimaryEmulatedForUser:" << volumeInfos[i]->IsPrimaryEmulatedForUser(userid)
-                     << endl;
-                cout << "IsRemovable:" << volumeInfos[i]->IsRemovable(userid) << endl;
-                cout << "IsPrimary:" << volumeInfos[i]->IsPrimary() << endl;
-            } else {
-                printf("No emulate information");
-            }
-        }
-        cout << "DeviceStorageManagerTest-end Parameter_GetVolumes" << endl;
-    } catch (...) {
-        cout << "catch(...)" << endl;
-    }
-    cout << "end DSM_Function_3300" << endl;
-}
-
-/**
- * @tc.number SUB_STORAGE_DSM_Function_3400
- * @tc.name DSM_Function_3400
- * @tc.desc Test function of Mount interface.
- */
-HWTEST_F(DeviceStorageManagerTest, DSM_Function_3400, testing::ext::TestSize.Level1)
-{
-    cout << "begin DSM_Function_3400" << endl;
-    try {
-        std::shared_ptr<DeviceStorageManager> dsm = DelayedSingleton<DeviceStorageManager>::GetInstance();
-        std::vector<std::shared_ptr<DS::VolumeInfo>> volumeInfos;
-        std::vector<std::shared_ptr<DS::VolumeInfo>> volumeInfos1;
-        std::string nId = "emulate";
-        dsm->GetVolumes(volumeInfos);
-        int count = volumeInfos.size();
-        for (int i = 0; i < count; i++) {
-            std::string mId = volumeInfos[i]->GetId();
-            if (strstr(mId.c_str(), nId.c_str())) {
-                if (volumeInfos[i]->GetState() == mountstate) {
-                    printf("Mount already\n");
-                } else {
-                    printf("No Mounted\n");
-                }
-                std::string mId1 = mId;
-                bool result = dsm->Mount(mId1);
-                EXPECT_TRUE(result);
-                std::string mInternalpath1 = volumeInfos[i]->GetInternalPath();
-                string fpath = mInternalpath1 + "/a.txt";
-                int fd = open(fpath.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0777);
-                if (fd == -1) {
-                    cout << "Failed to create file: " << fpath << endl;
-                }
-                close(fd);
-                int rmFileRes = remove(fpath.c_str());
-                if (rmFileRes == -1) {
-                    cout << "Failed to remove file: " << fpath << endl;
-                }
-            }
-        }
-        dsm->GetVolumes(volumeInfos1);
-        for (int i = 0; i < count; i++) {
-            std::string mId = volumeInfos1[i]->GetId();
-            if (strstr(mId.c_str(), nId.c_str())) {
-                if (volumeInfos1[i]->GetState() == mountstate) {
-                    printf("Mount success\n");
-                } else {
-                    printf("Mount failed\n");
-                }
-            }
-        }
-        cout << "DeviceStorageManagerTest-end Parameter_Mount" << endl;
-    } catch (...) {
-        cout << "catch(...)" << endl;
-    }
-    cout << "end DSM_Function_3400" << endl;
-}
-
-/**
- * @tc.number SUB_STORAGE_DSM_Function_3500
- * @tc.name DSM_Function_3500
- * @tc.desc Test function of UnMount interface.
- */
-HWTEST_F(DeviceStorageManagerTest, DSM_Function_3500, testing::ext::TestSize.Level1)
-{
-    cout << "begin DSM_Function_3500" << endl;
-    try {
-        std::shared_ptr<DeviceStorageManager> dsm = DelayedSingleton<DeviceStorageManager>::GetInstance();
-        std::vector<std::shared_ptr<DS::VolumeInfo>> volumeInfos;
-        std::vector<std::shared_ptr<DS::VolumeInfo>> volumeInfos1;
-        std::string mId1;
-        std::string nId = "emulate";
-        dsm->GetVolumes(volumeInfos);
-        int count = volumeInfos.size();
-        for (int i = 0; i < count; i++) {
-            std::string mId = volumeInfos[i]->GetId();
-            if (strstr(mId.c_str(), nId.c_str())) {
-                if (volumeInfos[i]->GetState() == mountstate) {
-                    printf("Mount already\n");
-                } else {
-                    printf("No U Mounted\n");
-                }
-                mId1 = mId;
-                bool result = dsm->UnMount(mId1);
-                EXPECT_TRUE(result);
-            }
-        }
-        dsm->GetVolumes(volumeInfos1);
-        for (int i = 0; i < count; i++) {
-            std::string mId = volumeInfos1[i]->GetId();
-            if (strstr(mId.c_str(), nId.c_str())) {
-                if (volumeInfos1[i]->GetState() == unmountstate) {
-                    printf("UnMount success\n");
-                } else {
-                    printf("UnMount failed\n");
-                }
-            }
-        }
-        cout << "DeviceStorageManagerTest-end Parameter_UnMount" << endl;
-    } catch (...) {
-        cout << "catch(...)" << endl;
-    }
-    cout << "end DSM_Function_3500" << endl;
-}
-
-/**
- * @tc.number SUB_STORAGE_DSM_Function_3600
- * @tc.name DSM_Function_3600
- * @tc.desc Test function of Format interface.
- */
-HWTEST_F(DeviceStorageManagerTest, DSM_Function_3600, testing::ext::TestSize.Level1)
-{
-    cout << "begin DSM_Function_3600" << endl;
-    try {
-        std::shared_ptr<DeviceStorageManager> dsm = DelayedSingleton<DeviceStorageManager>::GetInstance();
-        std::vector<std::shared_ptr<DS::VolumeInfo>> volumeInfos;
-        std::string mId1;
-        dsm->GetVolumes(volumeInfos);
-        int count = volumeInfos.size();
-        for (int i = 0; i < count; i++) {
-            std::string mId = volumeInfos[i]->GetId();
-            std::string nId = "emulate";
-            if (strstr(mId.c_str(), nId.c_str())) {
-                mId1 = mId;
-                bool result = dsm->Format(mId1);
-                EXPECT_TRUE(result);
-                int32_t userid = volumeInfos[i]->GetMountUserId();
-                cout << "mId:" << volumeInfos[i]->GetId() << endl;
-                cout << "mDiskId:" << volumeInfos[i]->GetDiskId() << endl;
-                cout << "mPartGuid:" << volumeInfos[i]->GetPartGuid() << endl;
-                cout << "mFsUuid:" << volumeInfos[i]->GetFsUuid() << endl;
-                cout << "mType:" << volumeInfos[i]->GetType() << endl;
-                cout << "mMountFlags:" << volumeInfos[i]->GetMountFlags() << endl;
-                cout << "mMountUserId:" << volumeInfos[i]->GetMountUserId() << endl;
-                cout << "mState:" << volumeInfos[i]->GetState() << endl;
-                cout << "mPath:" << volumeInfos[i]->GetPath() << endl;
-                cout << "mInternalPath:" << volumeInfos[i]->GetInternalPath() << endl;
-                cout << "mFsLabel:" << volumeInfos[i]->GetFsLabel() << endl;
-                cout << "GetDescription:" << volumeInfos[i]->GetDescription() << endl;
-                cout << "IsVisibleForUser:" << volumeInfos[i]->IsVisibleForUser(userid) << endl;
-                cout << "IsEmulated:" << volumeInfos[i]->IsEmulated() << endl;
-                cout << "IsPrimaryEmulatedForUser:" << volumeInfos[i]->IsPrimaryEmulatedForUser(userid)
-                     << endl;
-                cout << "IsRemovable:" << volumeInfos[i]->IsRemovable(userid) << endl;
-                cout << "IsPrimary:" << volumeInfos[i]->IsPrimary() << endl;
-            }
-        }
-        cout << "DeviceStorageManagerTest-end Parameter_Format" << endl;
-    } catch (...) {
-        cout << "catch(...)" << endl;
-    }
-    cout << "end DSM_Function_3600" << endl;
-}
-
-/**
  * @tc.number SUB_STORAGE_DSM_ERROR_0100
  * @tc.name DSM_ERROR_0100
  * @tc.desc Test function of Mount interface.
@@ -2005,8 +1804,21 @@ HWTEST_F(DeviceStorageManagerTest, DSM_ERROR_1100, testing::ext::TestSize.Level1
     try {
         std::shared_ptr<DeviceStorageManager> dsm = DelayedSingleton<DeviceStorageManager>::GetInstance();
         std::vector<std::shared_ptr<DS::VolumeInfo>> volumeInfos;
-        bool isGetWritableVolumes = dsm->GetWritableVolumes(volumeInfos);
-        EXPECT_FALSE(isGetWritableVolumes);
+        std::vector<std::shared_ptr<DS::VolumeInfo>> volumeInfos1;
+        std::string mId1;
+        std::string nId = "public";
+        dsm->GetVolumes(volumeInfos);
+        int count = volumeInfos.size();
+        for (int i = 0; i < count; i++) {
+            std::string mId = volumeInfos[i]->GetId();
+            if (strstr(mId.c_str(), nId.c_str())) {
+                mId1 = mId;
+                bool result = dsm->UnMount(mId1);
+                EXPECT_TRUE(result);
+            }
+        }
+        bool isGetWritableVolumes = dsm->GetWritableVolumes(volumeInfos1);
+        EXPECT_TRUE(isGetWritableVolumes);
         cout << "DeviceStorageManagerTest-end Parameter_GetWritableVolumes" << endl;
     } catch (...) {
         cout << "catch(...)" << endl;
@@ -2977,6 +2789,7 @@ HWTEST_F(DeviceStorageManagerTest, DSM_Performance_2000, testing::ext::TestSize.
             struct timeval tv1;
             dsm->GetVolumes(volumeInfos);
             gettimeofday(&tv, nullptr);
+            vol = volumeInfos[sdcard];
             bool isGetBestVolumeDescription = dsm->GetBestVolumeDescription(vol, desCription);
             gettimeofday(&tv1, nullptr);
             std::cout << tv.tv_usec << "us" << endl;
@@ -2999,214 +2812,184 @@ HWTEST_F(DeviceStorageManagerTest, DSM_Performance_2000, testing::ext::TestSize.
  */
 void StabilityGetvolumesDisks()
 {
-    int stability = 100000;
-    try {
-        for (int i = 0; i < stability; i++) {
-            std::shared_ptr<DeviceStorageManager> dsm = DelayedSingleton<DeviceStorageManager>::GetInstance();
-            std::vector<std::shared_ptr<DS::VolumeInfo>> volumeInfos;
-            std::vector<std::shared_ptr<DS::DiskInfo>> diskInfos;
-            bool result = dsm->GetVolumes(volumeInfos);
-            EXPECT_TRUE(result);
-            cout << "Getvolumes success_" << i << endl;
-            bool result1 = dsm->GetDisks(diskInfos);
-            EXPECT_TRUE(result1);
-            cout << "GetDisks success_" << i << endl;
-        }
-    } catch (...) {
-        cout << "catch(...)" << endl;
+    int stability = 10;
+    for (int i = 0; i < stability; i++) {
+        std::shared_ptr<DeviceStorageManager> dsm = DelayedSingleton<DeviceStorageManager>::GetInstance();
+        std::vector<std::shared_ptr<DS::VolumeInfo>> volumeInfos;
+        std::vector<std::shared_ptr<DS::DiskInfo>> diskInfos;
+        bool result = dsm->GetVolumes(volumeInfos);
+        EXPECT_TRUE(result);
+        cout << "Getvolumes success_" << i << endl;
+        bool result1 = dsm->GetDisks(diskInfos);
+        EXPECT_TRUE(result1);
+        cout << "GetDisks success_" << i << endl;
     }
 }
 
 void StabilityUnmountMount()
 {
-    int stability = 100000;
-    try {
-        for (int i = 0; i < stability; i++) {
-            std::shared_ptr<DeviceStorageManager> dsm = DelayedSingleton<DeviceStorageManager>::GetInstance();
-            std::vector<std::shared_ptr<DS::VolumeInfo>> volumeInfos;
-            std::string mId1;
-            std::string nId = "public";
-            int mountstate = 2;
-            dsm->GetVolumes(volumeInfos);
-            int count = volumeInfos.size();
-            for (int i = 0; i < count; i++) {
-                std::string mId = volumeInfos[i]->GetId();
-                if (strstr(mId.c_str(), nId.c_str())) {
-                    if (volumeInfos[i]->GetState() == mountstate) {
-                        printf("Mount already\n");
-                    } else {
-                        printf("No sdcard Mounted\n");
-                    }
-                    mId1 = mId;
-                    bool result = dsm->UnMount(mId1);
-                    EXPECT_TRUE(result);
-                    bool result1 = dsm->Mount(mId1);
-                    EXPECT_TRUE(result1);
-                }
+    int stability = 10;
+    for (int i = 0; i < stability; i++) {
+        std::shared_ptr<DeviceStorageManager> dsm = DelayedSingleton<DeviceStorageManager>::GetInstance();
+        std::vector<std::shared_ptr<DS::VolumeInfo>> volumeInfos;
+        std::string mId1;
+        std::string nId = "public";
+        dsm->GetVolumes(volumeInfos);
+        int count = volumeInfos.size();
+        for (int a = 0; a < count; a++) {
+            std::string mId = volumeInfos[a]->GetId();
+            if (strstr(mId.c_str(), nId.c_str())) {
+                mId1 = mId;
+                bool result = dsm->UnMount(mId1);
+                EXPECT_TRUE(result);
+                bool result1 = dsm->Mount(mId1);
+                EXPECT_TRUE(result1);
             }
-            cout << "Unmount success_" << i << endl;
-            cout << "Mount success_" << i << endl;
         }
-    } catch (...) {
-        cout << "catch(...)" << endl;
+        cout << "Unmount success_" << i << endl;
+        cout << "Mount success_" << i << endl;
     }
 }
 
 void StabilityFindVolumeByIdUuId()
 {
     int stability = 100000;
-    try {
-        for (int i = 0; i < stability; i++) {
-            std::shared_ptr<DeviceStorageManager> dsm = DelayedSingleton<DeviceStorageManager>::GetInstance();
-            std::vector<std::shared_ptr<DS::VolumeInfo>> volumeInfos;
-            std::shared_ptr<DS::VolumeInfo> vol;
-            std::string nId = "public";
-            dsm->GetVolumes(volumeInfos);
-            int count = volumeInfos.size();
-            for (int a = 0; a < count; a++) {
-                std::string mId = volumeInfos[a]->GetId();
-                if (strstr(mId.c_str(), nId.c_str())) {
-                    mId = volumeInfos[a]->GetId();
-                    std::string uuid = volumeInfos[a]->GetFsUuid();
-                    bool isFindVolumeById = dsm->FindVolumeById(vol, mId);
-                    EXPECT_TRUE(isFindVolumeById);
-                    bool isFindVolumeByUuid = dsm->FindVolumeByUuid(vol, uuid);
-                    EXPECT_TRUE(isFindVolumeByUuid);
-                }
+    for (int i = 0; i < stability; i++) {
+        std::shared_ptr<DeviceStorageManager> dsm = DelayedSingleton<DeviceStorageManager>::GetInstance();
+        std::vector<std::shared_ptr<DS::VolumeInfo>> volumeInfos;
+        std::shared_ptr<DS::VolumeInfo> vol;
+        std::string nId = "public";
+        dsm->GetVolumes(volumeInfos);
+        int count = volumeInfos.size();
+        for (int a = 0; a < count; a++) {
+            std::string mId = volumeInfos[a]->GetId();
+            if (strstr(mId.c_str(), nId.c_str())) {
+                mId = volumeInfos[a]->GetId();
+                std::string uuid = volumeInfos[a]->GetFsUuid();
+                bool isFindVolumeById = dsm->FindVolumeById(vol, mId);
+                EXPECT_TRUE(isFindVolumeById);
+                bool isFindVolumeByUuid = dsm->FindVolumeByUuid(vol, uuid);
+                EXPECT_TRUE(isFindVolumeByUuid);
             }
-            cout << "FindVolumeById success_" << i << endl;
-            cout << "FindVolumeByUuId success_" << i << endl;
         }
-    } catch (...) {
-        cout << "catch(...)" << endl;
+        cout << "FindVolumeById success_" << i << endl;
+        cout << "FindVolumeByUuId success_" << i << endl;
     }
 }
 
 void StabilityGetWritableFindDiskById()
 {
     int stability = 100000;
-    try {
-        for (int i = 0; i < stability; i++) {
-            std::shared_ptr<DeviceStorageManager> dsm = DelayedSingleton<DeviceStorageManager>::GetInstance();
-            std::vector<std::shared_ptr<DS::VolumeInfo>> volumeInfos;
-            std::string nId = "public";
-            bool isGetWritableVolumes = dsm->GetWritableVolumes(volumeInfos);
-            EXPECT_TRUE(isGetWritableVolumes);
-            cout << "GetWritable success_" << i << endl;
-        }
-        for (int i = 0; i < stability; i++) {
-            std::shared_ptr<DeviceStorageManager> dsm = DelayedSingleton<DeviceStorageManager>::GetInstance();
-            std::vector<std::shared_ptr<DS::DiskInfo>> diskInfos;
-            std::shared_ptr<DS::DiskInfo> diskInfo;
-            std::string nId = "disk";
-            dsm->GetDisks(diskInfos);
-            int count1 = diskInfos.size();
-            for (int i = 0; i < count1; i++) {
-                std::string mId = diskInfos[i]->GetId();
-                if (strstr(mId.c_str(), nId.c_str())) {
-                    std::string mId = diskInfos[i]->GetId();
-                    bool isFindDiskById = dsm->FindDiskById(diskInfo, mId);
-                    EXPECT_TRUE(isFindDiskById);
-                }
+    for (int i = 0; i < stability; i++) {
+        std::shared_ptr<DeviceStorageManager> dsm = DelayedSingleton<DeviceStorageManager>::GetInstance();
+        std::vector<std::shared_ptr<DS::VolumeInfo>> volumeInfos;
+        std::string nId = "public";
+        bool isGetWritableVolumes = dsm->GetWritableVolumes(volumeInfos);
+        EXPECT_TRUE(isGetWritableVolumes);
+        cout << "GetWritable success_" << i << endl;
+    }
+    for (int i = 0; i < stability; i++) {
+        std::shared_ptr<DeviceStorageManager> dsm = DelayedSingleton<DeviceStorageManager>::GetInstance();
+        std::vector<std::shared_ptr<DS::DiskInfo>> diskInfos;
+        std::shared_ptr<DS::DiskInfo> diskInfo;
+        std::string nId = "disk";
+        dsm->GetDisks(diskInfos);
+        int count1 = diskInfos.size();
+        for (int a = 0; a < count1; a++) {
+            std::string mId = diskInfos[a]->GetId();
+            if (strstr(mId.c_str(), nId.c_str())) {
+                std::string mId = diskInfos[a]->GetId();
+                bool isFindDiskById = dsm->FindDiskById(diskInfo, mId);
+                EXPECT_TRUE(isFindDiskById);
             }
-            cout << "FindDiskById success_" << i << endl;
         }
-    } catch (...) {
-        cout << "catch(...)" << endl;
+        cout << "FindDiskById success_" << i << endl;
     }
 }
 
 void StabilityFindprivateEmulate()
 {
     int stability = 100000;
-    try {
-        for (int i = 0; i < stability; i++) {
-            std::shared_ptr<DeviceStorageManager> dsm = DelayedSingleton<DeviceStorageManager>::GetInstance();
-            std::vector<std::shared_ptr<DS::VolumeInfo>> volumeInfos;
-            std::shared_ptr<DS::VolumeInfo> priVol;
-            std::shared_ptr<DS::VolumeInfo> emuVol;
-            dsm->GetVolumes(volumeInfos);
-            priVol = volumeInfos[1];
-            bool isFindEmulateForPrivate = dsm->FindEmulateForPrivate(emuVol, priVol);
-            EXPECT_TRUE(isFindEmulateForPrivate);
-            cout << "FindEmulateForPrivate success_" << i << endl;
-        }
-        for (int i = 0; i < stability; i++) {
-            std::shared_ptr<DeviceStorageManager> dsm = DelayedSingleton<DeviceStorageManager>::GetInstance();
-            std::vector<std::shared_ptr<DS::VolumeInfo>> volumeInfos;
-            std::shared_ptr<DS::VolumeInfo> priVol;
-            std::shared_ptr<DS::VolumeInfo> emuVol;
-            dsm->GetVolumes(volumeInfos);
-            emuVol = volumeInfos[0];
-            bool isFindPrivateForEmulate = dsm->FindPrivateForEmulate(priVol, emuVol);
-            EXPECT_TRUE(isFindPrivateForEmulate);
-            cout << "FindPrivateForEmulate success_" << i << endl;
-        }
-    } catch (...) {
-        cout << "catch(...)" << endl;
+    for (int i = 0; i < stability; i++) {
+        std::shared_ptr<DeviceStorageManager> dsm = DelayedSingleton<DeviceStorageManager>::GetInstance();
+        std::vector<std::shared_ptr<DS::VolumeInfo>> volumeInfos;
+        std::shared_ptr<DS::VolumeInfo> priVol;
+        std::shared_ptr<DS::VolumeInfo> emuVol;
+        dsm->GetVolumes(volumeInfos);
+        priVol = volumeInfos[1];
+        bool isFindEmulateForPrivate = dsm->FindEmulateForPrivate(emuVol, priVol);
+        EXPECT_TRUE(isFindEmulateForPrivate);
+        cout << "FindEmulateForPrivate success_" << i << endl;
+    }
+    for (int i = 0; i < stability; i++) {
+        std::shared_ptr<DeviceStorageManager> dsm = DelayedSingleton<DeviceStorageManager>::GetInstance();
+        std::vector<std::shared_ptr<DS::VolumeInfo>> volumeInfos;
+        std::shared_ptr<DS::VolumeInfo> priVol;
+        std::shared_ptr<DS::VolumeInfo> emuVol;
+        dsm->GetVolumes(volumeInfos);
+        emuVol = volumeInfos[0];
+        bool isFindPrivateForEmulate = dsm->FindPrivateForEmulate(priVol, emuVol);
+        EXPECT_TRUE(isFindPrivateForEmulate);
+        cout << "FindPrivateForEmulate success_" << i << endl;
     }
 }
 
 void StabilityGetDescriptionFormat()
 {
     int stability = 100000;
-    try {
-        for (int i = 0; i < stability; i++) {
-            std::shared_ptr<DeviceStorageManager> dsm = DelayedSingleton<DeviceStorageManager>::GetInstance();
-            std::vector<std::shared_ptr<DS::VolumeInfo>> volumeInfos;
-            std::string desCription;
-            std::shared_ptr<DS::VolumeInfo> vol;
-            dsm->GetVolumes(volumeInfos);
-            vol = volumeInfos[0];
-            bool isGetBestVolumeDescription = dsm->GetBestVolumeDescription(vol, desCription);
-            EXPECT_TRUE(isGetBestVolumeDescription);
-            cout << "GetDescription success_" << i << endl;
-        }
-        for (int i = 0; i < stability; i++) {
-            std::shared_ptr<DeviceStorageManager> dsm = DelayedSingleton<DeviceStorageManager>::GetInstance();
-            std::vector<std::shared_ptr<DS::VolumeInfo>> volumeInfos;
-            std::string nId = "public";
-            dsm->GetVolumes(volumeInfos);
-            int count = volumeInfos.size();
-            for (int i = 0; i < count; i++) {
-                std::string mId = volumeInfos[i]->GetId();
-                if (strstr(mId.c_str(), nId.c_str())) {
-                    std::string mId1 = mId;
-                    bool result = dsm->Format(mId1);
-                    EXPECT_TRUE(result);
-                }
+    for (int i = 0; i < stability; i++) {
+        std::shared_ptr<DeviceStorageManager> dsm = DelayedSingleton<DeviceStorageManager>::GetInstance();
+        std::vector<std::shared_ptr<DS::VolumeInfo>> volumeInfos;
+        std::string desCription;
+        std::shared_ptr<DS::VolumeInfo> vol;
+        dsm->GetVolumes(volumeInfos);
+        vol = volumeInfos[0];
+        bool isGetBestVolumeDescription = dsm->GetBestVolumeDescription(vol, desCription);
+        EXPECT_TRUE(isGetBestVolumeDescription);
+        cout << "GetDescription success_" << i << endl;
+    }
+    for (int i = 0; i < stability; i++) {
+        std::shared_ptr<DeviceStorageManager> dsm = DelayedSingleton<DeviceStorageManager>::GetInstance();
+        std::vector<std::shared_ptr<DS::VolumeInfo>> volumeInfos;
+        std::string nId = "public";
+        dsm->GetVolumes(volumeInfos);
+        int count = volumeInfos.size();
+        for (int a = 0; a < count; a++) {
+            std::string mId = volumeInfos[a]->GetId();
+            if (strstr(mId.c_str(), nId.c_str())) {
+                std::string mId1 = mId;
+                bool result = dsm->Format(mId1);
+                EXPECT_TRUE(result);
             }
-            cout << "Format success_" << i << endl;
         }
-    } catch (...) {
-        cout << "catch(...)" << endl;
+        cout << "Format success_" << i << endl;
     }
 }
 
 void StabilityGetPrimaryStorageUuid()
 {
     int stability = 100000;
-    try {
-        for (int i = 0; i < stability; i++) {
-            std::shared_ptr<DeviceStorageManager> dsm = DelayedSingleton<DeviceStorageManager>::GetInstance();
-            std::string primaryUuid;
-            bool isGetUuid = dsm->GetPrimaryStorageUuid(primaryUuid);
-            EXPECT_TRUE(isGetUuid);
-            cout << "GetPrimaryStorageUuid success_" << i << endl;
-        }
-    } catch (...) {
-        cout << "catch(...)" << endl;
+    for (int i = 0; i < stability; i++) {
+        std::shared_ptr<DeviceStorageManager> dsm = DelayedSingleton<DeviceStorageManager>::GetInstance();
+        std::string primaryUuid;
+        bool isGetUuid = dsm->GetPrimaryStorageUuid(primaryUuid);
+        EXPECT_TRUE(isGetUuid);
+        cout << "GetPrimaryStorageUuid success_" << i << endl;
     }
 }
 
 HWTEST_F(DeviceStorageManagerTest, Stability, testing::ext::TestSize.Level1)
 {
-    StabilityGetvolumesDisks();
-    StabilityUnmountMount();
-    StabilityFindVolumeByIdUuId();
-    StabilityGetWritableFindDiskById();
-    StabilityFindprivateEmulate();
-    StabilityGetDescriptionFormat();
-    StabilityGetPrimaryStorageUuid();
+    try {
+        StabilityGetvolumesDisks();
+        StabilityUnmountMount();
+        StabilityFindVolumeByIdUuId();
+        StabilityGetWritableFindDiskById();
+        StabilityFindprivateEmulate();
+        StabilityGetDescriptionFormat();
+        StabilityGetPrimaryStorageUuid();
+    } catch (...) {
+        cout << "catch(...)" << endl;
+    }
 }
-} 
+}

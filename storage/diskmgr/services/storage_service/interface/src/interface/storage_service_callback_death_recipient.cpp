@@ -38,7 +38,6 @@ void StorageServiceCallbackDeathRecipient::OnRemoteDied(const wptr<IRemoteObject
         SSLOG_E("callback is nullptr");
         return;
     }
-    /* clear callback; */
     StorageManager::Instance()->ClearListener();
 }
 } // namespace OHOS

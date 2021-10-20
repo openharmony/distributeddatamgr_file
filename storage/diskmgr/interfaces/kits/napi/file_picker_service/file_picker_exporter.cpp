@@ -35,14 +35,14 @@ using namespace std;
 namespace OHOS {
 namespace DistributedFS {
 namespace ModuleFPExpoter {
-enum COMMON_NUM {
+enum class COMMON_NUM {
     ZERO = 0,
     ONE = 1,
     TWO = 2,
     THREE = 3,
 };
 
-enum ERROR_CODE {
+enum class ERROR_CODE {
     SUCCESS_CODE = 200,
     OTHER_ARGUMENT_ERROR = 202,
     FILE_IO_ERROR = 300,
@@ -76,7 +76,7 @@ void CallBackError(napi_env env, napi_ref failFuncRef, string errorProp, int err
     if (failFunc == nullptr) {
         return;
     }
-    napi_call_function(env, global, failFunc, COMMON_NUM::TWO, argvFail, &results);
+    napi_call_function(env, global, failFunc, (int) COMMON_NUM::TWO, argvFail, &results);
 }
 
 void CallComplete(napi_env env, napi_ref completeFuncRef)
@@ -89,7 +89,7 @@ void CallComplete(napi_env env, napi_ref completeFuncRef)
     if (completeFunc == nullptr) {
         return;
     }
-    napi_call_function(env, global, completeFunc, COMMON_NUM::ZERO, nullptr, &results);
+    napi_call_function(env, global, completeFunc, (int) COMMON_NUM::ZERO, nullptr, &results);
 }
 
 void SaveFileExec(napi_env env, void *data)
@@ -105,7 +105,7 @@ void SaveFileExec(napi_env env, void *data)
 void SaveFileComp(napi_env env, napi_status status, void *data)
 {
     auto *asyncInfo = (SaveFileAsyncInfo *)data;
-    if (asyncInfo->err == ERROR_CODE::SUCCESS_CODE) {
+    if (asyncInfo->err == (int) ERROR_CODE::SUCCESS_CODE) {
         napi_value saveListNapi;
         napi_create_array(env, &saveListNapi);
         int32_t i = 0;
@@ -120,14 +120,14 @@ void SaveFileComp(napi_env env, napi_status status, void *data)
         }
         NVal objn = NVal::CreateObject(env);
         objn.AddProp("saveFileList", saveListNapi);
-        CallBackSuccess(env, asyncInfo->callback[COMMON_NUM::ZERO], COMMON_NUM::ONE, objn.val_);
+        CallBackSuccess(env, asyncInfo->callback[(int) COMMON_NUM::ZERO], (int) COMMON_NUM::ONE, objn.val_);
     } else {
-        CallBackError(env, asyncInfo->callback[COMMON_NUM::ONE], "SaveFile fail", asyncInfo->err);
+        CallBackError(env, asyncInfo->callback[(int) COMMON_NUM::ONE], "SaveFile fail", asyncInfo->err);
     }
-    CallComplete(env, asyncInfo->callback[COMMON_NUM::TWO]);
-    napi_delete_reference(env, asyncInfo->callback[COMMON_NUM::ZERO]);
-    napi_delete_reference(env, asyncInfo->callback[COMMON_NUM::ONE]);
-    napi_delete_reference(env, asyncInfo->callback[COMMON_NUM::TWO]);
+    CallComplete(env, asyncInfo->callback[(int) COMMON_NUM::TWO]);
+    napi_delete_reference(env, asyncInfo->callback[(int) COMMON_NUM::ZERO]);
+    napi_delete_reference(env, asyncInfo->callback[(int) COMMON_NUM::ONE]);
+    napi_delete_reference(env, asyncInfo->callback[(int) COMMON_NUM::TWO]);
     napi_delete_async_work(env, asyncInfo->asyncWork);
     delete asyncInfo;
 }
@@ -145,7 +145,7 @@ void SearchFileExec(napi_env env, void *data)
 void SearchFileComp(napi_env env, napi_status status, void *data)
 {
     auto asyncInfo = (SearchFileAsyncInfo *)data;
-    if (asyncInfo->err == ERROR_CODE::SUCCESS_CODE) {
+    if (asyncInfo->err == (int) ERROR_CODE::SUCCESS_CODE) {
         napi_value fileListNapi;
         napi_create_array(env, &fileListNapi);
         int32_t i = 0;
@@ -166,14 +166,14 @@ void SearchFileComp(napi_env env, napi_status status, void *data)
         }
         NVal objn = NVal::CreateObject(env);
         objn.AddProp("fileList", fileListNapi);
-        CallBackSuccess(env, asyncInfo->callback[COMMON_NUM::ZERO], COMMON_NUM::ONE, objn.val_);
+        CallBackSuccess(env, asyncInfo->callback[(int) COMMON_NUM::ZERO], (int) COMMON_NUM::ONE, objn.val_);
     } else {
-        CallBackError(env, asyncInfo->callback[COMMON_NUM::ONE], "SearchFile fail", asyncInfo->err);
+        CallBackError(env, asyncInfo->callback[(int) COMMON_NUM::ONE], "SearchFile fail", asyncInfo->err);
     }
-    CallComplete(env, asyncInfo->callback[COMMON_NUM::TWO]);
-    napi_delete_reference(env, asyncInfo->callback[COMMON_NUM::ZERO]);
-    napi_delete_reference(env, asyncInfo->callback[COMMON_NUM::ONE]);
-    napi_delete_reference(env, asyncInfo->callback[COMMON_NUM::TWO]);
+    CallComplete(env, asyncInfo->callback[(int) COMMON_NUM::TWO]);
+    napi_delete_reference(env, asyncInfo->callback[(int) COMMON_NUM::ZERO]);
+    napi_delete_reference(env, asyncInfo->callback[(int) COMMON_NUM::ONE]);
+    napi_delete_reference(env, asyncInfo->callback[(int) COMMON_NUM::TWO]);
     napi_delete_async_work(env, asyncInfo->asyncWork);
     delete asyncInfo;
 }
@@ -191,7 +191,7 @@ void ListExec(napi_env env, void *data)
 void ListComp(napi_env env, napi_status status, void *data)
 {
     auto asyncInfo = (ListAsyncInfo *)data;
-    if (asyncInfo->err == ERROR_CODE::SUCCESS_CODE) {
+    if (asyncInfo->err == (int) ERROR_CODE::SUCCESS_CODE) {
         napi_value fileListNapi;
         napi_create_array(env, &fileListNapi);
         int32_t i = 0;
@@ -212,14 +212,14 @@ void ListComp(napi_env env, napi_status status, void *data)
         }
         NVal objn = NVal::CreateObject(env);
         objn.AddProp("fileList", fileListNapi);
-        CallBackSuccess(env, asyncInfo->callback[COMMON_NUM::ZERO], COMMON_NUM::ONE, objn.val_);
+        CallBackSuccess(env, asyncInfo->callback[(int) COMMON_NUM::ZERO], (int) COMMON_NUM::ONE, objn.val_);
     } else {
-        CallBackError(env, asyncInfo->callback[COMMON_NUM::ONE], "List fail", asyncInfo->err);
+        CallBackError(env, asyncInfo->callback[(int) COMMON_NUM::ONE], "List fail", asyncInfo->err);
     }
-    CallComplete(env, asyncInfo->callback[COMMON_NUM::TWO]);
-    napi_delete_reference(env, asyncInfo->callback[COMMON_NUM::ZERO]);
-    napi_delete_reference(env, asyncInfo->callback[COMMON_NUM::ONE]);
-    napi_delete_reference(env, asyncInfo->callback[COMMON_NUM::TWO]);
+    CallComplete(env, asyncInfo->callback[(int) COMMON_NUM::TWO]);
+    napi_delete_reference(env, asyncInfo->callback[(int) COMMON_NUM::ZERO]);
+    napi_delete_reference(env, asyncInfo->callback[(int) COMMON_NUM::ONE]);
+    napi_delete_reference(env, asyncInfo->callback[(int) COMMON_NUM::TWO]);
     napi_delete_async_work(env, asyncInfo->asyncWork);
     delete asyncInfo;
 }
@@ -236,7 +236,7 @@ void GetDeviceInfoExec(napi_env env, void *data)
 void GetDeviceInfoComp(napi_env env, napi_status status, void *data)
 {
     auto asyncInfo = (GetDeviceAsyncInfo *)data;
-    if (asyncInfo->err == ERROR_CODE::SUCCESS_CODE) {
+    if (asyncInfo->err == (int) ERROR_CODE::SUCCESS_CODE) {
         napi_value deviceListNapi;
         napi_create_array(env, &deviceListNapi);
         int32_t i = 0;
@@ -253,14 +253,14 @@ void GetDeviceInfoComp(napi_env env, napi_status status, void *data)
         }
         NVal objn = NVal::CreateObject(env);
         objn.AddProp("deviceList", deviceListNapi);
-        CallBackSuccess(env, asyncInfo->callback[COMMON_NUM::ZERO], COMMON_NUM::ONE, objn.val_);
+        CallBackSuccess(env, asyncInfo->callback[(int) COMMON_NUM::ZERO], (int) COMMON_NUM::ONE, objn.val_);
     } else {
-        CallBackError(env, asyncInfo->callback[COMMON_NUM::ONE], "GetDeviceInfo fail", asyncInfo->err);
+        CallBackError(env, asyncInfo->callback[(int) COMMON_NUM::ONE], "GetDeviceInfo fail", asyncInfo->err);
     }
-    CallComplete(env, asyncInfo->callback[COMMON_NUM::TWO]);
-    napi_delete_reference(env, asyncInfo->callback[COMMON_NUM::ZERO]);
-    napi_delete_reference(env, asyncInfo->callback[COMMON_NUM::ONE]);
-    napi_delete_reference(env, asyncInfo->callback[COMMON_NUM::TWO]);
+    CallComplete(env, asyncInfo->callback[(int) COMMON_NUM::TWO]);
+    napi_delete_reference(env, asyncInfo->callback[(int) COMMON_NUM::ZERO]);
+    napi_delete_reference(env, asyncInfo->callback[(int) COMMON_NUM::ONE]);
+    napi_delete_reference(env, asyncInfo->callback[(int) COMMON_NUM::TWO]);
     napi_delete_async_work(env, asyncInfo->asyncWork);
     delete asyncInfo;
 }
@@ -268,24 +268,25 @@ void GetDeviceInfoComp(napi_env env, napi_status status, void *data)
 napi_value FilePickerExporter::Mkdir(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::ONE)) {
+    if (!funcArg.InitArgs((int) NARG_CNT::ONE)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
 
     auto *asyncInfo = new MkdirAsyncInfo;
     bool succ = false;
-    tie(succ, asyncInfo->callback[COMMON_NUM::ZERO], asyncInfo->callback[COMMON_NUM::ONE],
-        asyncInfo->callback[COMMON_NUM::TWO]) = CommonFunc::GetCallbackHandles(env, funcArg[NARG_POS::FIRST]);
+    tie(succ, asyncInfo->callback[(int) COMMON_NUM::ZERO], asyncInfo->callback[(int) COMMON_NUM::ONE],
+        asyncInfo->callback[(int) COMMON_NUM::TWO]) = CommonFunc::GetCallbackHandles(env,
+                                                                                     funcArg[(int) NARG_POS::FIRST]);
 
     unique_ptr<char[]> uri = nullptr;
-    tie(succ, uri, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("uri").ToUTF8String();
+    tie(succ, uri, ignore) = NVal(env, funcArg[(int) NARG_POS::FIRST]).GetProp("uri").ToUTF8String();
 
     asyncInfo->path = (uri == nullptr) ? "" : uri.get();
 
     if (asyncInfo->path == "") {
-        CallBackError(env, asyncInfo->callback[COMMON_NUM::ONE], "uri cannot be empty",
-                      ERROR_CODE::URI_PARAMER_ERROR);
+        CallBackError(env, asyncInfo->callback[(int) COMMON_NUM::ONE], "uri cannot be empty",
+                      (int) ERROR_CODE::URI_PARAMER_ERROR);
         delete asyncInfo;
         return nullptr;
     }
@@ -300,15 +301,15 @@ napi_value FilePickerExporter::Mkdir(napi_env env, napi_callback_info info)
         },
         [](napi_env env, napi_status status, void *data) {
             auto *asyncInfo = (MkdirAsyncInfo *)data;
-            if (asyncInfo->err == ERROR_CODE::SUCCESS_CODE) {
-                CallBackSuccess(env, asyncInfo->callback[COMMON_NUM::ZERO], 0, nullptr);
+            if (asyncInfo->err == (int) ERROR_CODE::SUCCESS_CODE) {
+                CallBackSuccess(env, asyncInfo->callback[(int) COMMON_NUM::ZERO], 0, nullptr);
             } else {
-                CallBackError(env, asyncInfo->callback[COMMON_NUM::ONE], "Mkdir fail", asyncInfo->err);
+                CallBackError(env, asyncInfo->callback[(int) COMMON_NUM::ONE], "Mkdir fail", asyncInfo->err);
             }
-            CallComplete(env, asyncInfo->callback[COMMON_NUM::TWO]);
-            napi_delete_reference(env, asyncInfo->callback[COMMON_NUM::ZERO]);
-            napi_delete_reference(env, asyncInfo->callback[COMMON_NUM::ONE]);
-            napi_delete_reference(env, asyncInfo->callback[COMMON_NUM::TWO]);
+            CallComplete(env, asyncInfo->callback[(int) COMMON_NUM::TWO]);
+            napi_delete_reference(env, asyncInfo->callback[(int) COMMON_NUM::ZERO]);
+            napi_delete_reference(env, asyncInfo->callback[(int) COMMON_NUM::ONE]);
+            napi_delete_reference(env, asyncInfo->callback[(int) COMMON_NUM::TWO]);
             napi_delete_async_work(env, asyncInfo->asyncWork);
             delete asyncInfo;
         },
@@ -321,7 +322,7 @@ napi_value FilePickerExporter::Mkdir(napi_env env, napi_callback_info info)
 napi_value FilePickerExporter::SaveFile(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::ONE)) {
+    if (!funcArg.InitArgs((int) NARG_CNT::ONE)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -329,15 +330,16 @@ napi_value FilePickerExporter::SaveFile(napi_env env, napi_callback_info info)
     auto *asyncInfo = new SaveFileAsyncInfo;
 
     bool succ = false;
-    tie(succ, asyncInfo->callback[COMMON_NUM::ZERO], asyncInfo->callback[COMMON_NUM::ONE],
-        asyncInfo->callback[COMMON_NUM::TWO]) = CommonFunc::GetCallbackHandles(env, funcArg[NARG_POS::FIRST]);
+    tie(succ, asyncInfo->callback[(int) COMMON_NUM::ZERO], asyncInfo->callback[(int) COMMON_NUM::ONE],
+        asyncInfo->callback[(int) COMMON_NUM::TWO]) = CommonFunc::GetCallbackHandles(env,
+                                                                                     funcArg[(int) NARG_POS::FIRST]);
 
     unique_ptr<char[]> dstUri = nullptr;
-    tie(succ, dstUri, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("dstUri").ToUTF8String();
+    tie(succ, dstUri, ignore) = NVal(env, funcArg[(int) NARG_POS::FIRST]).GetProp("dstUri").ToUTF8String();
 
     uint32_t srcLen = 0;
     vector<string> srcPath;
-    NVal srcNapi = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("srcUri");
+    NVal srcNapi = NVal(env, funcArg[(int) NARG_POS::FIRST]).GetProp("srcUri");
     napi_get_array_length(env, srcNapi.val_, &srcLen);
     for (uint32_t i = 0; i < srcLen; ++i) {
         napi_value srcElementNapi;
@@ -353,8 +355,8 @@ napi_value FilePickerExporter::SaveFile(napi_env env, napi_callback_info info)
     asyncInfo->srcLen = srcLen;
 
     if (asyncInfo->dstPath == "" || asyncInfo->srcPath.empty()) {
-        CallBackError(env, asyncInfo->callback[COMMON_NUM::ONE], "dstUri or srcUri cannot be empty",
-                      ERROR_CODE::URI_PARAMER_ERROR);
+        CallBackError(env, asyncInfo->callback[(int) COMMON_NUM::ONE], "dstUri or srcUri cannot be empty",
+                      (int) ERROR_CODE::URI_PARAMER_ERROR);
         delete asyncInfo;
         return nullptr;
     }
@@ -369,28 +371,30 @@ napi_value FilePickerExporter::SaveFile(napi_env env, napi_callback_info info)
 napi_value FilePickerExporter::SearchFile(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::ONE)) {
+    if (!funcArg.InitArgs((int) NARG_CNT::ONE)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
 
     auto *asyncInfo = new SearchFileAsyncInfo;
     bool succ = false;
-    tie(succ, asyncInfo->callback[COMMON_NUM::ZERO], asyncInfo->callback[COMMON_NUM::ONE],
-        asyncInfo->callback[COMMON_NUM::TWO]) = CommonFunc::GetCallbackHandles(env, funcArg[NARG_POS::FIRST]);
+    tie(succ, asyncInfo->callback[(int) COMMON_NUM::ZERO],
+        asyncInfo->callback[(int) COMMON_NUM::ONE],
+        asyncInfo->callback[(int) COMMON_NUM::TWO]) = CommonFunc::GetCallbackHandles(env,
+                                                                                     funcArg[(int) NARG_POS::FIRST]);
 
     unique_ptr<char[]> uri = nullptr;
-    tie(succ, uri, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("uri").ToUTF8String();
+    tie(succ, uri, ignore) = NVal(env, funcArg[(int) NARG_POS::FIRST]).GetProp("uri").ToUTF8String();
 
     unique_ptr<char[]> name = nullptr;
-    tie(succ, name, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("name").ToUTF8String();
+    tie(succ, name, ignore) = NVal(env, funcArg[(int) NARG_POS::FIRST]).GetProp("name").ToUTF8String();
 
     asyncInfo->path = (uri == nullptr) ? "" : uri.get();
     asyncInfo->name = (name == nullptr) ? "" : name.get();
 
     if (asyncInfo->path == "") {
-        CallBackError(env, asyncInfo->callback[COMMON_NUM::ONE], "uri cannot be empty",
-                      ERROR_CODE::URI_PARAMER_ERROR);
+        CallBackError(env, asyncInfo->callback[(int) COMMON_NUM::ONE], "uri cannot be empty",
+                      (int) ERROR_CODE::URI_PARAMER_ERROR);
         delete asyncInfo;
         return nullptr;
     }
@@ -405,7 +409,7 @@ napi_value FilePickerExporter::SearchFile(napi_env env, napi_callback_info info)
 napi_value FilePickerExporter::List(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::ONE)) {
+    if (!funcArg.InitArgs((int) NARG_CNT::ONE)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -413,16 +417,17 @@ napi_value FilePickerExporter::List(napi_env env, napi_callback_info info)
     auto *asyncInfo = new ListAsyncInfo;
 
     bool succ = false;
-    tie(succ, asyncInfo->callback[COMMON_NUM::ZERO], asyncInfo->callback[COMMON_NUM::ONE],
-        asyncInfo->callback[COMMON_NUM::TWO]) = CommonFunc::GetCallbackHandles(env, funcArg[NARG_POS::FIRST]);
+    tie(succ, asyncInfo->callback[(int) COMMON_NUM::ZERO], asyncInfo->callback[(int) COMMON_NUM::ONE],
+        asyncInfo->callback[(int) COMMON_NUM::TWO]) = CommonFunc::GetCallbackHandles(env,
+                                                                                     funcArg[(int) NARG_POS::FIRST]);
 
     unique_ptr<char[]> uri = nullptr;
-    tie(succ, uri, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("uri").ToUTF8String();
+    tie(succ, uri, ignore) = NVal(env, funcArg[(int) NARG_POS::FIRST]).GetProp("uri").ToUTF8String();
 
     asyncInfo->path = (uri == nullptr) ? "" : uri.get();
     if (asyncInfo->path == "") {
-        CallBackError(env, asyncInfo->callback[COMMON_NUM::ONE], "uri cannot be empty",
-                      ERROR_CODE::URI_PARAMER_ERROR);
+        CallBackError(env, asyncInfo->callback[(int) COMMON_NUM::ONE], "uri cannot be empty",
+                      (int) ERROR_CODE::URI_PARAMER_ERROR);
         delete asyncInfo;
         return nullptr;
     }
@@ -437,7 +442,7 @@ napi_value FilePickerExporter::List(napi_env env, napi_callback_info info)
 napi_value FilePickerExporter::GetDeviceInfo(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::ONE)) {
+    if (!funcArg.InitArgs((int) NARG_CNT::ONE)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -445,8 +450,9 @@ napi_value FilePickerExporter::GetDeviceInfo(napi_env env, napi_callback_info in
     auto *asyncInfo = new GetDeviceAsyncInfo;
 
     bool succ = false;
-    tie(succ, asyncInfo->callback[COMMON_NUM::ZERO], asyncInfo->callback[COMMON_NUM::ONE],
-        asyncInfo->callback[COMMON_NUM::TWO]) = CommonFunc::GetCallbackHandles(env, funcArg[NARG_POS::FIRST]);
+    tie(succ, asyncInfo->callback[(int) COMMON_NUM::ZERO], asyncInfo->callback[(int) COMMON_NUM::ONE],
+        asyncInfo->callback[(int) COMMON_NUM::TWO]) = CommonFunc::GetCallbackHandles(env,
+                                                                                     funcArg[(int) NARG_POS::FIRST]);
 
     napi_create_async_work(env, nullptr, NVal::CreateUTF8String(env, "GetDeviceInfo").val_, GetDeviceInfoExec,
                            GetDeviceInfoComp, (void *)asyncInfo, &asyncInfo->asyncWork);

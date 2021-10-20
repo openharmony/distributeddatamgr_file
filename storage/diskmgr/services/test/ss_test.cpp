@@ -427,10 +427,10 @@ void Test18()
         bool ret2 = dsm->IsEncrypted("/data/app");
         bool ret3 = dsm->IsEncrypted("/data/vendor/usd/");
         bool ret4 = dsm->IsEncrypted("/data/vendor/usc/");
-        TESTLOG_I("Disk id %{public}d\n",ret1); 
-        TESTLOG_I("Disk id %{public}d\n",ret2); 
-        TESTLOG_I("Disk id %{public}d\n",ret3); 
-  	    TESTLOG_I("Disk id %{public}d\n",ret4); 
+        TESTLOG_I("Disk id %{public}d\n", ret1);
+        TESTLOG_I("Disk id %{public}d\n", ret2);
+        TESTLOG_I("Disk id %{public}d\n", ret3);
+        TESTLOG_I("Disk id %{public}d\n", ret4);
     } else {
         TESTLOG_E("Test18 Execute FAILED");
     }

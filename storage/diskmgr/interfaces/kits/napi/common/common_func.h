@@ -12,6 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef STORAGE_DISKMGR_INTERFACE_KITS_NAPI_COMMON_COMMOM_FUNC_H
+#define STORAGE_DISKMGR_INTERFACE_KITS_NAPI_COMMON_COMMOM_FUNC_H
 
 #pragma once
 
@@ -32,3 +34,4 @@ struct CommonFunc {
 };
 } // namespace DistributedFS
 } // namespace OHOS
+#endif // STORAGE_DISKMGR_INTERFACE_KITS_NAPI_COMMON_COMMOM_FUNC_H

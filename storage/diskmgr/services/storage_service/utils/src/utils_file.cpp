@@ -12,6 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "utils_file.h"
+
 #include <cerrno>
 #include <climits>
 #include <cstdio>
@@ -20,21 +22,21 @@
 #include <ctime>
 #include <dirent.h>
 #include <fcntl.h>
-#include <linux/dm-ioctl.h>
-#include <linux/fs.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <linux/dm-ioctl.h>
+#include <linux/fs.h>
+
 #include "storage_hilog.h"
 #include "storage_utils.h"
-#include "utils_file.h"
 #include "utils_string.h"
 namespace OHOS {
 namespace SsUtils {
 constexpr uint32_t ALL_PERMS = (S_ISUID | S_ISGID | S_ISVTX | S_IRWXU | S_IRWXG | S_IRWXO);
 constexpr int MAX_READ_BUFF_SIZE = 4096;
-
+static int numberTwo = 2;
 bool IsDirEmpty(const std::string &path)
 {
     auto dirp = std::unique_ptr<DIR, int (*)(DIR *)>(opendir(path.c_str()), closedir);
@@ -174,7 +176,7 @@ bool Readlink(const std::string &path, std::string *result)
             result->assign(&buf[0], n);
             return true;
         }
-        buf.resize(buf.size() * 2);
+        buf.resize(buf.size() * numberTwo);
     }
     return false;
 }

@@ -38,9 +38,7 @@
 
 using namespace OHOS::FsMountTab;
 namespace OHOS {
-
 std::vector<FsMountEntry> SsTabMgr::ssMountTab = {};
-
 bool SsTabMgr::InsertEntry(const FsMountEntry &entry)
 {
     if (entry.mountPoint.empty()) {

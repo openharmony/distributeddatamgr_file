@@ -14,16 +14,14 @@
  */
 #ifndef STORAGE_SERVICE_UTILS_FILE_HANDLE_H
 #define STORAGE_SERVICE_UTILS_FILE_HANDLE_H
-#include <sys/types.h>
-#include <unistd.h>
-#include <stdint.h>
-#include <sys/time.h>
+#include <algorithm>
 #include <cstring>
 #include <memory>
-#include <vector>
-#include <stddef.h>
+#include <stdint.h>
+#include <sys/types.h>
 #include <utility>
-#include <algorithm>
+#include <unistd.h>
+#include <vector>
 
 #include "storage_utils.h"
 

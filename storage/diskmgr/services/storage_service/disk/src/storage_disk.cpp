@@ -14,10 +14,13 @@
  */
 #include "storage_disk.h"
 
-#include "interface/storage_service_callback_proxy.h"
 #include <list>
 #include <memory>
 #include <numeric>
+#include <string>
+#include <sys/sysmacros.h>
+
+#include "interface/storage_service_callback_proxy.h"
 #include "storage_base.h"
 #include "storage_constant.h"
 #include "storage_hilog.h"
@@ -25,8 +28,6 @@
 #include "storage_private_volume.h"
 #include "storage_public_volume.h"
 #include "storage_utils.h"
-#include <string>
-#include <sys/sysmacros.h>
 #include "utils_file.h"
 #include "utils_string.h"
 
@@ -35,7 +36,6 @@ using namespace OHOS::StorageService::Constants;
 
 namespace OHOS {
 namespace StorageService {
-
 static constexpr int SWITCH_FLAGS_SETDISKID = 1;
 static constexpr int SWITCH_FLAGS_SETPARTGUID = 2;
 static constexpr int SWITCH_FLAGS_SETSILENT = 6;
@@ -76,14 +76,11 @@ void Disk::CreateVolume(dev_t device, const std::string &partGuid, bool createVo
         std::string normalizedGuid;
         std::string keyRaw;
         if (NormalizeHex(partGuid, normalizedGuid) && !ReadFile(BuildKeyPath(normalizedGuid), &keyRaw)) {
-            SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
             return;
         }
         ohosVol = std::shared_ptr<StorageBase>(new StoragePrivateVolume(device, keyRaw));
     }
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     if (diskJustPartitioned) {
-        SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
         ohosVol->SetInfo(getId(), "", "", -1, -1, true, SWITCH_FLAGS_SETSILENT);
         ohosVol->Create();
         ohosVol->Format("auto");
@@ -96,35 +93,25 @@ void Disk::CreateVolume(dev_t device, const std::string &partGuid, bool createVo
         ohosVol->SetInfo("", partGuid, "", -1, -1, true, SWITCH_FLAGS_SETPARTGUID);
     }
     ohosVol->Create();
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
 }
 
 std::shared_ptr<StorageBase> Disk::FindVolume(const std::string &id)
 {
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     for (auto vol : mVolumes) {
-        SSLOG_I("dugl %{public}s %{public}s %{public}d 1111", __FILE__, __func__, __LINE__);
         if (vol->getId() == id) {
-            SSLOG_I("dugl %{public}s %{public}s %{public}d 1111", __FILE__, __func__, __LINE__);
             return vol;
         }
-        SSLOG_I("dugl %{public}s %{public}s %{public}d 1111", __FILE__, __func__, __LINE__);
         auto stackedVol = vol->FindVolume(id);
-        SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
         if (stackedVol != nullptr) {
-            SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
             return stackedVol;
         }
     }
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     return nullptr;
 }
 
 int Disk::UnMountAll()
 {
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     for (const auto &vol : mVolumes) {
-        SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
         vol->UnMount();
     }
     return OK;
@@ -132,17 +119,14 @@ int Disk::UnMountAll()
 
 int Disk::Create()
 {
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     auto listener = StorageManager::Instance()->GetListener();
     if (listener) {
         listener->OnDiskCreated(getId(), diskFlags);
     }
 
     if (diskFlags & diskFlagIsStub) {
-        SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
         if (listener) {
             listener->OnDiskMetadataChanged(getId(), diskSize, diskLabel, diskSysPath);
-            SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
         }
         mVolumes[0]->SetInfo(getId(), "", "", -1, -1, true, SWITCH_FLAGS_SETDISKID);
         mVolumes[0]->Create();
@@ -151,14 +135,12 @@ int Disk::Create()
 
     DiskReadMetadata();
     ReadPartitions();
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     return 0;
 }
 
 int Disk::DiskReadMetadata()
 {
     std::string tmp;
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     diskSize = -1;
     diskLabel.clear();
     diskSize = diskBlkDev->GetSize();
@@ -193,9 +175,7 @@ int Disk::ReadPartitionsHandler()
 
 int Disk::ReadPartitions()
 {
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     if (GetMaxMinors() < 0) {
-        SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
         return -ENOTSUP;
     }
     if (!mVolumes.empty()) {
@@ -211,7 +191,6 @@ int Disk::ReadPartitions()
 
 int Disk::Destroy()
 {
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     if (!mVolumes.empty()) {
         for (const auto &vol : mVolumes) {
             vol->Destroy();
@@ -222,15 +201,12 @@ int Disk::Destroy()
     auto listener = StorageManager::Instance()->GetListener();
     if (listener) {
         listener->OnDiskDestroyed(getId());
-        SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     }
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     return OK;
 }
 
 int Disk::GetMaxMinors()
 {
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     unsigned int majorId = major(diskDevice);
     if (diskBlkDev->IsVirtualDev(majorId)) {
         std::string tmp("");
@@ -257,64 +233,48 @@ int Disk::GetMaxMinors()
 
 int Disk::PartitionHandle(int partitionHandleFlags, int8_t ratio)
 {
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     int res;
     if (!mVolumes.empty()) {
-        SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
         for (const auto &vol : mVolumes) {
             vol->Destroy();
         }
         mVolumes.clear();
     }
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     diskJustPartitioned = true;
     std::vector<std::string> cmd;
     cmd.push_back(diskSgDiskPath);
     cmd.push_back("--zap-all");
     cmd.push_back(diskDevPath);
     cmd.clear();
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     cmd.push_back(diskSgDiskPath);
     if (partitionHandleFlags == PartitionHandleFlagsIsPublic) {
-        SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
         cmd.push_back("--new=0:0:-0");
         cmd.push_back("--typecode=0:0c00");
         cmd.push_back("--gpttombr=1");
         cmd.push_back(diskDevPath);
-        SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
         if ((res = ExecuteCmd(diskSgDiskPath.c_str(), cmd, nullptr)) != 0) {
-            SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
             return res;
         }
     } else if (partitionHandleFlags == PartitionHandleFlagsIsPrivate) {
-        SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
         if (ratio > 0) {
-            SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
             if (ratio < NUM_FLAGS_ISTEN || ratio > NUM_FLAGS_ISNINETY) {
-                SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
                 return -EINVAL;
             }
-            SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
             uint64_t splitMb =
                 ((diskSize / NUM_FLAGS_ISHUNDRED) * ratio) / NUM_FLAGS_ISBITESIZE / NUM_FLAGS_ISBITESIZE;
             cmd.push_back(StringPrintf("--new=0:0:+%lldM", splitMb));
             cmd.push_back("--change-name=0:shared");
         }
-        SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
         cmd.push_back("--new=0:0:+16M");
         cmd.push_back("--change-name=0:ohos_meta");
         cmd.push_back("--new=0:0:-0");
         cmd.push_back("--partition-guid=0:66oh-88os");
         cmd.push_back("--change-name=0:ohos_expand");
         cmd.push_back(diskDevPath);
-        SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
         if ((res = ExecuteCmd(diskSgDiskPath.c_str(), cmd, nullptr)) != 0) {
-            SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
             return res;
         }
-        SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     }
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     return OK;
 }
 
@@ -337,6 +297,5 @@ std::vector<std::shared_ptr<StorageBase>> Disk::GetVolumes() const
     }
     return vols;
 }
-
 } // namespace StorageService
 } // namespace OHOS

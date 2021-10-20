@@ -29,10 +29,11 @@ NClass &NClass::GetInstance()
     return nClass;
 }
 
-tuple<bool, napi_value> NClass::DefineClass(napi_env env,
-                                            string className,
-                                            napi_callback constructor,
-                                            vector<napi_property_descriptor> &&properties)
+tuple<bool, napi_value> NClass::DefineClass(
+    napi_env env,
+    string className,
+    napi_callback constructor,
+    vector<napi_property_descriptor> &&properties)
 {
     napi_value classVal = nullptr;
     napi_status stat = napi_define_class(env,

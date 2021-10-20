@@ -38,7 +38,6 @@ using Clock = std::chrono::steady_clock;
 using TimePoint = std::chrono::time_point<Clock>;
 
 namespace {
-constexpr int MAX_RETRY_TIME = 2;
 constexpr int WAIT_EVENT_TIME_S = 1;
 constexpr int RETRY_WAIT_TIME_US = 50000;
 constexpr int SLEEP_WAIT_TIME_S = 3;
@@ -84,6 +83,7 @@ public:
 shared_ptr<TestCommonEventSubscriber> RegisterEvent()
 {
     GTEST_LOG_(INFO) << "DeviceStorageNotifyTest:: Regist Subscriber Start!!";
+    int MAX_RETRY_TIME = 2;
     EventFwk::MatchingSkills matchingSkills;
     matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_DISK_MOUNTED);
     matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_DISK_UNMOUNTED);

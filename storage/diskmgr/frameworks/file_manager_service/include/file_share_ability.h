@@ -25,8 +25,6 @@
 #include "shared_path_strategy.h"
 #include "values_bucket.h"
 
-#include "values_bucket.h"
-
 namespace OHOS {
 namespace FileManager {
 const std::string ROOT_PATH = "root-path";

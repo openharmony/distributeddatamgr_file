@@ -102,7 +102,7 @@ int StorageAbility::QueryFiles(const Uri &uri, vector<FileInfo> &result)
 shared_ptr<DeviceStorageManager> storageService = DelayedSingleton<DeviceStorageManager>::GetInstance();
 int StorageAbility::QueryDeviceInfo(vector<RootInfo> &result)
 {
-    if (storageService->Connect() != 0) {
+    if ((storageService->Connect()) != 0) {
         return static_cast<int>(STATUS_NUM::IO_EXCEPTION);
     }
     vector<shared_ptr<DS::VolumeInfo>> volumeInfos;
