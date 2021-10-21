@@ -12,20 +12,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef STORAGE_DISKMGR_INTERFACE_KITS_NAPI_COMMON_NAPI_N_FUNC_ARG_H
+#define STORAGE_DISKMGR_INTERFACE_KITS_NAPI_COMMON_NAPI_N_FUNC_ARG_H
 
 #pragma once
 
 #include <functional>
 #include <map>
 #include <memory>
-#include <vector>
 
 #include "n_val.h"
 #include "uni_header.h"
 
 namespace OHOS {
 namespace DistributedFS {
-enum NARG_CNT {
+enum class NARG_CNT {
     ZERO = 0,
     ONE = 1,
     TWO = 2,
@@ -33,7 +34,7 @@ enum NARG_CNT {
     FOUR = 4,
 };
 
-enum NARG_POS {
+enum class NARG_POS {
     FIRST = 0,
     SECOND = 1,
     THIRD = 2,
@@ -69,3 +70,5 @@ private:
 };
 } // namespace DistributedFS
 } // namespace OHOS
+
+#endif // STORAGE_DISKMGR_INTERFACE_KITS_NAPI_COMMON_NAPI_N_FUNC_ARG_H

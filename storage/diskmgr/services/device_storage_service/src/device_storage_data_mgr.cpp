@@ -344,8 +344,7 @@ std::shared_ptr<DS::VolumeInfo> DeviceStorageDataMgr::FindVolumeByUuid(const std
     }
 }
 
-std::shared_ptr<DS::VolumeInfo> DeviceStorageDataMgr::FindPrivateForEmulate(
-    std::shared_ptr<DS::VolumeInfo> &vol)
+std::shared_ptr<DS::VolumeInfo> DeviceStorageDataMgr::FindPrivateForEmulate(std::shared_ptr<DS::VolumeInfo> &vol)
 {
     if (vol != nullptr) {
         std::shared_ptr<DS::VolumeInfo> privateVol;
@@ -364,8 +363,7 @@ std::shared_ptr<DS::VolumeInfo> DeviceStorageDataMgr::FindPrivateForEmulate(
     }
 }
 
-std::shared_ptr<DS::VolumeInfo> DeviceStorageDataMgr::FindEmulateForPrivate(
-    std::shared_ptr<DS::VolumeInfo> &vol)
+std::shared_ptr<DS::VolumeInfo> DeviceStorageDataMgr::FindEmulateForPrivate(std::shared_ptr<DS::VolumeInfo> &vol)
 {
     if (vol != nullptr) {
         std::shared_ptr<DS::VolumeInfo> emuVol;

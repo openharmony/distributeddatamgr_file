@@ -535,7 +535,7 @@ void DeviceStorageService::IdleFsTrim(const sptr<IStorageServiceTask> &storageSe
     SSLOG_I("DeviceStorageService::IdleFsTrim Start");
     if (storageService_ != nullptr) {
         storageService_->IdleFsTrim(storageServiceTask);
-    } 
+    }
 }
 
 void DeviceStorageService::RunIdleMaintain(const sptr<IStorageServiceTask> &storageServiceTask)

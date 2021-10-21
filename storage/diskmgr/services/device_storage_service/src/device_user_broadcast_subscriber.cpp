@@ -19,8 +19,8 @@
 namespace OHOS {
 using namespace OHOS::EventFwk;
 DeviceUserBroadcastSubscriber::DeviceUserBroadcastSubscriber(
-    const OHOS::EventFwk::CommonEventSubscribeInfo &subscriberInfo, const sptr<DeviceStorageService> &service)
-    : CommonEventSubscriber(subscriberInfo),service_(service)
+    const OHOS::EventFwk::CommonEventSubscribeInfo &subscriberInfo,
+    const sptr<DeviceStorageService> &service): CommonEventSubscriber(subscriberInfo), service_(service)
 {}
 
 void DeviceUserBroadcastSubscriber::OnReceiveEvent(const OHOS::EventFwk::CommonEventData &data)

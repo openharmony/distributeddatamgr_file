@@ -197,16 +197,21 @@ ohos_shared_library("libfs_manager") {
   visibility = [ "*" ]
   sources = [
     "./fs_manager/src/filesystem_manager.cpp",
+    "./fs_manager/src/fs_mgr.cpp",
     "./fs_manager/src/fs_mount_tab.cpp",
   ]
 
   include_dirs = [
+    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services/storage_service/utils/include",
     "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services/fs_manager/include",
     "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services/storage_service/interface/include",
     "//foundation/aafwk/standard/interfaces/innerkits/want/include/",
   ]
   configs = [ ":storage_diskmgr_config" ]
-  deps = [ "//utils/native/base:utils" ]
+  deps = [
+    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services/storage_service/utils:libss_utils",
+    "//utils/native/base:utils",
+  ]
   external_deps = [ "hiviewdfx_hilog_native:libhilog" ]
   subsystem_name = "distributeddatamgr"
   part_name = "storage_standard"

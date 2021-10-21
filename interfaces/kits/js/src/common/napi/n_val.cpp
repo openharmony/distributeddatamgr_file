@@ -15,7 +15,6 @@
 
 #include "n_val.h"
 
-#include <sstream>
 #include <string>
 
 #include "../log.h"
@@ -34,9 +33,10 @@ NVal::operator bool() const
 
 bool NVal::TypeIs(napi_valuetype expType) const
 {
-    if (!*this)
+    if (!*this) {
         return false;
-
+    }
+    
     napi_valuetype valueType;
     napi_typeof(env_, val_, &valueType);
 
@@ -44,6 +44,18 @@ bool NVal::TypeIs(napi_valuetype expType) const
         return false;
     }
     return true;
+}
+
+bool NVal::TypeIsError(bool checkErrno) const
+{
+    if (!*this) {
+        return false;
+    }
+
+    bool res = false;
+    napi_is_error(env_, val_, &res);
+
+    return res;
 }
 
 tuple<bool, unique_ptr<char[]>, size_t> NVal::ToUTF8String() const

@@ -49,10 +49,10 @@ int32_t CryptoPolicy::Get(const std::string &dir)
     close(fd);
     return ret;
 }
-/* EOPNOTSUPP: the kernel was not configured with encryption support for filesystems, 
- * or the filesystem superblock has not had encryption enabled on it. (For example, 
+/* EOPNOTSUPP: the kernel was not configured with encryption support for filesystems,
+ * or the filesystem superblock has not had encryption enabled on it. (For example,
  * to use encryption on an ext4 filesystem, CONFIG_FS_ENCRYPTION or CONFIG_EXT4_ENCRYPTION
- * must be enabled in the kernel config, and the superblock must have had the “encrypt” 
+ * must be enabled in the kernel config, and the superblock must have had the “encrypt”
  * feature flag enabled using tune2fs -O encrypt or mkfs.ext4 -O encrypt.)
  */
 int32_t CryptoPolicy::Set(const std::string &dir)
@@ -184,7 +184,7 @@ int32_t CryptoPolicy::Copy(CryptoPolicy &policy)
     memcpy(keyAlias_.data, policy.keyAlias_.data, keyAlias_.size);
     encryptKey_.data = nullptr;
     KeyUtils::InitKeyBlob(encryptKey_, policy.encryptKey_.size);
-    memcpy(encryptKey_.data, policy.encryptKey_.data, encryptKey_.size); 
+    memcpy(encryptKey_.data, policy.encryptKey_.data, encryptKey_.size);
     // Copy from another policy
     SSLOG_D("Copy from another policy");
     return 0;

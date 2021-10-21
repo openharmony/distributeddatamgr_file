@@ -12,6 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef STORAGE_DISKMGR_INTERFACE_KITS_NAPI_COMMON_LOG_H
+#define STORAGE_DISKMGR_INTERFACE_KITS_NAPI_COMMON_LOG_H
 
 #pragma once
 
@@ -88,3 +90,5 @@ static constexpr OHOS::HiviewDFX::HiLogLabel FILEIO_LABEL = { LOG_CORE, FILEIO_D
 #endif
 } // namespace DistributedFS
 } // namespace OHOS
+
+#endif // STORAGE_DISKMGR_INTERFACE_KITS_NAPI_COMMON_LOG_H

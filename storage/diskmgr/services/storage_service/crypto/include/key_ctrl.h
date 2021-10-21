@@ -23,30 +23,29 @@
 #include <linux/fs.h>
 #include <linux/keyctl.h>
 
-typedef int32_t key_serial_t;
 namespace OHOS {
 class KeyCtrl {
 public:
-    static key_serial_t AddKey(const char *type,
+    static int32_t AddKey(const char *type,
                                const char *description,
                                const void *payload,
                                size_t payload_length,
-                               key_serial_t ring_id);
+                               int32_t ring_id);
 
-    static key_serial_t GetKeyring(key_serial_t id, int create);
+    static int32_t GetKeyring(int32_t id, int create);
 
-    static long Revoke(key_serial_t id);
+    static long Revoke(int32_t id);
 
     static long
-    Search(key_serial_t ring_id, const char *type, const char *description, key_serial_t dest_ring_id);
+    Search(int32_t ring_id, const char *type, const char *description, int32_t dest_ring_id);
 
-    static long SetPermission(key_serial_t id, int permissions);
+    static long SetPermission(int32_t id, int permissions);
 
-    static long Unlink(key_serial_t key, key_serial_t keyring);
+    static long Unlink(int32_t key, int32_t keyring);
 
-    static long RestrictKeyring(key_serial_t keyring, const char *type, const char *restriction);
+    static long RestrictKeyring(int32_t keyring, const char *type, const char *restriction);
 
-    static long GetSecurity(key_serial_t key, char *buffer, size_t buflen);
+    static long GetSecurity(int32_t key, char *buffer, size_t buflen);
 };
 } // namespace OHOS
 #endif // STORAGE_SERVICE_SSCRYPTO_KEYCTL_H_

@@ -15,16 +15,15 @@
 #ifndef STORAGEBASE_H
 #define STORAGEBASE_H
 
-#include "storage_service.h"
-#include "storage_utils.h"
-
+#include <list>
+#include <memory>
+#include <mutex>
+#include <string>
 #include <sys/types.h>
 
-#include <string>
-#include <memory>
-#include <list>
-#include <mutex>
 #include "storage_constant.h"
+#include "storage_service.h"
+#include "storage_utils.h"
 
 namespace OHOS {
 namespace StorageService {

@@ -38,7 +38,7 @@ private:
     int32_t HandleFindEmulateForPrivate(MessageParcel &data, Parcel &reply);
     int32_t HandlegetVolumes(Parcel &reply);
     int32_t HandlegetDisks(Parcel &reply);
-    int32_t HandleIsEncrypted(const std::string &filePath,Parcel &reply);
+    int32_t HandleIsEncrypted(const std::string &filePath, Parcel &reply);
     template<typename T>
     bool WriteParcelableVector(std::vector<std::shared_ptr<T>> &parcelableVector, Parcel &reply);
 };

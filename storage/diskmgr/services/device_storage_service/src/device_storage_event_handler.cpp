@@ -23,8 +23,7 @@
 namespace OHOS {
 DeviceStorageEventHandler::DeviceStorageEventHandler(const std::shared_ptr<AppExecFwk::EventRunner> &runner,
                                                      const sptr<DeviceStorageService> &service)
-    :EventHandler(runner)
-    ,service_(service)
+    : EventHandler(runner), service_(service)
 {
     SSLOG_I("DeviceStorageEventHandler instance is created");
 }

@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #include "storage_service_local_envent_socket_test.h"
+
 #include <csignal>
 #include <cstring>
 #include <iostream>
@@ -23,6 +23,7 @@
 #include <iservice_registry.h>
 #include <sys/sysmacros.h>
 #include <system_ability_definition.h>
+
 #include "local_event_socket.h"
 
 using namespace testing::ext;

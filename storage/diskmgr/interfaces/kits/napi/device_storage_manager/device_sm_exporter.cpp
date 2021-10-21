@@ -42,7 +42,7 @@ using namespace std;
 namespace OHOS {
 namespace DistributedFS {
 namespace ModuleDSMExpoter {
-enum COMMON_NUM {
+enum class COMMON_NUM {
     ZERO = 0,
     ONE = 1,
     TWO = 2,
@@ -51,7 +51,11 @@ enum COMMON_NUM {
 const int ERROR = 300;
 const int NULL_ERROR = 202;
 
-static void ForeachVomInfos(std::vector<std::shared_ptr<OHOS::DS::VolumeInfo>> &infos, napi_env &env, napi_value &getvolumenapi, int32_t &userId) {
+static void ForeachVomInfos(std::vector<std::shared_ptr<OHOS::DS::VolumeInfo>> &infos,
+                            napi_env &env,
+                            napi_value &getvolumenapi,
+                            int32_t &userId)
+{
     int32_t i = 0;
     
     for (auto vomInfo : infos) {
@@ -80,7 +84,10 @@ static void ForeachVomInfos(std::vector<std::shared_ptr<OHOS::DS::VolumeInfo>> &
     }
 }
 
-static void ForeachDsmInfos(std::vector<std::shared_ptr<OHOS::DS::DiskInfo>> &infos, napi_env &env, napi_value &diaknapi) {
+static void ForeachDsmInfos(std::vector<std::shared_ptr<OHOS::DS::DiskInfo>> &infos,
+                            napi_env &env,
+                            napi_value &diaknapi)
+{
     int32_t i = 0;
     
     for (auto dsmInfo : infos) {
@@ -125,7 +132,7 @@ void CallBackError(napi_env env, napi_ref failFuncRef, string errorProp, int err
     if (failFunc == nullptr) {
         return;
     }
-    napi_call_function(env, global, failFunc, COMMON_NUM::TWO, argvFail, &results);
+    napi_call_function(env, global, failFunc, (int) COMMON_NUM::TWO, argvFail, &results);
 }
 void CallComplete(napi_env env, napi_ref completeFuncRef)
 {
@@ -137,7 +144,7 @@ void CallComplete(napi_env env, napi_ref completeFuncRef)
     if (completeFunc == nullptr) {
         return;
     }
-    napi_call_function(env, global, completeFunc, COMMON_NUM::ZERO, nullptr, &results);
+    napi_call_function(env, global, completeFunc, (int) COMMON_NUM::ZERO, nullptr, &results);
 }
 
 std::shared_ptr<DeviceStorageManager> dsm = DelayedSingleton<DeviceStorageManager>::GetInstance();
@@ -318,17 +325,17 @@ void VolToDesCription(napi_env env, NVal a, std::shared_ptr<DS::VolumeInfo> &vol
 napi_value DeviceSMExporter::Mount(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::ONE)) {
+    if (!funcArg.InitArgs((int) NARG_CNT::ONE)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
     bool succ = false;
     napi_ref napiSuccFun, napiCompFun, napiFailFun;
     tie(succ, napiSuccFun, napiFailFun, napiCompFun) =
-        CommonFunc::GetCallbackHandles(env, funcArg[NARG_POS::FIRST]);
+        CommonFunc::GetCallbackHandles(env, funcArg[(int) NARG_POS::FIRST]);
 
     unique_ptr<char[]> deviceId = nullptr;
-    tie(succ, deviceId, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("volId").ToUTF8String();
+    tie(succ, deviceId, ignore) = NVal(env, funcArg[(int) NARG_POS::FIRST]).GetProp("volId").ToUTF8String();
 
     std::string mvId = (deviceId == nullptr) ? "" : deviceId.get();
     if (mvId == "") {
@@ -342,7 +349,7 @@ napi_value DeviceSMExporter::Mount(napi_env env, napi_callback_info info)
 
     bool s = dsm->Mount(mvId);
     if (s) {
-        CallBackSuccess(env, napiSuccFun, COMMON_NUM::ZERO, nullptr);
+        CallBackSuccess(env, napiSuccFun, (int) COMMON_NUM::ZERO, nullptr);
     } else {
         CallBackError(env, napiFailFun, "Mount return value error", ERROR);
     }
@@ -356,17 +363,17 @@ napi_value DeviceSMExporter::Mount(napi_env env, napi_callback_info info)
 napi_value DeviceSMExporter::UnMount(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::ONE)) {
+    if (!funcArg.InitArgs((int) NARG_CNT::ONE)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
     bool succ = false;
     napi_ref napiSuccFun, napiCompFun, napiFailFun;
     tie(succ, napiSuccFun, napiFailFun, napiCompFun) =
-        CommonFunc::GetCallbackHandles(env, funcArg[NARG_POS::FIRST]);
+        CommonFunc::GetCallbackHandles(env, funcArg[(int) NARG_POS::FIRST]);
 
     unique_ptr<char[]> deviceId = nullptr;
-    tie(succ, deviceId, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("volId").ToUTF8String();
+    tie(succ, deviceId, ignore) = NVal(env, funcArg[(int) NARG_POS::FIRST]).GetProp("volId").ToUTF8String();
 
     std::string mvId = (deviceId == nullptr) ? "" : deviceId.get();
     if (mvId == "") {
@@ -380,7 +387,7 @@ napi_value DeviceSMExporter::UnMount(napi_env env, napi_callback_info info)
 
     bool s = dsm->UnMount(mvId);
     if (s) {
-        CallBackSuccess(env, napiSuccFun, COMMON_NUM::ZERO, nullptr);
+        CallBackSuccess(env, napiSuccFun, (int) COMMON_NUM::ZERO, nullptr);
     } else {
         CallBackError(env, napiFailFun, "UnMount return value error", ERROR);
     }
@@ -395,17 +402,17 @@ napi_value DeviceSMExporter::UnMount(napi_env env, napi_callback_info info)
 napi_value DeviceSMExporter::Format(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::ONE)) {
+    if (!funcArg.InitArgs((int) NARG_CNT::ONE)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
     bool succ = false;
     napi_ref napiSuccFun, napiCompFun, napiFailFun;
     tie(succ, napiSuccFun, napiFailFun, napiCompFun) =
-        CommonFunc::GetCallbackHandles(env, funcArg[NARG_POS::FIRST]);
+        CommonFunc::GetCallbackHandles(env, funcArg[(int) NARG_POS::FIRST]);
 
     unique_ptr<char[]> deviceId = nullptr;
-    tie(succ, deviceId, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("volId").ToUTF8String();
+    tie(succ, deviceId, ignore) = NVal(env, funcArg[(int) NARG_POS::FIRST]).GetProp("volId").ToUTF8String();
 
     std::string mvId = (deviceId == nullptr) ? "" : deviceId.get();
     if (mvId == "") {
@@ -419,7 +426,7 @@ napi_value DeviceSMExporter::Format(napi_env env, napi_callback_info info)
 
     bool s = dsm->Format(mvId);
     if (s) {
-        CallBackSuccess(env, napiSuccFun, COMMON_NUM::ZERO, nullptr);
+        CallBackSuccess(env, napiSuccFun, (int) COMMON_NUM::ZERO, nullptr);
     } else {
         CallBackError(env, napiFailFun, "Format fail", ERROR);
     }
@@ -434,17 +441,17 @@ napi_value DeviceSMExporter::Format(napi_env env, napi_callback_info info)
 napi_value DeviceSMExporter::IsEncrypted(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::ONE)) {
+    if (!funcArg.InitArgs((int) NARG_CNT::ONE)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
     bool succ = false;
     napi_ref napiSuccFun, napiCompFun, napiFailFun;
     tie(succ, napiSuccFun, napiFailFun, napiCompFun) =
-        CommonFunc::GetCallbackHandles(env, funcArg[NARG_POS::FIRST]);
+        CommonFunc::GetCallbackHandles(env, funcArg[(int) NARG_POS::FIRST]);
 
     unique_ptr<char[]> devfilePath = nullptr;
-    tie(succ, devfilePath, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("filePath").ToUTF8String();
+    tie(succ, devfilePath, ignore) = NVal(env, funcArg[(int) NARG_POS::FIRST]).GetProp("filePath").ToUTF8String();
 
     std::string mFilePath = (devfilePath == nullptr) ? "" : devfilePath.get();
     if (mFilePath == "") {
@@ -458,7 +465,7 @@ napi_value DeviceSMExporter::IsEncrypted(napi_env env, napi_callback_info info)
 
     bool s = dsm->IsEncrypted(mFilePath);
     if (s) {
-        CallBackSuccess(env, napiSuccFun, COMMON_NUM::ZERO, nullptr);
+        CallBackSuccess(env, napiSuccFun, (int) COMMON_NUM::ZERO, nullptr);
     } else {
         CallBackError(env, napiFailFun, "Not A Encrypted Path", ERROR);
     }
@@ -472,17 +479,17 @@ napi_value DeviceSMExporter::IsEncrypted(napi_env env, napi_callback_info info)
 napi_value DeviceSMExporter::PartitionPublic(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::ONE)) {
+    if (!funcArg.InitArgs((int) NARG_CNT::ONE)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
     bool succ = false;
     napi_ref napiSuccFun, napiCompFun, napiFailFun;
     tie(succ, napiSuccFun, napiFailFun, napiCompFun) =
-        CommonFunc::GetCallbackHandles(env, funcArg[NARG_POS::FIRST]);
+        CommonFunc::GetCallbackHandles(env, funcArg[(int) NARG_POS::FIRST]);
 
     unique_ptr<char[]> deviceId = nullptr;
-    tie(succ, deviceId, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("diskId").ToUTF8String();
+    tie(succ, deviceId, ignore) = NVal(env, funcArg[(int) NARG_POS::FIRST]).GetProp("diskId").ToUTF8String();
 
     std::string dsId = (deviceId == nullptr) ? "" : deviceId.get();
     if (dsId == "") {
@@ -496,7 +503,7 @@ napi_value DeviceSMExporter::PartitionPublic(napi_env env, napi_callback_info in
 
     bool s = dsm->PartitionPublic(dsId);
     if (s) {
-        CallBackSuccess(env, napiSuccFun, COMMON_NUM::ZERO, nullptr);
+        CallBackSuccess(env, napiSuccFun, (int) COMMON_NUM::ZERO, nullptr);
     } else {
         CallBackError(env, napiFailFun, "PartitionPublic fail", ERROR);
     }
@@ -511,17 +518,17 @@ napi_value DeviceSMExporter::PartitionPublic(napi_env env, napi_callback_info in
 napi_value DeviceSMExporter::PartitionPrivate(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::ONE)) {
+    if (!funcArg.InitArgs((int) NARG_CNT::ONE)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
     bool succ = false;
     napi_ref napiSuccFun, napiCompFun, napiFailFun;
     tie(succ, napiSuccFun, napiFailFun, napiCompFun) =
-        CommonFunc::GetCallbackHandles(env, funcArg[NARG_POS::FIRST]);
+        CommonFunc::GetCallbackHandles(env, funcArg[(int) NARG_POS::FIRST]);
 
     unique_ptr<char[]> deviceId = nullptr;
-    tie(succ, deviceId, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("diskId").ToUTF8String();
+    tie(succ, deviceId, ignore) = NVal(env, funcArg[(int) NARG_POS::FIRST]).GetProp("diskId").ToUTF8String();
 
     std::string dsId = (deviceId == nullptr) ? "" : deviceId.get();
     if (dsId == "") {
@@ -535,7 +542,7 @@ napi_value DeviceSMExporter::PartitionPrivate(napi_env env, napi_callback_info i
 
     bool s = dsm->PartitionPrivate(dsId);
     if (s) {
-        CallBackSuccess(env, napiSuccFun, COMMON_NUM::ZERO, nullptr);
+        CallBackSuccess(env, napiSuccFun, (int) COMMON_NUM::ZERO, nullptr);
     } else {
         CallBackError(env, napiFailFun, "PartitionPrivate fail", ERROR);
     }
@@ -550,14 +557,14 @@ napi_value DeviceSMExporter::PartitionPrivate(napi_env env, napi_callback_info i
 napi_value DeviceSMExporter::GetVolumes(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::ONE)) {
+    if (!funcArg.InitArgs((int) NARG_CNT::ONE)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
     bool succ = false;
     napi_ref napiSuccFun, napiCompFun, napiFailFun;
     tie(succ, napiSuccFun, napiFailFun, napiCompFun) =
-        CommonFunc::GetCallbackHandles(env, funcArg[NARG_POS::FIRST]);
+        CommonFunc::GetCallbackHandles(env, funcArg[(int) NARG_POS::FIRST]);
 
     std::vector<std::shared_ptr<DS::VolumeInfo>> infos;
     bool ret = dsm->GetVolumes(infos);
@@ -566,7 +573,7 @@ napi_value DeviceSMExporter::GetVolumes(napi_env env, napi_callback_info info)
 
         NVal objc = NVal::CreateObject(env);
         objc.AddProp("volumeInfos", getvolumenapi);
-        CallBackSuccess(env, napiSuccFun, COMMON_NUM::ONE, objc.val_);
+        CallBackSuccess(env, napiSuccFun, (int) COMMON_NUM::ONE, objc.val_);
     } else {
         CallBackError(env, napiFailFun, "getvolume not exist", ERROR);
     }
@@ -581,14 +588,14 @@ napi_value DeviceSMExporter::GetVolumes(napi_env env, napi_callback_info info)
 napi_value DeviceSMExporter::GetDisks(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::ONE)) {
+    if (!funcArg.InitArgs((int) NARG_CNT::ONE)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
     bool succ = false;
     napi_ref napiSuccFun, napiCompFun, napiFailFun;
     tie(succ, napiSuccFun, napiFailFun, napiCompFun) =
-        CommonFunc::GetCallbackHandles(env, funcArg[NARG_POS::FIRST]);
+        CommonFunc::GetCallbackHandles(env, funcArg[(int) NARG_POS::FIRST]);
 
     std::vector<std::shared_ptr<DS::DiskInfo>> infos;
     bool ret = dsm->GetDisks(infos);
@@ -598,7 +605,7 @@ napi_value DeviceSMExporter::GetDisks(napi_env env, napi_callback_info info)
         ForeachDsmInfos(infos, env, diaknapi);
         NVal objn = NVal::CreateObject(env);
         objn.AddProp("diskInfos", diaknapi);
-        CallBackSuccess(env, napiSuccFun, COMMON_NUM::ONE, objn.val_);
+        CallBackSuccess(env, napiSuccFun, (int) COMMON_NUM::ONE, objn.val_);
     } else {
         CallBackError(env, napiFailFun, "disk not exist", ERROR);
     }
@@ -613,17 +620,17 @@ napi_value DeviceSMExporter::GetDisks(napi_env env, napi_callback_info info)
 napi_value DeviceSMExporter::SetPrimaryStorageUuid(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::ONE)) {
+    if (!funcArg.InitArgs((int) NARG_CNT::ONE)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
     bool succ = false;
     napi_ref napiSuccFun, napiCompFun, napiFailFun;
     tie(succ, napiSuccFun, napiFailFun, napiCompFun) =
-        CommonFunc::GetCallbackHandles(env, funcArg[NARG_POS::FIRST]);
+        CommonFunc::GetCallbackHandles(env, funcArg[(int) NARG_POS::FIRST]);
 
     unique_ptr<char[]> deviceId = nullptr;
-    tie(succ, deviceId, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("volumeUuid").ToUTF8String();
+    tie(succ, deviceId, ignore) = NVal(env, funcArg[(int) NARG_POS::FIRST]).GetProp("volumeUuid").ToUTF8String();
     std::string vuId = (deviceId == nullptr) ? "" : deviceId.get();
     if (vuId == "") {
         CallBackError(env, napiFailFun, "SetPrimaryStorageUuid incoming parameter is null", NULL_ERROR);
@@ -636,7 +643,7 @@ napi_value DeviceSMExporter::SetPrimaryStorageUuid(napi_env env, napi_callback_i
 
     bool s = dsm->SetPrimaryStorageUuid(vuId);
     if (s) {
-        CallBackSuccess(env, napiSuccFun, COMMON_NUM::ZERO, nullptr);
+        CallBackSuccess(env, napiSuccFun, (int) COMMON_NUM::ZERO, nullptr);
     } else {
         CallBackError(env, napiFailFun, "SetPrimaryStorageUuid fail", ERROR);
     }
@@ -651,17 +658,17 @@ napi_value DeviceSMExporter::SetPrimaryStorageUuid(napi_env env, napi_callback_i
 napi_value DeviceSMExporter::FindVolumeById(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::ONE)) {
+    if (!funcArg.InitArgs((int) NARG_CNT::ONE)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
     bool succ = false;
     napi_ref napiSuccFun, napiCompFun, napiFailFun;
     tie(succ, napiSuccFun, napiFailFun, napiCompFun) =
-        CommonFunc::GetCallbackHandles(env, funcArg[NARG_POS::FIRST]);
+        CommonFunc::GetCallbackHandles(env, funcArg[(int) NARG_POS::FIRST]);
 
     unique_ptr<char[]> deviceId = nullptr;
-    tie(succ, deviceId, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("volId").ToUTF8String();
+    tie(succ, deviceId, ignore) = NVal(env, funcArg[(int) NARG_POS::FIRST]).GetProp("volId").ToUTF8String();
 
     std::string mvId = (deviceId == nullptr) ? "" : deviceId.get();
     if (mvId == "") {
@@ -683,7 +690,7 @@ napi_value DeviceSMExporter::FindVolumeById(napi_env env, napi_callback_info inf
         ForeachVomInfos(infos, env, getvolumenapi, userId);
         NVal objc = NVal::CreateObject(env);
         objc.AddProp("volumeInfos", getvolumenapi);
-        CallBackSuccess(env, napiSuccFun, COMMON_NUM::ONE, objc.val_);
+        CallBackSuccess(env, napiSuccFun, (int) COMMON_NUM::ONE, objc.val_);
     } else {
         CallBackError(env, napiFailFun, "FindVolumeById not exist", ERROR);
     }
@@ -698,17 +705,17 @@ napi_value DeviceSMExporter::FindVolumeById(napi_env env, napi_callback_info inf
 napi_value DeviceSMExporter::FindVolumeByUuid(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::ONE)) {
+    if (!funcArg.InitArgs((int) NARG_CNT::ONE)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
     bool succ = false;
     napi_ref napiSuccFun, napiCompFun, napiFailFun;
     tie(succ, napiSuccFun, napiFailFun, napiCompFun) =
-        CommonFunc::GetCallbackHandles(env, funcArg[NARG_POS::FIRST]);
+        CommonFunc::GetCallbackHandles(env, funcArg[(int) NARG_POS::FIRST]);
 
     unique_ptr<char[]> deviceId = nullptr;
-    tie(succ, deviceId, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("volumeUuid").ToUTF8String();
+    tie(succ, deviceId, ignore) = NVal(env, funcArg[(int) NARG_POS::FIRST]).GetProp("volumeUuid").ToUTF8String();
 
     std::string mvmId = (deviceId == nullptr) ? "" : deviceId.get();
     if (mvmId == "") {
@@ -729,7 +736,7 @@ napi_value DeviceSMExporter::FindVolumeByUuid(napi_env env, napi_callback_info i
         ForeachVomInfos(infos, env, getvolumenapi, userId);
         NVal objc = NVal::CreateObject(env);
         objc.AddProp("volumeInfos", getvolumenapi);
-        CallBackSuccess(env, napiSuccFun, COMMON_NUM::ONE, objc.val_);
+        CallBackSuccess(env, napiSuccFun, (int) COMMON_NUM::ONE, objc.val_);
     } else {
         CallBackError(env, napiFailFun, "FindVolumeByUuid not exist", ERROR);
     }
@@ -744,17 +751,17 @@ napi_value DeviceSMExporter::FindVolumeByUuid(napi_env env, napi_callback_info i
 napi_value DeviceSMExporter::FindDiskById(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::ONE)) {
+    if (!funcArg.InitArgs((int) NARG_CNT::ONE)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
     bool succ = false;
     napi_ref napiSuccFun, napiCompFun, napiFailFun;
     tie(succ, napiSuccFun, napiFailFun, napiCompFun) =
-        CommonFunc::GetCallbackHandles(env, funcArg[NARG_POS::FIRST]);
+        CommonFunc::GetCallbackHandles(env, funcArg[(int) NARG_POS::FIRST]);
 
     unique_ptr<char[]> deviceId = nullptr;
-    tie(succ, deviceId, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("diskId").ToUTF8String();
+    tie(succ, deviceId, ignore) = NVal(env, funcArg[(int) NARG_POS::FIRST]).GetProp("diskId").ToUTF8String();
 
     std::string dsId = (deviceId == nullptr) ? "" : deviceId.get();
     if (dsId == "") {
@@ -775,7 +782,7 @@ napi_value DeviceSMExporter::FindDiskById(napi_env env, napi_callback_info info)
         ForeachDsmInfos(infos, env, diaknapi);
         NVal objn = NVal::CreateObject(env);
         objn.AddProp("diskInfos", diaknapi);
-        CallBackSuccess(env, napiSuccFun, COMMON_NUM::ONE, objn.val_);
+        CallBackSuccess(env, napiSuccFun, (int) COMMON_NUM::ONE, objn.val_);
     } else {
         CallBackError(env, napiFailFun, "FindDiskById not exist", ERROR);
     }
@@ -790,21 +797,21 @@ napi_value DeviceSMExporter::FindDiskById(napi_env env, napi_callback_info info)
 napi_value DeviceSMExporter::GetPrimaryStorageUuid(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::ONE)) {
+    if (!funcArg.InitArgs((int) NARG_CNT::ONE)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
     bool succ = false;
     napi_ref napiSuccFun, napiCompFun, napiFailFun;
     tie(succ, napiSuccFun, napiFailFun, napiCompFun) =
-        CommonFunc::GetCallbackHandles(env, funcArg[NARG_POS::FIRST]);
+        CommonFunc::GetCallbackHandles(env, funcArg[(int) NARG_POS::FIRST]);
 
     std::string primaryUuid;
     bool s = dsm->GetPrimaryStorageUuid(primaryUuid);
     if (s) {
         NVal obj = NVal::CreateObject(env);
         obj.AddProp("primaryUuid", NVal::CreateUTF8String(env, primaryUuid).val_);
-        CallBackSuccess(env, napiSuccFun, COMMON_NUM::ONE, obj.val_);
+        CallBackSuccess(env, napiSuccFun, (int) COMMON_NUM::ONE, obj.val_);
     } else {
         CallBackError(env, napiFailFun, "GetPrimaryStorageUuid return value error", ERROR);
     }
@@ -819,18 +826,18 @@ napi_value DeviceSMExporter::GetPrimaryStorageUuid(napi_env env, napi_callback_i
 napi_value DeviceSMExporter::FindPrivateForEmulate(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::ONE)) {
+    if (!funcArg.InitArgs((int) NARG_CNT::ONE)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
     bool succ = false;
     napi_ref napiSuccFun, napiCompFun, napiFailFun;
     tie(succ, napiSuccFun, napiFailFun, napiCompFun) =
-        CommonFunc::GetCallbackHandles(env, funcArg[NARG_POS::FIRST]);
+        CommonFunc::GetCallbackHandles(env, funcArg[(int) NARG_POS::FIRST]);
 
     std::shared_ptr<DS::VolumeInfo> emuVol = std::make_shared<DS::VolumeInfo>();
 
-    NVal a = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("emuVol");
+    NVal a = NVal(env, funcArg[(int) NARG_POS::FIRST]).GetProp("emuVol");
     if (a.TypeIs(napi_object)) {
     } else if (a.TypeIs(napi_undefined)) {
     } else if (a.TypeIs(napi_null)) {
@@ -847,7 +854,7 @@ napi_value DeviceSMExporter::FindPrivateForEmulate(napi_env env, napi_callback_i
         ForeachVomInfos(infos, env, getvolumenapi, userId);
         NVal objc = NVal::CreateObject(env);
         objc.AddProp("volumeInfos", getvolumenapi);
-        CallBackSuccess(env, napiSuccFun, COMMON_NUM::ONE, objc.val_);
+        CallBackSuccess(env, napiSuccFun, (int) COMMON_NUM::ONE, objc.val_);
     } else {
         CallBackError(env, napiFailFun, "FindPrivateForEmulate not exist", ERROR);
     }
@@ -862,18 +869,18 @@ napi_value DeviceSMExporter::FindPrivateForEmulate(napi_env env, napi_callback_i
 napi_value DeviceSMExporter::FindEmulateForPrivate(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::ONE)) {
+    if (!funcArg.InitArgs((int) NARG_CNT::ONE)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
     bool succ = false;
     napi_ref napiSuccFun, napiCompFun, napiFailFun;
     tie(succ, napiSuccFun, napiFailFun, napiCompFun) =
-        CommonFunc::GetCallbackHandles(env, funcArg[NARG_POS::FIRST]);
+        CommonFunc::GetCallbackHandles(env, funcArg[(int) NARG_POS::FIRST]);
 
     std::shared_ptr<DS::VolumeInfo> priVol = std::make_shared<DS::VolumeInfo>();
 
-    NVal a = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("priVol");
+    NVal a = NVal(env, funcArg[(int) NARG_POS::FIRST]).GetProp("priVol");
     if (a.TypeIs(napi_object)) {
     } else if (a.TypeIs(napi_undefined)) {
     } else if (a.TypeIs(napi_null)) {
@@ -890,7 +897,7 @@ napi_value DeviceSMExporter::FindEmulateForPrivate(napi_env env, napi_callback_i
         ForeachVomInfos(infos, env, getvolumenapi, userId);
         NVal objc = NVal::CreateObject(env);
         objc.AddProp("volumeInfos", getvolumenapi);
-        CallBackSuccess(env, napiSuccFun, COMMON_NUM::ONE, objc.val_);
+        CallBackSuccess(env, napiSuccFun, (int) COMMON_NUM::ONE, objc.val_);
     } else {
         CallBackError(env, napiFailFun, "FindEmulateForPrivate not exist", ERROR);
     }
@@ -905,18 +912,18 @@ napi_value DeviceSMExporter::FindEmulateForPrivate(napi_env env, napi_callback_i
 napi_value DeviceSMExporter::GetBestVolumeDescription(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::ONE)) {
+    if (!funcArg.InitArgs((int) NARG_CNT::ONE)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
     bool succ = false;
     napi_ref napiSuccFun, napiCompFun, napiFailFun;
     tie(succ, napiSuccFun, napiFailFun, napiCompFun) =
-        CommonFunc::GetCallbackHandles(env, funcArg[NARG_POS::FIRST]);
+        CommonFunc::GetCallbackHandles(env, funcArg[(int) NARG_POS::FIRST]);
 
     std::shared_ptr<DS::VolumeInfo> vol = std::make_shared<DS::VolumeInfo>();
 
-    NVal a = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("vol");
+    NVal a = NVal(env, funcArg[(int) NARG_POS::FIRST]).GetProp("vol");
     if (a.TypeIs(napi_object)) {
     } else if (a.TypeIs(napi_undefined)) {
     } else if (a.TypeIs(napi_null)) {
@@ -929,7 +936,7 @@ napi_value DeviceSMExporter::GetBestVolumeDescription(napi_env env, napi_callbac
     if (s) {
         NVal obj = NVal::CreateObject(env);
         obj.AddProp("desCription", NVal::CreateUTF8String(env, vol->GetDescription()).val_);
-        CallBackSuccess(env, napiSuccFun, COMMON_NUM::ONE, obj.val_);
+        CallBackSuccess(env, napiSuccFun, (int) COMMON_NUM::ONE, obj.val_);
     } else {
         CallBackError(env, napiFailFun, "GetBestVolumeDescription return value error", ERROR);
     }
@@ -944,14 +951,14 @@ napi_value DeviceSMExporter::GetBestVolumeDescription(napi_env env, napi_callbac
 napi_value DeviceSMExporter::GetWritableVolumes(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::ONE)) {
+    if (!funcArg.InitArgs((int) NARG_CNT::ONE)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
     bool succ = false;
     napi_ref napiSuccFun, napiCompFun, napiFailFun;
     tie(succ, napiSuccFun, napiFailFun, napiCompFun) =
-        CommonFunc::GetCallbackHandles(env, funcArg[NARG_POS::FIRST]);
+        CommonFunc::GetCallbackHandles(env, funcArg[(int) NARG_POS::FIRST]);
 
     std::vector<std::shared_ptr<DS::VolumeInfo>> infos;
     bool ret = dsm->GetWritableVolumes(infos);
@@ -961,7 +968,7 @@ napi_value DeviceSMExporter::GetWritableVolumes(napi_env env, napi_callback_info
         ForeachVomInfos(infos, env, getvolumenapi, userId);
         NVal objc = NVal::CreateObject(env);
         objc.AddProp("volumeInfos", getvolumenapi);
-        CallBackSuccess(env, napiSuccFun, COMMON_NUM::ONE, objc.val_);
+        CallBackSuccess(env, napiSuccFun, (int) COMMON_NUM::ONE, objc.val_);
     } else {
         CallBackError(env, napiFailFun, "GetWritableVolumes not exist", ERROR);
     }

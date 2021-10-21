@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 #include "device_storage_service_hilog.h"
-#include "model/volume_info.h"
-#include "model/parcel_macro.h"
 #include "model/device_storage_constants.h"
+#include "model/parcel_macro.h"
+#include "model/volume_info.h"
 #include "string_ex.h"
 
 namespace OHOS {

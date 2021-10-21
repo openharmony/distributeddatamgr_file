@@ -27,11 +27,26 @@
 
 #include "cJSON.h"
 #include "fs_mount_tab.h"
-#include "init_jobs.h"
 #include "ss_tab_mgr.h"
 #include "storage_hilog.h"
 
 namespace OHOS {
+static const int MAX_JOB_NAME_LEN = 64;
+static const int MAX_CMD_NAME_LEN = 32;
+static const int MAX_CMD_CONTENT_LEN = 256;
+static const int MAX_CMD_CNT_IN_ONE_JOB = 200;
+
+typedef struct {
+    char name[MAX_CMD_NAME_LEN + 1];
+    char cmdContent[MAX_CMD_CONTENT_LEN + 1];
+} CmdLine;
+
+typedef struct {
+    char name[MAX_JOB_NAME_LEN + 1];
+    int cmdLinesCnt;
+    CmdLine* cmdLines;
+} Job;
+
 static const char *supportedComds[] = {
     "start ",      "mkdir ",  "chmod ",     "chown ", "mount ", "export ",   "loadcfg ",
     "insmod ",     "rm ",     "rmdir ",     "write ", "exec ",  "mknode ",   "makedev ",
@@ -112,20 +127,20 @@ static void ParseCmdLine(const char *cmdStr, CmdLine *resCmd, std::list<std::str
         if (cmdLineLen > curCmdNameLen && cmdLineLen <= (curCmdNameLen + MAX_CMD_CONTENT_LEN) &&
             strncmp(supportedComds[i], cmdStr, curCmdNameLen) == 0) {
             if (memcpy(resCmd->name, cmdStr, curCmdNameLen) == nullptr) {
-                SSLOG_I("resCmd->name is null");
+                SSLOG_I("resCmd name is null");
                 break;
             }
-            if(!(strcmp("mount ",resCmd->name))) {
+            if (!(strcmp("mount ", resCmd->name))) {
                 resCmd->name[curCmdNameLen] = '\0';
                 SSLOG_I("mountTest--ParseCmdLine--find a mount cmd~!!");
 
-                const char* cmdContent = cmdStr + curCmdNameLen;
+                const char *cmdContent = cmdStr + curCmdNameLen;
                 size_t cmdContentLen = cmdLineLen - curCmdNameLen;
                 if (memcpy(resCmd->cmdContent, cmdContent, cmdContentLen) == nullptr) {
                     break;
                 }
                 mountList.push_back(resCmd->cmdContent);
-                resCmd->cmdContent[cmdContentLen] = '\0';       
+                resCmd->cmdContent[cmdContentLen] = '\0';
             }
             foundAndSucceed = 1;
             break;

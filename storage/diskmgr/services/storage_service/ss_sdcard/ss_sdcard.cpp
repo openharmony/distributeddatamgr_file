@@ -12,15 +12,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <cerrno>
 #include <cstring>
 #include <cstdio>
+#include <cstdlib>
 #include <dirent.h>
-#include <errno.h>
 #include <fcntl.h>
-#include <linux/fuse.h>
 #include <pthread.h>
-#include <stdlib.h>
-#include <string.h>
 #include <sys/inotify.h>
 #include <sys/mount.h>
 #include <sys/resource.h>
@@ -28,15 +26,20 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <vector>
+#include <linux/fuse.h>
+
 #include "storage_utils.h"
 #include "storage_constant.h"
 #include "utils_string.h"
 #include "storage_hilog.h"
+
 using namespace OHOS::SsUtils;
 using namespace OHOS::StorageService::Constants;
-typedef uid_t userid_t;
+using userid_t = uid_t;
 namespace OHOS {
 namespace SdcardFs {
+static constexpr int BASE_FLAGS = 10;
+static constexpr int RLIM_FLAGS = 8192;
 struct SdcardFsOption {
     uid_t uid;
     gid_t gid;
@@ -120,8 +123,8 @@ bool Setup(const std::string &destPath, gid_t gid, mode_t mask, bool useEsdfs)
             newOpts += optsList[j];
         }
 
-        auto opts = StringPrintf("fsuid=%d,fsgid=%d,%smask=%d,userid=%d,gid=%d", fsOption.uid,
-                                 fsOption.gid, newOpts.c_str(), mask, fsOption.userid, gid);
+        auto opts = StringPrintf("fsuid=%d,fsgid=%d,%smask=%d,userid=%d,gid=%d", fsOption.uid, fsOption.gid,
+                                 newOpts.c_str(), mask, fsOption.userid, gid);
         if (mount(fsOption.sourcePath.c_str(), destPath.c_str(), useEsdfs ? "esdfs" : "sdcardfs",
                   MS_NOSUID | MS_NODEV | MS_NOEXEC | MS_NOATIME, opts.c_str()) == -1) {
             SSLOGFE("Failed to mount sdcardfs with options %s", opts.c_str());
@@ -225,9 +228,9 @@ int main(int argc, char **argv)
     OHOS::SdcardFs::InitOption();
     while ((opt = getopt(argc, argv, "u:g:U:mwGio")) != -1) {
         switch (opt) {
-            case 'u': OHOS::SdcardFs::fsOption.uid = strtoul(optarg, NULL, 10); break;
-            case 'g': OHOS::SdcardFs::fsOption.gid = strtoul(optarg, NULL, 10); break;
-            case 'U': OHOS::SdcardFs::fsOption.userid = strtoul(optarg, NULL, 10); break;
+            case 'u': OHOS::SdcardFs::fsOption.uid = strtoul(optarg, NULL, OHOS::SdcardFs::BASE_FLAGS); break;
+            case 'g': OHOS::SdcardFs::fsOption.gid = strtoul(optarg, NULL, OHOS::SdcardFs::BASE_FLAGS); break;
+            case 'U': OHOS::SdcardFs::fsOption.userid = strtoul(optarg, NULL, OHOS::SdcardFs::BASE_FLAGS); break;
             case 'm': OHOS::SdcardFs::fsOption.multiUser = true; break;
             case 'w': OHOS::SdcardFs::fsOption.fullWrite = true; break;
             case 'G': OHOS::SdcardFs::fsOption.deriveGid = true; break;
@@ -254,8 +257,8 @@ int main(int argc, char **argv)
         return usage();
     }
 
-    rlim.rlim_cur = 8192;
-    rlim.rlim_max = 8192;
+    rlim.rlim_cur = OHOS::SdcardFs::RLIM_FLAGS;
+    rlim.rlim_max = OHOS::SdcardFs::RLIM_FLAGS;
     if (setrlimit(RLIMIT_NOFILE, &rlim) == -1) {
         fprintf(stderr, "setting RLIMIT_NOFILE failed");
     }
