@@ -12,6 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef STORAGE_DISKMGR_INTERFACE_KITS_NAPI_N_EXPORTER_H
+#define STORAGE_DISKMGR_INTERFACE_KITS_NAPI_N_EXPORTER_H
 
 #pragma once
 
@@ -37,3 +39,4 @@ protected:
 };
 } // namespace DistributedFS
 } // namespace OHOS
+#endif // STORAGE_DISKMGR_INTERFACE_KITS_NAPI_N_EXPORTER_H

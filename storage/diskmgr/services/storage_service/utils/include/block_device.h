@@ -14,12 +14,14 @@
  */
 #ifndef STORAGE_SERVICE_BLOCK_DEVICE_H_
 #define STORAGE_SERVICE_BLOCK_DEVICE_H_
-#include <sys/types.h>
+
+
 #include <refbase.h>
-#include <unistd.h>
+#include <stddef.h>
 #include <stdint.h>
 #include <string>
-#include <stddef.h>
+#include <sys/types.h>
+#include <unistd.h>
 #include <linux/fiemap.h>
 
 namespace OHOS {

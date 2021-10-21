@@ -64,12 +64,10 @@ void LocalEventListen::OnEvent(LocalEventPacket *evt)
     const char *blockEvent = evt->GetBlockEvent();
 
     if (!blockEvent) {
-        SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
         return;
     }
 
     if (std::string(blockEvent) == "block") {
-        SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
         sm->KernelEventHandle(evt);
     }
 }

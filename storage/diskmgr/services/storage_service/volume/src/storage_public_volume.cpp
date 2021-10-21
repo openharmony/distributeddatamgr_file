@@ -19,14 +19,15 @@
 #include <sys/sysmacros.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+
 #include "exfatmgr.h"
 #include "ext4mgr.h"
 #include "f2fsmgr.h"
 #include "ntfsmgr.h"
-#include "storage_public_volume.h"
 #include "storage_base.h"
 #include "storage_hilog.h"
 #include "storage_manager.h"
+#include "storage_public_volume.h"
 #include "storage_utils.h"
 #include "utils_file.h"
 #include "utils_string.h"
@@ -54,9 +55,6 @@ StoragePublicVolume::StoragePublicVolume(dev_t device)
     SetInfo("", "", StringPrintf("disk:%u,%u", major(device), minor(device) - 1), -1, -1, true,
             SWITCH_FLAGS_SETDISKPATHID);
     publicVolDevPath = StringPrintf("/dev/block/platform/%s", getDiskPathId().c_str());
-    SSLOG_I(
-        "dugl %{public}s %{public}s %{public}d \n publicVolDevPath=%{public}s \n getDiskPathId=%{public}s",
-        __FILE__, __func__, __LINE__, publicVolDevPath.c_str(), getDiskPathId().c_str());
     publicVolUseSdcardFs = IsSdcardfsUsed();
     publicBlkDev = nullptr;
     SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
@@ -70,24 +68,20 @@ int StoragePublicVolume::InitAsecStage()
     std::string securePath(publicVolRawPath + "/.ohos_secure");
 
     if (!access(legacyPath.c_str(), R_OK | X_OK) && access(securePath.c_str(), R_OK | X_OK)) {
-        SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
         rename(legacyPath.c_str(), securePath.c_str());
     }
 
     if (TEMP_FAILURE_RETRY(mkdir(securePath.c_str(), PERMISSION_FLAGS))) {
-        SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
         if (errno != EEXIST) {
             return -errno;
         }
     }
     MountForBind(securePath, kAsecPath);
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     return OK;
 }
 
 int StoragePublicVolume::DoCreate()
 {
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     if (publicBlkDev == nullptr) {
         publicBlkDev = new SsBlockDevice(publicVolDevPath, publicVolDevice);
     }
@@ -101,7 +95,6 @@ int StoragePublicVolume::DoCreate()
 
 int StoragePublicVolume::DoDestroy()
 {
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     if (publicBlkDev != nullptr) {
         if (publicBlkDev->DestroyNode()) {
             return 0;
@@ -159,12 +152,8 @@ int StoragePublicVolume::DoMount()
 
 bool StoragePublicVolume::DoMountVisible()
 {
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     InitMapStringValues();
     bool isVisible = GetMountFlags() & MountFlags::baseMountFlagsIsVisible;
-    SSLOG_I("dugl %{public}s %{public}s %{public}d \n GetMountFlags()=%{public}d \n isVisible=%{public}d \n "
-            "publicVolFsType=%{public}s",
-            __FILE__, __func__, __LINE__, GetMountFlags(), isVisible, publicVolFsType.c_str());
     ReadDevInfo(publicVolDevPath, &publicVolFsType, &publicVolFsUuid, &publicVolFsLabel);
     auto listener = StorageManager::Instance()->GetListener();
     if (listener) {
@@ -172,38 +161,27 @@ bool StoragePublicVolume::DoMountVisible()
     }
 
     std::string stableName = getId();
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     if (!publicVolFsUuid.empty()) {
-        SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
         stableName = publicVolFsUuid;
     }
     MountInit(stableName);
     SendInfo("", publicVolRawPath, State::baseStateIsError, SWITCH_FLAGS_SENDInternalPath);
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     if (isVisible) {
-        SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
         SendInfo(StringPrintf("/storage/%s", stableName.c_str()), "", State::baseStateIsError,
                  SWITCH_FLAGS_SENDPAth);
     } else {
-        SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
         SendInfo(publicVolRawPath, "", State::baseStateIsError, SWITCH_FLAGS_SENDPAth);
     }
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     return isVisible;
 }
 
 int StoragePublicVolume::DoUnMount()
 {
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
-
     if (publicVolUseSdcardFs) {
-        SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
         ForceUnmountAll();
         RmdirAll();
         ClearAll();
     }
-    SSLOG_I("dugl %{public}s %{public}s %{public}d publicVolRawPath=%{public}s", __FILE__, __func__, __LINE__,
-            publicVolRawPath.c_str());
     ForceUnMount(publicVolRawPath);
     rmdir(publicVolRawPath.c_str());
     publicVolRawPath.clear();
@@ -215,7 +193,6 @@ int StoragePublicVolume::DoFormat(const std::string &fsType)
     int publicVolUseType = 0;
     int res = 0;
     InitMapStringValues();
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     switch (publicVolMapStringValues[fsType.c_str()]) {
         case publicVolAUTO: {
             if (VfatMgr::IsSupported() && ExfatMgr::IsSupported() && Ext4Mgr::IsSupported() &&
@@ -242,10 +219,9 @@ int StoragePublicVolume::DoFormat(const std::string &fsType)
         default: SSLOGFE("Unsupported filesystem "); break;
     }
     if (publicBlkDev != nullptr) {
-        SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
         publicBlkDev->Wipe();
     }
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
+
     switch (publicVolUseType) {
         case publicVolEXFAT: res = ExfatMgr::Format(publicVolDevPath); break;
         case publicVolEXT4: res = Ext4Mgr::Format(publicVolDevPath); break;
@@ -255,12 +231,9 @@ int StoragePublicVolume::DoFormat(const std::string &fsType)
         default: break;
     }
 
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     if (res != OK) {
-        SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
         res = -errno;
     }
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     return res;
 }
 
@@ -305,6 +278,5 @@ void StoragePublicVolume::InitMapStringValues()
     publicVolMapStringValues["ntfs"] = publicVolNTFS;
     publicVolMapStringValues["vfat"] = publicVolVFAT;
 }
-
 } // namespace StorageService
 } // namespace OHOS

@@ -14,6 +14,7 @@
  */
 
 #include "storage_service_manager_test.h"
+
 #include <csignal>
 #include <cstring>
 #include <iostream>

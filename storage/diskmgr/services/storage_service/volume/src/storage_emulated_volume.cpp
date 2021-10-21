@@ -23,6 +23,7 @@
 #include <sys/sysmacros.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+
 #include "block_device.h"
 #include "storage_emulated_volume.h"
 #include "storage_hilog.h"
@@ -30,6 +31,7 @@
 #include "storage_utils.h"
 #include "utils_file.h"
 #include "utils_string.h"
+
 using namespace OHOS::SsUtils;
 using namespace OHOS::StorageService::Constants;
 
@@ -73,34 +75,25 @@ StorageEmulatedVolume::~StorageEmulatedVolume() {}
 
 int StorageEmulatedVolume::DoMount()
 {
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     std::string label;
     if (GetMountFlags() & MountFlags::baseMountFlagsIskPrimary) {
-        SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
         label = "emulated";
     } else {
-        SSLOG_I("dugl %{public}s %{public}s %{public}d emulatedVolLabel=%{public}s", __FILE__, __func__,
-                __LINE__, emulatedVolLabel.c_str());
         label = emulatedVolLabel;
     }
     Init(label);
     SendInfo("", emulatedVolRawPath, State::baseStateIsError, SWITCH_FLAGS_SENDInternalPath);
     SendInfo(StringPrintf("/storage/%s", label.c_str()), "", State::baseStateIsError, SWITCH_FLAGS_SENDPAth);
     if (PreareDirCheck()) {
-        SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
         return -errno;
-    } else {
-        SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
-        dev_t before = SsBlockDevice::GetDevice(emulatedVolSdcardFsFull);
-        int ret = StorageEmulatedVolume::ExeclFile(label, before);
-        SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
-        return ret;
     }
+    dev_t before = SsBlockDevice::GetDevice(emulatedVolSdcardFsFull);
+    int ret = StorageEmulatedVolume::ExeclFile(label, before);
+    return ret;
 }
 
 int StorageEmulatedVolume::DoUnMount()
 {
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     if (!emulatedVolUseSdcardFs || GetMountUserId() != 0) {
         return -errno;
     }
@@ -121,21 +114,16 @@ bool StorageEmulatedVolume::PreareDirCheck()
 int StorageEmulatedVolume::ExeclFile(std::string label, dev_t before)
 {
     if (emulatedVolUseSdcardFs && GetMountUserId() == 0) {
-        SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
         int sdcardFsPid;
         if (!(sdcardFsPid = fork())) {
-            SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
             if (execl((char *)kSdcardFsPath.c_str(), (char *)kSdcardFsPath.c_str(), "-u", "1023", "-g",
                       "1023", "-m", "-w", "-G", "-i", "-o", emulatedVolRawPath.c_str(), label.c_str(),
                       NULL)) {}
             _exit(1);
         }
-        SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
         if (sdcardFsPid == -1) {
-            SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
             return -errno;
         } else {
-            SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
             int64_t Start = GetSysTime();
             while (before == SsBlockDevice::GetDevice(emulatedVolSdcardFsFull)) {
                 usleep(GET_DEVICE_INTERVAL_TIME); // 50ms
@@ -146,7 +134,6 @@ int StorageEmulatedVolume::ExeclFile(std::string label, dev_t before)
             }
             TEMP_FAILURE_RETRY(waitpid(sdcardFsPid, nullptr, 0));
             sdcardFsPid = 0;
-            SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
         }
     }
     return OK;

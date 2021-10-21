@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #include "storage_service_disk_test.h"
+
 #include <csignal>
 #include <cstring>
 #include <iostream>

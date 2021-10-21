@@ -12,6 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "storage_utils.h"
+
 #include <cctype>
 #include <cerrno>
 #include <csignal>
@@ -19,12 +21,15 @@
 #include <cstdlib>
 #include <dirent.h>
 #include <fcntl.h>
-#include <linux/fs.h>
-#include <linux/posix_acl.h>
-#include <linux/posix_acl_xattr.h>
+#include <fstream>
+#include <list>
+#include <memory>
 #include <mntent.h>
+#include <mutex>
+#include <numeric>
 #include <poll.h>
 #include <pwd.h>
+#include <regex>
 #include <string>
 #include <sys/sysmacros.h>
 #include <sys/statvfs.h>
@@ -36,23 +41,18 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <sys/xattr.h>
+#include <thread>
 #include <unistd.h>
-
 #include <unordered_set>
 #include <utility>
-#include <numeric>
-#include <fstream>
-#include <thread>
-#include <memory>
-#include <mutex>
-#include <regex>
-#include <list>
+
+#include <linux/fs.h>
+#include <linux/posix_acl.h>
+#include <linux/posix_acl_xattr.h>
 
 #include "utils_file.h"
 #include "utils_string.h"
-
 #include "storage_hilog.h"
-#include "storage_utils.h"
 
 namespace OHOS {
 namespace SsUtils {
@@ -64,13 +64,10 @@ static const std::string procFilesystems = "/proc/filesystems";
 static const std::string PROC_DEVICES = "/proc/devices";
 
 static constexpr int OK = 0;
-static constexpr int BUFSIZE_KBYTES = 1024;
 static pid_t localForkPid = -1;
 static int STORAGE_FIVE;
-static int tenPid = 10;
 static int numberSixteen = 16;
-static int numberSix = 6;
-static int numberEight = 8;
+static int numberNine = 9;
 #define CMDNUM 100
 
 bool IsSdcardfsUsed()
@@ -82,7 +79,6 @@ bool IsFilesystemSupported(const std::string &fsType)
 {
     std::string supported;
     if (!ReadFile(procFilesystems, &supported)) {
-        SSLOGFE("dugl Failed to read supported filesystems");
         return false;
     }
     for (auto &type : Split(supported, "\n")) {
@@ -127,6 +123,7 @@ bool CheckMaps(const std::string &path, const std::string &prefix)
 
 int GetPid(const char *s)
 {
+    int tenPid = 10;
     int pid = 0;
     while (*s) {
         if (!isdigit(*s)) {
@@ -259,100 +256,73 @@ int ExecuteCmd(const char *execveHandlepath,
                const std::vector<std::string> &args,
                std::vector<std::string> *output)
 {
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
+    constexpr int BUFSIZE_KBYTES = 1024;
     char cmd[CMDNUM] = "";
     for (int i = 0; i < args.size(); i++) {
         strcat(cmd, const_cast<char *>(args[i].c_str()));
         strcat(cmd, " ");
     }
-    SSLOG_I("dugl %{public}s %{public}s %{public}d cmd=%{public}s", __FILE__, __func__, __LINE__, cmd);
     output->clear();
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     FILE *fp = popen(cmd, "r"); // NOLINT
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     if (!fp) {
         SSLOGFE("Failed to execute shell cmd %{public}s ", cmd);
         return -1;
     }
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     char buf[BUFSIZE_KBYTES] = { 0 };
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     while (fgets(buf, BUFSIZE_KBYTES, fp) != nullptr) {
-        SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
         output->push_back(std::string(buf));
     }
 
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     if (pclose(fp) == -1) {
-        SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
         return -1;
-    } else {
-        SSLOG_I("dugl %{public}s %{public}s %{public}d \n cmd=%{public}s buf=%{public}s", __FILE__, __func__,
-                __LINE__, cmd, buf);
     }
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     return 0;
 }
 
 int ExecuteCmd(const char *execveHandlepath, const std::vector<std::string> &args)
 {
     uint64_t NS_PER_SECOND = 1000000000;
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     pid_t pid = fork();
-    SSLOG_I("dugl %{public}s %{public}s %{public}d pid=%{public}d", __FILE__, __func__, __LINE__, pid);
     if (pid < 0) {
-        SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
         localForkPid = pid;
         return -1;
     } else if (pid == 0) {
-        SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
         // Redirect the stdout to /dev/null
         int fd = open("/dev/null", O_WRONLY);
-        SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
         // follow standard, although dup2 may handle the case of invalid oldfd
         if (fd >= 0) {
-            SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
             dup2(fd, STDOUT_FILENO);
             close(fd);
         }
-        SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
         std::vector<char *> argv;
         for (const auto &arg : args) {
             argv.push_back(const_cast<char *>(arg.c_str()));
         }
         argv.push_back(nullptr);
 #ifdef OHOS_LITE
-        SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
         execve(execveHandlepath, &argv[0]), NULL);
 #else
-        SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
         execv(execveHandlepath, &argv[0]);
 #endif
     }
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     constexpr uint64_t maxWaitingTime = 60; // 60 seconds
     uint64_t remainedTime = maxWaitingTime * NS_PER_SECOND;
     while (remainedTime > 0) {
         uint64_t startTime = GetNanoTime();
         int status = 0;
         waitpid(pid, &status, WNOHANG);
-        SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
         if (WIFEXITED(status)) {
-            SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
             return 0;
         }
         sleep(1);
         uint64_t duration = GetNanoTime() - startTime;
         remainedTime = (remainedTime > duration) ? (remainedTime - duration) : 0;
     }
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     return -1;
 }
 
 int ReadDevInfo(const std::string &path, std::string *fsType, std::string *fsUuid, std::string *fsLabel)
 {
-    SSLOG_I("dugl %{public}s %{public}s %{public}d path=%{public}s", __FILE__, __func__, __LINE__,
-            path.c_str());
     fsType->clear();
     fsUuid->clear();
     fsLabel->clear();
@@ -361,7 +331,6 @@ int ReadDevInfo(const std::string &path, std::string *fsType, std::string *fsUui
     cmd.push_back(toyBoxPath);
     cmd.push_back("blkid");
     cmd.push_back(path);
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     std::vector<std::string> output;
     int res = ExecuteCmd(toyBoxPath.c_str(), cmd, &output);
     if (res != OK) {
@@ -377,8 +346,6 @@ int ReadDevInfo(const std::string &path, std::string *fsType, std::string *fsUui
 
 std::string BuildKeyPath(const std::string &partGuid)
 {
-    SSLOG_I("dugl %{public}s %{public}s %{public}d partGuid=%{public}s", __FILE__, __func__, __LINE__,
-            partGuid.c_str());
     return StringPrintf("%s/expand_%s.key", keyPath.c_str(), partGuid.c_str());
 }
 
@@ -408,8 +375,9 @@ int ReadRandom(size_t bytes, char *buf)
     while (n > 0) {
         ssize_t x = read(fd, buf, n);
         if (x <= 0) {
-            if (loseCount++ > MAX_RANDOM_RETRY_COUNT)
+            if (loseCount++ > MAX_RANDOM_RETRY_COUNT) {
                 break;
+            }
             continue;
         }
         n -= x;
@@ -426,6 +394,8 @@ int ReadRandom(size_t bytes, char *buf)
 
 int GenerateRandomUuid(std::string &out)
 {
+    int numberSix = 6;
+    int numberEight = 8;
     int res = ReadRandom(numberSixteen, out);
     if (res == OK) {
         out[numberSix] &= 0x0f;
@@ -484,7 +454,7 @@ int64_t GetDirSize(const std::string &dirName)
             }
             size += GetDirSize(entry->d_name);
         } else {
-            size += (statbuf.st_size >> 9);
+            size += (statbuf.st_size >> numberNine);
         }
     }
     chdir("..");

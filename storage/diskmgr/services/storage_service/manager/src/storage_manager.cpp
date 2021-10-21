@@ -24,9 +24,12 @@
 #include <sys/sysmacros.h>
 #include <system_ability_definition.h>
 #include <unistd.h>
+#include <vector>
 
 #include "block_device.h"
+#include "fs_mount_tab.h"
 #include "interface/storage_service_callback_proxy.h"
+#include "mount_info.h"
 #include "storage_emulated_volume.h"
 #include "storage_hilog.h"
 #include "storage_private_volume.h"
@@ -35,10 +38,6 @@
 #include "storage_utils.h"
 #include "utils_file.h"
 #include "utils_string.h"
-
-#include "mount_info.h"
-#include <vector>
-#include "fs_mount_tab.h"
 
 using namespace OHOS::StorageService;
 using namespace OHOS::SsUtils;
@@ -55,7 +54,6 @@ StorageManager *StorageManager::managerHasInstance = NULL;
 
 StorageManager *StorageManager::Instance()
 {
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     if (!managerHasInstance) {
         managerHasInstance = new StorageManager();
     }
@@ -64,7 +62,6 @@ StorageManager *StorageManager::Instance()
 
 StorageManager::StorageManager()
 {
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     managerDebug = false;
     ssTabMgr = new SsTabMgr();
 }
@@ -73,23 +70,18 @@ StorageManager::~StorageManager() {}
 
 void StorageManager::KernelEventHandle(LocalEventPacket *evt)
 {
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     int major, minor;
     std::string eventPath(evt->FindParam("DEVPATH") ? evt->FindParam("DEVPATH") : "");
     std::string devType(evt->FindParam("DEVTYPE") ? evt->FindParam("DEVTYPE") : "");
     if (devType != "disk") {
-        SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
         return;
     }
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     if (evt->FindParam("MAJOR") != nullptr && evt->FindParam("MINOR") != nullptr) {
         major = std::stoi(evt->FindParam("MAJOR"));
         minor = std::stoi(evt->FindParam("MINOR"));
     } else {
         return;
     }
-    SSLOG_I("dugl %{public}s %{public}s %{public}d major=%{public}d minor=%{public}d eventPath=%{public}s",
-            __FILE__, __func__, __LINE__, major, minor, eventPath.c_str());
     DoHandle(evt, major, minor, eventPath);
 }
 
@@ -98,12 +90,10 @@ void StorageManager::HandleDiskVolume(const std::shared_ptr<OHOS::StorageService
                                       const std::shared_ptr<DiskSource> &diskSource,
                                       int handleDiskFlags)
 {
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     switch (handleDiskFlags) {
         case HandleDiskFlagsAddDisk:
             managerDisks.push_back(disk);
             disk->Create();
-            SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
             break;
         case HandleDiskFlagsisRemovedDisk: {
             auto i = managerDisks.begin();
@@ -153,7 +143,6 @@ int StorageManager::HandlePrimary(int userId,
 
 int StorageManager::Start()
 {
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     UnMountAll();
     auto vol = std::shared_ptr<OHOS::StorageService::StorageBase>(
         new OHOS::StorageService::StorageEmulatedVolume("/data/media", 0));
@@ -161,64 +150,50 @@ int StorageManager::Start()
     vol->Create();
     managerInternalEmulatedVolumes.push_back(vol);
     if (access((char *)kPathVirtualDisk.c_str(), F_OK) != 0) {
-        SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     }
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     if (managerVirtualDisk == nullptr) {
         if (DoNullVirtualDiskHandler()) {
             return -1;
         }
     }
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     return 0;
 }
 
 int StorageManager::UnMountAll()
 {
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     DoUnMountHandleEmulated();
     DoUnMountHandleDisk();
     if (DoUnMountHandlePath()) {
         return -errno;
     }
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     return 0;
 }
 
 std::shared_ptr<OHOS::StorageService::Disk> StorageManager::FindDisk(const std::string &id)
 {
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     for (auto disk : managerDisks) {
-        SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
         if (disk->getId() == id) {
-            SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
             return disk;
         }
     }
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     return nullptr;
 }
 
 std::shared_ptr<OHOS::StorageService::StorageBase> StorageManager::FindVolume(const std::string &id)
 {
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     for (const auto &vol : managerInternalEmulatedVolumes) {
         if (vol->getId() == id) {
-            SSLOG_I("dugl %{public}s %{public}s %{public}d vol->getId()=%{public}s", __FILE__, __func__,
-                    __LINE__, vol->getId().c_str());
             return vol;
         }
     }
     for (const auto &disk : managerDisks) {
         auto diskVol = disk->FindVolume(id);
         if (diskVol != nullptr) {
-            SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
             return diskVol;
         }
     }
     for (const auto &mgrObbVol : managerObbVolumes) {
         if (mgrObbVol->getId() == id) {
-            SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
             return mgrObbVol;
         }
     }
@@ -227,13 +202,11 @@ std::shared_ptr<OHOS::StorageService::StorageBase> StorageManager::FindVolume(co
 
 int StorageManager::Reset()
 {
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     DoResetEmulated();
     DoResetDisk();
     DoResetVirtualDisk();
     DoResetUnLink();
     managerStartedUsers.clear();
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     return 0;
 }
 
@@ -279,11 +252,8 @@ int StorageManager::OnUserHandle(int userId, int userSerialNumber, int userHandl
 
 int StorageManager::DoNullVirtualDiskHandler()
 {
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     struct stat buf;
     if (stat(managerVirtualDiskPath.c_str(), &buf) < 0) {
-        SSLOG_I("dugl %{public}s %{public}s %{public}d \n managerVirtualDiskPath%{public}s", __FILE__,
-                __func__, __LINE__, managerVirtualDiskPath.c_str());
         return 1;
     }
 
@@ -292,7 +262,6 @@ int StorageManager::DoNullVirtualDiskHandler()
                                                    OHOS::StorageService::Disk::Flags::diskFlagIsSd);
     managerVirtualDisk = std::shared_ptr<OHOS::StorageService::Disk>(disk);
     HandleDiskVolume(managerVirtualDisk, 1, nullptr, 1);
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     return 0;
 }
 
@@ -322,13 +291,11 @@ int StorageManager::DoUnMountHandlePath()
 {
     FILE *fp = setmntent("/proc/mounts", "re");
     if (fp == NULL) {
-        SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
         return 1;
     }
 
     std::list<std::string> toUnMount;
     mntent *mEntry;
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     while ((mEntry = getmntent(fp)) != NULL) {
         auto test = std::string(mEntry->mnt_dir);
         if ((StartsWith(test, "/mnt/") && !StartsWith(test, "/mnt/vendor") &&
@@ -351,7 +318,6 @@ void StorageManager::DoHandle(LocalEventPacket *evt, int major, int minor, std::
     switch (evt->getAction()) {
         case LocalEventPacket::Action::LOCALEVENT_ACTION_ADD: {
             for (const auto &source : managerDiskSources) {
-                SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
                 int flags = source->GetFlags();
                 if (SsBlockDevice::IsMmcDev(major) || SsBlockDevice::IsVirtioBlk(major)) {
                     flags |= OHOS::StorageService::Disk::Flags::diskFlagIsSd;
@@ -366,7 +332,6 @@ void StorageManager::DoHandle(LocalEventPacket *evt, int major, int minor, std::
         }
         case LocalEventPacket::Action::LOCALEVENT_ACTION_CHANGE:
             for (const auto &disk : managerDisks) {
-                SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
                 if (disk->GetDevice() == device) {
                     disk->DiskReadMetadata();
                     disk->ReadPartitions();
@@ -385,7 +350,6 @@ void StorageManager::DoHandle(LocalEventPacket *evt, int major, int minor, std::
 void StorageManager::DoResetEmulated()
 {
     for (const auto &vol : managerInternalEmulatedVolumes) {
-        SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
         vol->Destroy();
     }
     managerInternalEmulatedVolumes.clear();
@@ -394,7 +358,6 @@ void StorageManager::DoResetEmulated()
 void StorageManager::DoResetDisk()
 {
     for (const auto &disk : managerDisks) {
-        SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
         disk->Destroy();
         disk->Create();
     }
@@ -414,14 +377,12 @@ void StorageManager::DoResetVirtualDisk()
 void StorageManager::DoResetUnLink()
 {
     if (access((char *)kPathVirtualDisk.c_str(), F_OK) == 0) {
-        SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
         unlink((char *)kPathVirtualDisk.c_str());
     }
 }
 
 void StorageManager::DoUnMountHandleEmulated()
 {
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     for (const auto &sb_instance : managerInternalEmulatedVolumes) {
         sb_instance->UnMount();
     }
@@ -429,7 +390,6 @@ void StorageManager::DoUnMountHandleEmulated()
 
 void StorageManager::DoUnMountHandleDisk()
 {
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     for (const auto &disk : managerDisks) {
         disk->UnMountAll();
     }

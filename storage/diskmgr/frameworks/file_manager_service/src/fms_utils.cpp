@@ -129,7 +129,7 @@ shared_ptr<DeviceStorageManager> storageService = DelayedSingleton<DeviceStorage
 string GetInternalPath(void)
 {
     string internalPath = "";
-    if (storageService->Connect() != 0) {
+    if ((storageService->Connect()) != 0) {
         return internalPath;
     }
     vector<shared_ptr<DS::VolumeInfo>> volumeInfos;

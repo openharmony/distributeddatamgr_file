@@ -74,7 +74,6 @@ int Ext4Mgr::Mount(
 
 int Ext4Mgr::Format(const std::string &source)
 {
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     constexpr int blockSize = 4096;
     std::vector<std::string> cmd;
 
@@ -86,16 +85,12 @@ int Ext4Mgr::Format(const std::string &source)
     cmd.push_back("-b");
     cmd.push_back(std::to_string(blockSize));
     cmd.push_back(source);
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     int rc = ExecuteCmd(kMkfsPath.c_str(), cmd);
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     if (rc != 0) {
-        SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
         SSLOGFE("Ext4 Format error !");
         errno = EIO;
         return -1;
     }
-    SSLOG_I("dugl %{public}s %{public}s %{public}d", __FILE__, __func__, __LINE__);
     return 0;
 }
 } // namespace StorageService

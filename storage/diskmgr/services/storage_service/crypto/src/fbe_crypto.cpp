@@ -95,9 +95,9 @@ int32_t FbeCrypto::Enable()
         SSLOGFE("Is not encrypt for data ");
         return CRYPTO_ERROR_PARAM;
     }
-    
+
     /* If support crypto ,this function will be start in Init process */
-    if (!KeyUtils::InitKeyring()) { 
+    if (!KeyUtils::InitKeyring()) {
         SSLOGFE("Cannot create Keyring in startup!");
         return CRYPTO_ERROR_FAIL;
     }
@@ -115,7 +115,7 @@ int32_t FbeCrypto::Enable()
     } else {
         // first time bootup, generate ssd policy, dummy code in here for initial
         if (!ssdPolicy_.Init(entry.encryptOptions)) {
-            SSLOGFE("Init Policy encryptoption = %{pulbic}s error !",entry.encryptOptions.c_str());
+            SSLOGFE("Init Policy encryptoption = %{pulbic}s error !", entry.encryptOptions.c_str());
             // Policy invalid
             return CRYPTO_ERROR_PARAM;
         }
@@ -214,7 +214,7 @@ int32_t FbeCrypto::AddAuthKey(int32_t userid, const std::string &token, const st
         KeyUtils::GenKeyAlias(policy.keyAlias_, policy.rawKey_);
         // If have Auth token, need regerate Key with AuthToken
         if (KeyUtils::EncryptKey(policy.keyAlias_, policy.rawKey_, policy.encryptKey_,
-                                                          GenAuthToken(token, secret)) != 0) {
+                                 GenAuthToken(token, secret)) != 0) {
             SSLOGFE("Add auth key encrypy key failed");
             return CRYPTO_ERROR_ENCRYPT_KEY;
         }
@@ -260,7 +260,7 @@ int32_t FbeCrypto::DelAuthKey(int32_t userid, const std::string &token, const st
         LookupUscPolicy(newPolicy, userid);
         // If support AuthToken for decryption, we can add authtoke for decryption to check auth
         if (KeyUtils::DecryptKey(newPolicy.keyAlias_, newPolicy.encryptKey_, newPolicy.rawKey_,
-                                                          GenAuthToken(token, secret)) != 0) {
+                                 GenAuthToken(token, secret)) != 0) {
             // AuthToken error, So return error without
             return CRYPTO_ERROR_DECRYPT_KEY;
         }
@@ -284,7 +284,7 @@ int32_t FbeCrypto::UnLockKey(int32_t userid, const std::string &token, const std
         return CRYPTO_ERROR_READ_KEY;
     }
     if (KeyUtils::DecryptKey(policy.keyAlias_, policy.encryptKey_, policy.rawKey_,
-                                                      GenAuthToken(token, secret)) != 0) {
+                             GenAuthToken(token, secret)) != 0) {
         // AuthToken error, So return error without
         return CRYPTO_ERROR_DECRYPT_KEY;
     }
@@ -377,7 +377,7 @@ int32_t FbeCrypto::DoMkDir(const std::vector<CryptoPath> &dirs)
         // Create dir
         SSLOGFI("Make dir %{public}s", dir.path.c_str());
         if (dir.IsExist()) {
-            SSLOGFI("Set dir policy %{public}s", dir.path.c_str());            
+            SSLOGFI("Set dir policy %{public}s", dir.path.c_str());
             if (dir.isEncrypt) {
                 ssdPolicy_.Set(dir.path);
             }

@@ -22,49 +22,49 @@
 #include <linux/keyctl.h>
 
 namespace OHOS {
-key_serial_t KeyCtrl::AddKey(const char *type,
-                             const char *description,
-                             const void *payload,
-                             size_t payload_length,
-                             key_serial_t ring_id)
+int32_t KeyCtrl::AddKey(const char *type,
+                        const char *description,
+                        const void *payload,
+                        size_t payload_length,
+                        int32_t ring_id)
 {
     return syscall(__NR_add_key, type, description, payload, payload_length, ring_id);
 }
 
-key_serial_t KeyCtrl::GetKeyring(key_serial_t id, int create)
+int32_t KeyCtrl::GetKeyring(int32_t id, int create)
 {
     return syscall(__NR_keyctl, KEYCTL_GET_KEYRING_ID, id, create);
 }
 
-long KeyCtrl::Revoke(key_serial_t id)
+long KeyCtrl::Revoke(int32_t id)
 {
     return syscall(__NR_keyctl, KEYCTL_REVOKE, id);
 }
 
-long KeyCtrl::Search(key_serial_t ring_id,
+long KeyCtrl::Search(int32_t ring_id,
                      const char *type,
                      const char *description,
-                     key_serial_t dest_ring_id)
+                     int32_t dest_ring_id)
 {
     return syscall(__NR_keyctl, KEYCTL_SEARCH, ring_id, type, description, dest_ring_id);
 }
 
-long KeyCtrl::SetPermission(key_serial_t id, int permissions)
+long KeyCtrl::SetPermission(int32_t id, int permissions)
 {
     return syscall(__NR_keyctl, KEYCTL_SETPERM, id, permissions);
 }
 
-long KeyCtrl::Unlink(key_serial_t key, key_serial_t keyring)
+long KeyCtrl::Unlink(int32_t key, int32_t keyring)
 {
     return syscall(__NR_keyctl, KEYCTL_UNLINK, key, keyring);
 }
 
-long KeyCtrl::RestrictKeyring(key_serial_t keyring, const char *type, const char *restriction)
+long KeyCtrl::RestrictKeyring(int32_t keyring, const char *type, const char *restriction)
 {
     return syscall(__NR_keyctl, KEYCTL_RESTRICT_KEYRING, keyring, type, restriction);
 }
 
-long KeyCtrl::GetSecurity(key_serial_t id, char *buffer, size_t buflen)
+long KeyCtrl::GetSecurity(int32_t id, char *buffer, size_t buflen)
 {
     return syscall(__NR_keyctl, KEYCTL_GET_SECURITY, id, buffer, buflen);
 }

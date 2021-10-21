@@ -20,31 +20,36 @@
 #include <ctime>
 #include <dirent.h>
 #include <fcntl.h>
+#include <sys/ioctl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
 #include <linux/dm-ioctl.h>
+
 #include "storage_utils.h"
 #include "storage_hilog.h"
 #include "storage_dm_crypt.h"
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <sys/ioctl.h>
-#include <unistd.h>
 #include "utils_file.h"
 #include "utils_string.h"
 #include "block_device.h"
+
 using namespace OHOS::SsUtils;
 namespace OHOS {
 namespace StorageService {
 namespace DmCrypt {
-constexpr int TABLE_LOAD_RETRIES = 10;
+static int numberTwo = 2;
+static int numberFour = 4;
+static int numberSeven = 7;
 constexpr int DM_BUFF_SIZE = 4096;
+constexpr int DM_SLEEP_SIZE = 500000;
 void InitDmIoctl(struct dm_ioctl *io, size_t dataSize, const std::string &name, unsigned flags)
 {
     memset(io, 0, dataSize);
     io->data_size = dataSize;
     io->data_start = sizeof(struct dm_ioctl);
-    io->version[0] = 4;
+    io->version[0] = numberFour;
     io->version[1] = 0;
-    io->version[2] = 0;
+    io->version[numberTwo] = 0;
     io->flags = flags;
     if (!name.empty()) {
         strlcpy(io->name, name.c_str(), sizeof(io->name));
@@ -75,11 +80,10 @@ int RemoveExtVolume(const std::string &name)
 }
 
 int CreateExtVolume(const std::string &name,
-                 const std::string &blkdev,
-                 const std::string &rawkey,
-                 std::string &outblkdev)
+                    const std::string &blkdev,
+                    const std::string &rawkey,
+                    std::string &outblkdev)
 {
-
     uint64_t nrSec = 0;
     SsBlockDevice *blkDev = new SsBlockDevice(blkdev);
     nrSec = blkDev->GetSize();
@@ -119,7 +123,7 @@ bool GetDmCryptVersion(int fd, const std::string &name, int *version)
             /* We found the crypt driver, return the version, and get out */
             version[0] = v->version[0];
             version[1] = v->version[1];
-            version[2] = v->version[2];
+            version[numberTwo] = v->version[numberTwo];
             return true;
         }
         v = (struct dm_target_versions *)(((char *)v) + v->next);
@@ -137,65 +141,44 @@ int CreateCryptoDev(const struct DmCryptInfo &cryptinfo,
     struct dm_ioctl *io;
     unsigned int minor;
     int fd = 0;
-    int err;
-    
     int version[3];
     std::string extraParams;
     int loadCount;
 
     if ((fd = open("/dev/device-mapper", O_RDWR | O_CLOEXEC)) < 0) {
-        SSLOGFE("Cannot open device-mapper\n");
         return -1;
     }
-
     io = (struct dm_ioctl *)buffer;
 
     InitDmIoctl(io, DM_BUFF_SIZE, name, 0);
-    err = ioctl(fd, DM_DEV_CREATE, io);
-    if (err) {
-        SSLOGFE("Cannot create dm-crypt device %s: %s\n", name.c_str(), strerror(errno));
+    if (ioctl(fd, DM_DEV_CREATE, io)) {
         close(fd);
         return -1;
     }
-
-    /* Get the device status, in particular, the name of it's device file */
     InitDmIoctl(io, DM_BUFF_SIZE, name, 0);
     if (ioctl(fd, DM_DEV_STATUS, io)) {
-        SSLOGFE("Cannot retrieve dm-crypt device status\n");
         close(fd);
         return -1;
     }
     minor = (io->dev & 0xff) | ((io->dev >> 12) & 0xfff00);
     outblkdev = SsUtils::StringPrintf("/dev/block/dm-%u", minor);
-
     extraParams.clear();
     if (!GetDmCryptVersion(fd, name, version)) {
-        /* Support for allow_discards was added in version 1.11.0 */
-        if ((version[0] >= 2) || ((version[0] == 1) && (version[1] >= 11))) {
+        if ((version[0] >= numberTwo) || ((version[0] == 1) && (version[1] >= 11))) {
             extraParams.append("1 allow_discards");
-            SSLOGFI("Enabling support for allow_discards in dmcrypt.\n");
         }
     }
-
     loadCount = LoadCryptTable(cryptinfo, blkdev, name, fd, extraParams);
     if (loadCount < 0) {
-        SSLOGFE("Cannot load dm-crypt mapping table.\n");
         close(fd);
         return -1;
-    } else if (loadCount > 1) {
-        SSLOGFI("Took %d tries to load dmcrypt table.\n", loadCount);
     }
-
-    /* Resume this device to activate it */
     InitDmIoctl(io, DM_BUFF_SIZE, name, 0);
-
     if (ioctl(fd, DM_DEV_SUSPEND, io)) {
-        SSLOGFE("Cannot resume the dm-crypt device\n");
         close(fd);
         return -1;
     }
-    close(fd); /* If fd is <0 from a failed open call, it's safe to just ignore the close error */
-
+    close(fd);
     return 0;
 }
 
@@ -209,7 +192,7 @@ int LoadCryptTable(const struct DmCryptInfo &cryptinfo,
     struct dm_ioctl *io;
     struct dm_target_spec *tgt;
     char *cryptParams;
-    std::string  keystring; /* Large enough to hold 512 bit key and null */
+    std::string keystring; /* Large enough to hold 512 bit key and null */
     size_t buffOffset;
     int i;
 
@@ -232,14 +215,15 @@ int LoadCryptTable(const struct DmCryptInfo &cryptinfo,
              keystring.c_str(), blkdev.c_str(), extraParams.c_str());
 
     cryptParams += strlen(cryptParams) + 1;
-    cryptParams = (char *)(((unsigned long)cryptParams + 7) & ~8); /* Align to an 8 byte boundary */
+    cryptParams = (char *)(((unsigned long)cryptParams + numberSeven) & ~8); /* Align to an 8 byte boundary */
     tgt->next = cryptParams - buffer;
 
+    constexpr int TABLE_LOAD_RETRIES = 10;
     for (i = 0; i < TABLE_LOAD_RETRIES; i++) {
         if (!ioctl(fd, DM_TABLE_LOAD, io)) {
             break;
         }
-        usleep(500000);
+        usleep(DM_SLEEP_SIZE);
     }
 
     if (i == TABLE_LOAD_RETRIES) {
@@ -250,13 +234,13 @@ int LoadCryptTable(const struct DmCryptInfo &cryptinfo,
     }
 }
 
-void KeyToHexStr(const std::string &rawkey, std::string &keystr) 
+void KeyToHexStr(const std::string &rawkey, std::string &keystr)
 {
     char nibble;
     unsigned char *masterKey = (unsigned char *)rawkey.data();
-    for (size_t i=0; i<rawkey.size(); i++ ) {
+    for (size_t i = 0; i < rawkey.size(); i++) {
         /* For each byte, write out two ascii hex digits */
-        nibble = (masterKey[i] >> 4) & 0xf;
+        nibble = (masterKey[i] >> numberFour) & 0xf;
         keystr.push_back(nibble + (nibble > 9 ? 0x37 : 0x30));
 
         nibble = masterKey[i] & 0xf;

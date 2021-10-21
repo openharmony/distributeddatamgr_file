@@ -134,13 +134,13 @@ bool StorageNativeService::IsEncrypted(std::string filePath)
     SSLOG_I("dugl enter IsEncrypted");
     FsMountTab::FsMountEntry entry = {};
     auto sm = StorageManager::Instance();
-    if (sm->ssTabMgr->GetEntry(filePath,entry)) {
-       SSLOGFE("Read Mount option failed for filePath");
-       return false;
-    } 
-    if(!entry.IsEncryptable())  {
-       SSLOGFE("Is not encrypt for filePath ");
-       return false;
+    if (sm->ssTabMgr->GetEntry(filePath, entry)) {
+        SSLOGFE("Read Mount option failed for filePath");
+        return false;
+    }
+    if (!entry.IsEncryptable()) {
+        SSLOGFE("Is not encrypt for filePath ");
+        return false;
     }
     return true;
 }
