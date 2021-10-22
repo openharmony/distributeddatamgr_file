@@ -112,7 +112,7 @@ ohos_shared_library("storage_service") {
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
-    "samgr_L2:samgr_proxy",
+    "samgr_standard:samgr_proxy",
   ]
 
   subsystem_name = "distributeddatamgr"
@@ -149,7 +149,7 @@ ohos_executable("ss_exe") {
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
-    "samgr_L2:samgr_proxy",
+    "samgr_standard:samgr_proxy",
   ]
 
   subsystem_name = "distributeddatamgr"
@@ -187,7 +187,7 @@ ohos_executable("ss_test") {
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
-    "samgr_L2:samgr_proxy",
+    "samgr_standard:samgr_proxy",
   ]
 
   subsystem_name = "distributeddatamgr"
