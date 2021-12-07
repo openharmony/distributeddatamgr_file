@@ -13,11 +13,8 @@
  * limitations under the License.
  */
 
-#pragma once
-
-#include <memory>
-#include <tuple>
-#include <vector>
+#ifndef N_VAL_H
+#define N_VAL_H
 
 #include "uni_header.h"
 
@@ -36,6 +33,7 @@ public:
 
     explicit operator bool() const;
     bool TypeIs(napi_valuetype expType) const;
+    bool TypeIsError(bool checkErrno = false) const;
 
     /* SHOULD ONLY BE USED FOR EXPECTED TYPE */
     std::tuple<bool, std::unique_ptr<char[]>, size_t> ToUTF8String() const;
@@ -75,3 +73,4 @@ public:
 };
 } // namespace DistributedFS
 } // namespace OHOS
+#endif // N_VAL_H
