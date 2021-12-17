@@ -22,7 +22,7 @@ import {AsyncCallback, Callback} from "./basic";
  * @sysCap N/A
  * @devices phone, tablet
  */
-declare namespace Statfs {
+declare namespace Environment {
   /**
    * Get the user data path.
    *
@@ -39,4 +39,4 @@ declare namespace Statfs {
   function getUserData(): Promise<string>;
 }
 
-export default Statfs;
+export default Environment;
