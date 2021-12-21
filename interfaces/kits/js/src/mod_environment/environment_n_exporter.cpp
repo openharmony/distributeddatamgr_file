@@ -32,17 +32,6 @@ namespace {
     const std::string STORAGE_DATA_PATH = "/data";
     const std::string USER_DATA_PATH = "/data/storage/0";
 }
-napi_value GetStorageDataSync(napi_env env, napi_callback_info info)
-{
-    NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::ZERO)) {
-        UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
-        return nullptr;
-    }
-
-    return NVal::CreateUTF8String(env, STORAGE_DATA_PATH).val_;
-}
-
 napi_value GetStorageData(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
@@ -70,17 +59,6 @@ napi_value GetStorageData(napi_env env, napi_callback_info info)
         return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
     }
     return NVal::CreateUndefined(env).val_;
-}
-
-napi_value GetUserDataSync(napi_env env, napi_callback_info info)
-{
-    NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::ZERO)) {
-        UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
-        return nullptr;
-    }
-
-    return NVal::CreateUTF8String(env, USER_DATA_PATH).val_;
 }
 
 napi_value GetUserData(napi_env env, napi_callback_info info)
