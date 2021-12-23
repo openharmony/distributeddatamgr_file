@@ -31,7 +31,6 @@ ohos_unittest("idle_maintain_test") {
     "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services/storage_service/idle_maintain/include",
     "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services/device_storage_service/include/ipc",
     "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services/storage_service/interface/include",
-    "//base/startup/init_lite/services/include",
     "//third_party/cJSON",
     "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services/fs_manager/include",
   ]

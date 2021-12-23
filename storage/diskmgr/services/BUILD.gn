@@ -91,7 +91,6 @@ ohos_shared_library("storage_service") {
     "storage_service/idle_maintain/include",
     "device_storage_service/include/ipc",
     "storage_service/interface/include",
-    "//base/startup/init_lite/services/include",
     "//third_party/cJSON",
     "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services/fs_manager/include",
   ]

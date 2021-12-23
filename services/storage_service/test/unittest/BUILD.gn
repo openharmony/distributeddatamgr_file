@@ -34,7 +34,6 @@ config("module_private_config") {
     "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/frameworks/device_storage_manager/include",
     "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services/storage_service/interface/include/interface",
     "//foundation/aafwk/standard/interfaces/innerkits/want/include/",
-    "//base/startup/init_lite/services/include",
     "//third_party/cJSON",
   ]
 }
