@@ -39,7 +39,6 @@ public:
     explicit NAsyncContext(NVal thisPtr) : err_(0), res_(NVal()), cbExec_(nullptr),
         cbComplete_(nullptr), awork_(nullptr), thisPtr_(thisPtr) {}
     virtual ~NAsyncContext() = default;
-
 };
 
 class NAsyncContextPromise : public NAsyncContext {
