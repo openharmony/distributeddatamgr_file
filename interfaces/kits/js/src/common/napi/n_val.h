@@ -24,6 +24,7 @@ class NVal final {
 public:
     NVal() = default;
     NVal(napi_env nEnv, napi_value nVal);
+    NVal(const NVal &) = default;
     NVal &operator = (const NVal &) = default;
     virtual ~NVal() = default;
 
