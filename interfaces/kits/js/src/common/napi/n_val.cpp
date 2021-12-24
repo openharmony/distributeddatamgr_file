@@ -36,7 +36,6 @@ bool NVal::TypeIs(napi_valuetype expType) const
     if (!*this) {
         return false;
     }
-    
     napi_valuetype valueType;
     napi_typeof(env_, val_, &valueType);
 

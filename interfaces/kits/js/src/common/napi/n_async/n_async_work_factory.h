@@ -23,7 +23,7 @@ namespace DistributedFS {
 class NAsyncWorkFactory {
 public:
     explicit NAsyncWorkFactory(napi_env env) : env_(env) {}
-    ~NAsyncWorkFactory() = default;
+    virtual ~NAsyncWorkFactory() = default;
     virtual NVal Schedule(std::string procedureName, NContextCBExec cbExec, NContextCBComplete cbComplete) = 0;
 
     napi_env env_ = nullptr;

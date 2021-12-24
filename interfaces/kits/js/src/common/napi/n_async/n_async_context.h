@@ -36,8 +36,9 @@ public:
     napi_async_work awork_;
     NRef thisPtr_;
 
-    explicit NAsyncContext(NVal thisPtr) : thisPtr_(thisPtr) {}
-    ~NAsyncContext() = default;
+    explicit NAsyncContext(NVal thisPtr) : err_(0), res_(NVal()), cbExec_(nullptr),
+        cbComplete_(nullptr), awork_(nullptr), thisPtr_(thisPtr) {}
+    virtual ~NAsyncContext() = default;
 };
 
 class NAsyncContextPromise : public NAsyncContext {
