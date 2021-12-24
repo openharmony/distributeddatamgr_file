@@ -80,8 +80,8 @@ napi_value GetFrSize(napi_env env, napi_callback_info info)
         if (ret != 0) {
             return UniError(errno);
         }
-        *resultSize  = static_cast<unsigned long long>(diskInfo.f_bsize) *
-                       static_cast<unsigned long long>(diskInfo.f_bavail);
+        *resultSize = static_cast<unsigned long long>(diskInfo.f_bsize) *
+                      static_cast<unsigned long long>(diskInfo.f_bavail);
         return UniError(ERRNO_NOERR);
     };
     auto cbComplete = [resultSize](napi_env env, UniError err) -> NVal {
