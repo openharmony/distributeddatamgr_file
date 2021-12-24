@@ -28,16 +28,20 @@ NAsyncWorkCallback::NAsyncWorkCallback(napi_env env, NVal thisPtr, NVal cb) : NA
 static void CallbackExecute(napi_env env, void *data)
 {
     auto ctx = static_cast<NAsyncContextCallback *>(data);
-    if (ctx->cbExec_) {
+    if (ctx != nullptr && ctx->cbExec_ != nullptr) {
         ctx->err_ = ctx->cbExec_(env);
     }
 }
+
 static void CallbackComplete(napi_env env, napi_status status, void *data)
 {
     napi_handle_scope scope = nullptr;
     napi_open_handle_scope(env, &scope);
     auto ctx = static_cast<NAsyncContextCallback *>(data);
-    if (ctx->cbComplete_) {
+    if (ctx == nullptr) {
+        return;
+    }
+    if (ctx->cbComplete_ != nullptr) {
         ctx->res_ = ctx->cbComplete_(env, ctx->err_);
         ctx->cbComplete_ = nullptr;
     }
