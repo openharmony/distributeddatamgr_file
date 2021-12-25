@@ -25,41 +25,6 @@ file_common_src = [
   "src/common/uni_error.cpp",
 ]
 
-ohos_shared_library("fileio") {
-  subsystem_name = "distributeddatamgr"
-  part_name = "distributedfilejs"
-
-  relative_install_dir = "module"
-
-  include_dirs = [
-    "//third_party/node/src",
-    "//foundation/ace/napi/interfaces/kits",
-    "//utils/native/base/include",
-  ]
-
-  sources = file_common_src
-  sources += [
-    "src/mod_fileio/class_dir/dir_n_exporter.cpp",
-    "src/mod_fileio/class_dirent/dirent_n_exporter.cpp",
-    "src/mod_fileio/class_stat/stat_n_exporter.cpp",
-    "src/mod_fileio/class_stream/stream_n_exporter.cpp",
-    "src/mod_fileio/common_func.cpp",
-    "src/mod_fileio/module.cpp",
-    "src/mod_fileio/properties/create_stream.cpp",
-    "src/mod_fileio/properties/fdopen_stream.cpp",
-    "src/mod_fileio/properties/opendir.cpp",
-    "src/mod_fileio/properties/prop_n_exporter.cpp",
-    "src/mod_fileio/properties/stat.cpp",
-  ]
-
-  deps = [
-    "//foundation/ace/napi:ace_napi",
-    "//utils/native/base:utilsecurec",
-  ]
-
-  external_deps = [ "hiviewdfx_hilog_native:libhilog" ]
-}
-
 ohos_shared_library("file") {
   subsystem_name = "distributeddatamgr"
   part_name = "distributedfilejs"
@@ -173,7 +138,6 @@ group("build_kits_js") {
   deps = [
     ":environment",
     ":file",
-    ":fileio",
     ":statfs",
   ]
 }
