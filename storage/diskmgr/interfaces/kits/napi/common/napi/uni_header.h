@@ -17,7 +17,7 @@
 
 #pragma once
 
-#ifdef FILE_SUBSYSTEM_DEV_ON_PC
+#ifdef FILE_SUBSYSTEM_DEBUG_LOCAL
 #include <node_api.h>
 #else
 #include "napi/native_api.h"
