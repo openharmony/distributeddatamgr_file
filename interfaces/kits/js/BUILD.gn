@@ -204,7 +204,6 @@ ohos_shared_library("environment") {
 
 group("build_kits_js") {
   deps = [
-    ":environment",
     ":file",
   ]
 }
