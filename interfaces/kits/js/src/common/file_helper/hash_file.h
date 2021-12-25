@@ -13,13 +13,18 @@
  * limitations under the License.
  */
 
-#ifndef N_UNI_HEADER_H
-#define N_UNI_HEADER_H
+#pragma once
 
-#ifdef FILE_SUBSYSTEM_DEBUG_LOCAL
-#include <node_api.h>
-#else
-#include "napi/native_api.h"
-#include "napi/native_node_api.h"
-#endif
-#endif
+#include <string>
+#include <tuple>
+
+namespace OHOS {
+namespace DistributedFS {
+class HashFile {
+public:
+    static std::tuple<int, std::string> HashWithMD5(std::string fpath);
+    static std::tuple<int, std::string> HashWithSHA1(std::string fpath);
+    static std::tuple<int, std::string> HashWithSHA256(std::string fpath);
+};
+} // namespace DistributedFS
+} // namespace OHOS

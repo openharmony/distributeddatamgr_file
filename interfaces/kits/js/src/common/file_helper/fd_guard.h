@@ -13,13 +13,29 @@
  * limitations under the License.
  */
 
-#ifndef N_UNI_HEADER_H
-#define N_UNI_HEADER_H
+#pragma once
 
-#ifdef FILE_SUBSYSTEM_DEBUG_LOCAL
-#include <node_api.h>
-#else
-#include "napi/native_api.h"
-#include "napi/native_node_api.h"
-#endif
-#endif
+namespace OHOS {
+namespace DistributedFS {
+class FDGuard {
+public:
+    FDGuard() = default;
+    FDGuard(int fd, bool autoDestruct);
+    FDGuard(const FDGuard& fdg);
+    FDGuard& operator=(const FDGuard& fdg);
+    FDGuard(FDGuard& fdg);
+    explicit FDGuard(int fd);
+    ~FDGuard();
+
+    int GetFD() const;
+    void SetFD(int fd);
+    void SetFD(int fd, bool autoDestruct);
+    void ClearFD();
+    void operator=(int fd);
+
+private:
+    int fd_ = -1;
+    bool autoDestruct_ = true;
+};
+} // namespace DistributedFS
+} // namespace OHOS
