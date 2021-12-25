@@ -73,7 +73,7 @@ tuple<bool, unique_ptr<char[]>, size_t> NVal::ToUTF8String() const
 
 tuple<bool, unique_ptr<char[]>, size_t> NVal::ToUTF16String() const
 {
-#ifdef FILE_SUBSYSTEM_DEV_ON_PC
+#ifdef FILE_SUBSYSTEM_DEBUG_LOCAL
     size_t strLen = 0;
     napi_status status = napi_get_value_string_utf16(env_, val_, nullptr, -1, &strLen);
     if (status != napi_ok) {

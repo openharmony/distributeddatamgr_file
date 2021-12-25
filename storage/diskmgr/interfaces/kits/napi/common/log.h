@@ -21,13 +21,13 @@
 #include <string>
 #include <vector>
 
-#ifndef FILE_SUBSYSTEM_DEV_ON_PC
+#ifndef FILE_SUBSYSTEM_DEBUG_LOCAL
 #include "hilog/log.h"
 #endif
 
 namespace OHOS {
 namespace DistributedFS {
-#ifndef FILE_SUBSYSTEM_DEV_ON_PC
+#ifndef FILE_SUBSYSTEM_DEBUG_LOCAL
 static constexpr int FILEIO_DOMAIN_ID = 0;
 static constexpr OHOS::HiviewDFX::HiLogLabel FILEIO_LABEL = { LOG_CORE, FILEIO_DOMAIN_ID, "distributedfilejs" };
 
