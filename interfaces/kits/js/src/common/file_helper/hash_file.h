@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-#pragma once
+#ifndef HASH_FILE_H
+#define HASH_FILE_H
 
-#include <string>
 #include <tuple>
 
 namespace OHOS {
@@ -28,3 +28,4 @@ public:
 };
 } // namespace DistributedFS
 } // namespace OHOS
+#endif

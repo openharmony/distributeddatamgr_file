@@ -13,7 +13,8 @@
  * limitations under the License.
  */
 
-#pragma once
+#ifndef FD_GUARD_H
+#define FD_GUARD_H
 
 namespace OHOS {
 namespace DistributedFS {
@@ -39,3 +40,4 @@ private:
 };
 } // namespace DistributedFS
 } // namespace OHOS
+#endif
