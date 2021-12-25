@@ -28,14 +28,18 @@ NAsyncWorkPromise::NAsyncWorkPromise(napi_env env, NVal thisPtr) : NAsyncWorkFac
 static void PromiseOnExec(napi_env env, void *data)
 {
     auto ctx = static_cast<NAsyncContextPromise *>(data);
-    if (ctx->cbExec_) {
+    if (ctx != nullptr && ctx->cbExec_ != nullptr) {
         ctx->err_ = ctx->cbExec_(env);
     }
 }
+
 static void PromiseOnComplete(napi_env env, napi_status status, void *data)
 {
     auto ctx = static_cast<NAsyncContextPromise *>(data);
-    if (ctx->cbComplete_) {
+    if (ctx == nullptr) {
+        return;
+    }
+    if (ctx->cbComplete_ != nullptr) {
         ctx->res_ = ctx->cbComplete_(env, ctx->err_);
     }
     if (!ctx->res_.TypeIsError(true)) {
@@ -53,7 +57,6 @@ static void PromiseOnComplete(napi_env env, napi_status status, void *data)
     napi_delete_async_work(env, ctx->awork_);
     delete ctx;
 }
-
 
 NVal NAsyncWorkPromise::Schedule(string procedureName, NContextCBExec cbExec, NContextCBComplete cbComplete)
 {

@@ -51,8 +51,8 @@ napi_value GetFrSizeSync(napi_env env, napi_callback_info info)
         UniError(errno).ThrowErr(env, "Failed get info");
         return nullptr;
     }
-    unsigned long long blockSize = diskInfo.f_bsize;
-    unsigned long long freeSize = blockSize * diskInfo.f_bavail;
+    unsigned long long freeSize = static_cast<unsigned long long>(diskInfo.f_bsize) *
+                                  static_cast<unsigned long long>(diskInfo.f_bavail);
     return NVal::CreateInt64(env, freeSize).val_;
 }
 
@@ -80,8 +80,8 @@ napi_value GetFrSize(napi_env env, napi_callback_info info)
         if (ret != 0) {
             return UniError(errno);
         }
-        unsigned long long blockSize = diskInfo.f_bsize;
-        *resultSize = blockSize * diskInfo.f_bavail;
+        *resultSize = static_cast<unsigned long long>(diskInfo.f_bsize) *
+                      static_cast<unsigned long long>(diskInfo.f_bavail);
         return UniError(ERRNO_NOERR);
     };
     auto cbComplete = [resultSize](napi_env env, UniError err) -> NVal {
@@ -404,9 +404,8 @@ napi_value GetFreeBytesSync(napi_env env, napi_callback_info info)
         UniError(errno).ThrowErr(env);
         return nullptr;
     }
-
-    unsigned long long blockSize = diskInfo.f_bsize;
-    unsigned long long freeSize = blockSize * diskInfo.f_bfree;
+    unsigned long long freeSize = static_cast<unsigned long long>(diskInfo.f_bsize) *
+                                  static_cast<unsigned long long>(diskInfo.f_bfree);
     return NVal::CreateInt64(env, freeSize).val_;
 }
 
@@ -434,8 +433,8 @@ napi_value GetFreeBytes(napi_env env, napi_callback_info info)
         if (ret != 0) {
             return UniError(errno);
         }
-        unsigned long blockSize = diskInfo.f_bsize;
-        *resultSize = blockSize * diskInfo.f_bfree;
+        *resultSize = static_cast<unsigned long long>(diskInfo.f_bsize) *
+                      static_cast<unsigned long long>(diskInfo.f_bfree);
         return UniError(ERRNO_NOERR);
     };
     auto cbComplete = [resultSize](napi_env env, UniError err) -> NVal {
@@ -478,8 +477,8 @@ napi_value GetTotalBytesSync(napi_env env, napi_callback_info info)
         UniError(errno).ThrowErr(env);
         return nullptr;
     }
-    unsigned long long blockSize = diskInfo.f_bsize;
-    unsigned long long totalSize = blockSize * diskInfo.f_blocks;
+    unsigned long long totalSize = static_cast<unsigned long long>(diskInfo.f_bsize) *
+                                   static_cast<unsigned long long>(diskInfo.f_blocks);
     return NVal::CreateInt64(env, totalSize).val_;
 }
 
@@ -507,8 +506,8 @@ napi_value GetTotalBytes(napi_env env, napi_callback_info info)
         if (ret != 0) {
             return UniError(errno);
         }
-        unsigned long blockSize = diskInfo.f_bsize;
-        *resultSize = blockSize * diskInfo.f_blocks;
+        *resultSize = static_cast<unsigned long long>(diskInfo.f_bsize) *
+                      static_cast<unsigned long long>(diskInfo.f_blocks);
         return UniError(ERRNO_NOERR);
     };
     auto cbComplete = [resultSize](napi_env env, UniError err) -> NVal {
