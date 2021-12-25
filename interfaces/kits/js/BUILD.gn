@@ -206,6 +206,5 @@ group("build_kits_js") {
   deps = [
     ":environment",
     ":file",
-    ":statfs",
   ]
 }
