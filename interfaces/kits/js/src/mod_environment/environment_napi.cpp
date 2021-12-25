@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
+#include "environment_napi.h"
+#include "environment_n_exporter.h"
+
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
-
-#include "environment_n_exporter.h"
-#include "environment_napi.h"
 
 namespace OHOS {
 namespace DistributedFS {
