@@ -237,6 +237,13 @@ NVal NVal::CreateUTF8String(napi_env env, std::string str)
     return { env, res };
 }
 
+NVal NVal::CreateUTF8String(napi_env env, const char* str, ssize_t len)
+{
+    napi_value res = nullptr;
+    napi_create_string_utf8(env, str, len, &res);
+    return { env, res };
+}
+
 NVal NVal::CreateUint8Array(napi_env env, void *buf, size_t bufLen)
 {
     napi_value output_buffer = nullptr;
@@ -250,6 +257,13 @@ NVal NVal::CreateUint8Array(napi_env env, void *buf, size_t bufLen)
     napi_value output_array = nullptr;
     napi_create_typedarray(env, napi_uint8_array, bufLen, output_buffer, 0, &output_array);
     return { env, output_array };
+}
+tuple<NVal, void *> NVal::CreateArrayBuffer(napi_env env, size_t len)
+{
+    napi_value val;
+    void *buf = nullptr;
+    napi_create_arraybuffer(env, len, &buf, &val);
+    return { { env, val }, { buf }};
 }
 
 napi_property_descriptor NVal::DeclareNapiProperty(const char *name, napi_value val)

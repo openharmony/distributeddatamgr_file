@@ -14,47 +14,16 @@
 import("//build/ohos.gni")
 
 file_common_src = [
-  "src/common/fd_guard.cpp",
+  "src/common/file_helper/fd_guard.cpp",
+  "src/common/file_helper/hash_file.cpp",
+  "src/common/napi/n_async/n_async_work_callback.cpp",
+  "src/common/napi/n_async/n_async_work_promise.cpp",
+  "src/common/napi/n_async/n_ref.cpp",
   "src/common/napi/n_class.cpp",
   "src/common/napi/n_func_arg.cpp",
   "src/common/napi/n_val.cpp",
   "src/common/uni_error.cpp",
 ]
-
-ohos_shared_library("fileio") {
-  subsystem_name = "distributeddatamgr"
-  part_name = "distributedfilejs"
-
-  relative_install_dir = "module"
-
-  include_dirs = [
-    "//third_party/node/src",
-    "//foundation/ace/napi/interfaces/kits",
-    "//utils/native/base/include",
-  ]
-
-  sources = file_common_src
-  sources += [
-    "src/mod_fileio/class_dir/dir_n_exporter.cpp",
-    "src/mod_fileio/class_dirent/dirent_n_exporter.cpp",
-    "src/mod_fileio/class_stat/stat_n_exporter.cpp",
-    "src/mod_fileio/class_stream/stream_n_exporter.cpp",
-    "src/mod_fileio/common_func.cpp",
-    "src/mod_fileio/module.cpp",
-    "src/mod_fileio/properties/create_stream.cpp",
-    "src/mod_fileio/properties/fdopen_stream.cpp",
-    "src/mod_fileio/properties/opendir.cpp",
-    "src/mod_fileio/properties/prop_n_exporter.cpp",
-    "src/mod_fileio/properties/stat.cpp",
-  ]
-
-  deps = [
-    "//foundation/ace/napi:ace_napi",
-    "//utils/native/base:utilsecurec",
-  ]
-
-  external_deps = [ "hiviewdfx_hilog_native:libhilog" ]
-}
 
 ohos_shared_library("file") {
   subsystem_name = "distributeddatamgr"
@@ -66,6 +35,12 @@ ohos_shared_library("file") {
     "//third_party/node/src",
     "//foundation/ace/napi/interfaces/kits",
     "//utils/native/base/include",
+    "//third_party/openssl",
+    "//third_party/openssl/include/openssl",
+    "//third_party/openssl/crypto/evp",
+    "//foundation/distributeddatamgr/distributedfile/interfaces/kits/js/src/common/napi",
+    "//foundation/distributeddatamgr/distributedfile/interfaces/kits/js/src/common/napi/n_async",
+    "//foundation/distributeddatamgr/distributedfile/interfaces/kits/js/src/common/file_helper",
   ]
 
   sources = file_common_src
@@ -79,6 +54,8 @@ ohos_shared_library("file") {
   deps = [
     "//foundation/aafwk/standard/frameworks/kits/ability/native:abilitykit_native",
     "//foundation/ace/napi:ace_napi",
+    "//third_party/openssl:crypto_source",
+    "//third_party/openssl:ssl_source",
     "//utils/native/base:utilsecurec",
   ]
 
@@ -106,11 +83,13 @@ ohos_shared_library("statfs") {
     "//foundation/distributeddatamgr/distributedfile/interfaces/kits/js/src/common/napi/n_async",
   ]
 
-  sources = file_common_src
-  sources += [
+  sources = [
     "src/common/napi/n_async/n_async_work_callback.cpp",
     "src/common/napi/n_async/n_async_work_promise.cpp",
     "src/common/napi/n_async/n_ref.cpp",
+    "src/common/napi/n_func_arg.cpp",
+    "src/common/napi/n_val.cpp",
+    "src/common/uni_error.cpp",
     "src/mod_statfs/statfs_n_exporter.cpp",
     "src/mod_statfs/statfs_napi.cpp",
   ]
@@ -136,11 +115,13 @@ ohos_shared_library("environment") {
     "//foundation/distributeddatamgr/distributedfile/interfaces/kits/js/src/common/napi/n_async",
   ]
 
-  sources = file_common_src
-  sources += [
+  sources = [
     "src/common/napi/n_async/n_async_work_callback.cpp",
     "src/common/napi/n_async/n_async_work_promise.cpp",
     "src/common/napi/n_async/n_ref.cpp",
+    "src/common/napi/n_func_arg.cpp",
+    "src/common/napi/n_val.cpp",
+    "src/common/uni_error.cpp",
     "src/mod_environment/environment_n_exporter.cpp",
     "src/mod_environment/environment_napi.cpp",
   ]
@@ -157,7 +138,6 @@ group("build_kits_js") {
   deps = [
     ":environment",
     ":file",
-    ":fileio",
     ":statfs",
   ]
 }
