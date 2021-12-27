@@ -13,13 +13,11 @@
  * limitations under the License.
  */
 
-#ifndef N_UNI_HEADER_H
-#define N_UNI_HEADER_H
+#pragma once
 
 #ifdef FILE_SUBSYSTEM_DEBUG_LOCAL
 #include <node_api.h>
 #else
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
-#endif
 #endif

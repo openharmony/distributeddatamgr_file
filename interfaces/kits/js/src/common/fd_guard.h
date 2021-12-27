@@ -13,31 +13,22 @@
  * limitations under the License.
  */
 
-#ifndef FD_GUARD_H
-#define FD_GUARD_H
+#pragma once
 
 namespace OHOS {
 namespace DistributedFS {
 class FDGuard {
 public:
     FDGuard() = default;
-    FDGuard(int fd, bool autoDestruct);
-    FDGuard(const FDGuard& fdg);
-    FDGuard& operator=(const FDGuard& fdg);
-    FDGuard(FDGuard& fdg);
     explicit FDGuard(int fd);
     ~FDGuard();
 
     int GetFD() const;
     void SetFD(int fd);
-    void SetFD(int fd, bool autoDestruct);
     void ClearFD();
-    void operator=(int fd);
 
 private:
     int fd_ = -1;
-    bool autoDestruct_ = true;
 };
 } // namespace DistributedFS
 } // namespace OHOS
-#endif
