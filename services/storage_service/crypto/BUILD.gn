@@ -59,7 +59,7 @@ ohos_static_library("ss_crypto") {
   public_configs = [ ":crypto_public_config" ]
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
-    "huks_standard:libhukssdk",
+    "huks:libhukssdk",
   ]
 
   configs = [ ":storage_service_config" ]
