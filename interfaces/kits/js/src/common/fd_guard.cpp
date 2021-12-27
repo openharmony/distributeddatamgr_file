@@ -13,19 +13,34 @@
  * limitations under the License.
  */
 
-#ifndef HASH_FILE_H
-#define HASH_FILE_H
+#include "fd_guard.h"
 
-#include <tuple>
+#include <unistd.h>
 
 namespace OHOS {
 namespace DistributedFS {
-class HashFile {
-public:
-    static std::tuple<int, std::string> HashWithMD5(std::string fpath);
-    static std::tuple<int, std::string> HashWithSHA1(std::string fpath);
-    static std::tuple<int, std::string> HashWithSHA256(std::string fpath);
-};
+FDGuard::FDGuard(int fd) : fd_(fd) {}
+
+FDGuard::~FDGuard()
+{
+    if (fd_ > 0) {
+        close(fd_);
+    }
+}
+
+int FDGuard::GetFD() const
+{
+    return fd_;
+}
+
+void FDGuard::SetFD(int fd)
+{
+    fd_ = fd;
+}
+
+void FDGuard::ClearFD()
+{
+    fd_ = -1;
+}
 } // namespace DistributedFS
 } // namespace OHOS
-#endif
