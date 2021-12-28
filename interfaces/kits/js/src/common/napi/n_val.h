@@ -16,6 +16,7 @@
 #ifndef N_VAL_H
 #define N_VAL_H
 
+#include "sys/types.h"
 #include "uni_header.h"
 
 namespace OHOS {
@@ -53,8 +54,9 @@ public:
     static NVal CreateObject(napi_env env);
     static NVal CreateBool(napi_env env, bool val);
     static NVal CreateUTF8String(napi_env env, std::string str);
+    static NVal CreateUTF8String(napi_env env, const char* str, ssize_t len);
     static NVal CreateUint8Array(napi_env env, void *buf, size_t bufLen);
-
+    static std::tuple<NVal, void *> CreateArrayBuffer(napi_env env, size_t len);
     /* SHOULD ONLY BE USED FOR OBJECT */
     bool HasProp(std::string propName) const;
     NVal GetProp(std::string propName) const;

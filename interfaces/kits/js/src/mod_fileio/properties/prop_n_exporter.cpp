@@ -25,7 +25,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#include "../../common/fd_guard.h"
+#include "../../common/file_helper/fd_guard.h"
 #include "../../common/log.h"
 #include "../../common/napi/n_class.h"
 #include "../../common/napi/n_func_arg.h"
