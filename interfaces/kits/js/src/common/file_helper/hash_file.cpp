@@ -71,7 +71,6 @@ tuple<int, string> HashFile::HashWithMD5(string fpath)
     MD5_Init(&ctx);
     int err = ForEachFileSegment(fpath, [ctx = &ctx](char *buf, size_t len) { MD5_Update(ctx, buf, len); });
     MD5_Final(res.get(), &ctx);
-
     return HashFinal(err, res, MD5_DIGEST_LENGTH);
 }
 
@@ -82,7 +81,6 @@ tuple<int, string> HashFile::HashWithSHA1(string fpath)
     SHA1_Init(&ctx);
     int err = ForEachFileSegment(fpath, [ctx = &ctx](char *buf, size_t len) { SHA1_Update(ctx, buf, len); });
     SHA1_Final(res.get(), &ctx);
-
     return HashFinal(err, res, SHA_DIGEST_LENGTH);
 }
 
@@ -93,7 +91,6 @@ tuple<int, string> HashFile::HashWithSHA256(string fpath)
     SHA256_Init(&ctx);
     int err = ForEachFileSegment(fpath, [ctx = &ctx](char *buf, size_t len) { SHA256_Update(ctx, buf, len); });
     SHA256_Final(res.get(), &ctx);
-
     return HashFinal(err, res, SHA256_DIGEST_LENGTH);
 }
 } // namespace DistributedFS

@@ -24,7 +24,6 @@ public:
     FDGuard(int fd, bool autoDestruct);
     FDGuard(const FDGuard& fdg);
     FDGuard& operator=(const FDGuard& fdg);
-    FDGuard(FDGuard& fdg);
     explicit FDGuard(int fd);
     ~FDGuard();
 

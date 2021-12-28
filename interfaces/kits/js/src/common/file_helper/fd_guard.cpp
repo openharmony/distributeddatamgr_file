@@ -18,8 +18,11 @@
 namespace OHOS {
 namespace DistributedFS {
 FDGuard::FDGuard(int fd) : fd_(fd) {}
+
 FDGuard::FDGuard(int fd, bool autoDestruct) : fd_(fd), autoDestruct_(autoDestruct) {}
+
 FDGuard::FDGuard(const FDGuard& fdg) : fd_(fdg.fd_), autoDestruct_(fdg.autoDestruct_) {}
+
 FDGuard& FDGuard::operator=(const FDGuard& fdg)
 {
     if (this == &fdg) {
@@ -28,12 +31,6 @@ FDGuard& FDGuard::operator=(const FDGuard& fdg)
     this->fd_ = fdg.fd_;
     this->autoDestruct_ = fdg.autoDestruct_;
     return *this;
-}
-
-FDGuard::FDGuard(FDGuard& fdg)
-{
-    this->fd_ = fdg.fd_;
-    this->autoDestruct_ = fdg.autoDestruct_;
 }
 
 FDGuard::~FDGuard()
@@ -63,6 +60,7 @@ void FDGuard::operator=(int fd)
 {
     fd_ = fd;
 }
+
 void FDGuard::ClearFD()
 {
     fd_ = -1;
