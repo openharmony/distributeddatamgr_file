@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-#pragma once
+#ifndef INTERFACES_KITS1_BAD_JS_SRC_MOD_FILEIO_CLASS_DIR_DIR_N_EXPORTER_H
+#define INTERFACES_KITS1_BAD_JS_SRC_MOD_FILEIO_CLASS_DIR_DIR_N_EXPORTER_H
 
-#include <memory>
 #include <string>
 
 #include "../../common/napi/n_exporter.h"
@@ -32,13 +32,14 @@ public:
 
     static napi_value Constructor(napi_env env, napi_callback_info info);
 
-    static napi_value OpenDirSync(napi_env env, napi_callback_info info);
     static napi_value CloseSync(napi_env env, napi_callback_info info);
     static napi_value ReadSync(napi_env env, napi_callback_info info);
-
+    static napi_value Read(napi_env env, napi_callback_info info);
+    static napi_value Close(napi_env env, napi_callback_info info);
     DirNExporter(napi_env env, napi_value exports);
     ~DirNExporter() override;
 };
 } // namespace ModuleFileIO
 } // namespace DistributedFS
 } // namespace OHOS
+#endif

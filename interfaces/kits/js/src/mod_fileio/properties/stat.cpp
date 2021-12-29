@@ -12,11 +12,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #include "stat.h"
 
+#include <memory>
+#include <tuple>
+
+#include "../../common/napi/n_async/n_async_work_callback.h"
+#include "../../common/napi/n_async/n_async_work_promise.h"
 #include "../../common/napi/n_class.h"
 #include "../../common/napi/n_func_arg.h"
+#include "../../common/napi/n_val.h"
 #include "../../common/uni_error.h"
 
 #include "../class_stat/stat_entity.h"
@@ -62,6 +67,59 @@ napi_value Stat::Sync(napi_env env, napi_callback_info info)
 
     statEntity->stat_ = buf;
     return objStat;
+}
+struct AsyncStatArg {
+    struct stat stat_;
+};
+
+napi_value Stat::Async(napi_env env, napi_callback_info info)
+{
+    NFuncArg funcArg(env, info);
+    if (!funcArg.InitArgs(NARG_CNT::ONE, NARG_CNT::TWO)) {
+        UniError(EINVAL).ThrowErr(env, "Number of argments unmatched");
+        return nullptr;
+    }
+    string path;
+    unique_ptr<char[]> tmp;
+    bool succ = false;
+    tie(succ, tmp, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
+    if (!succ) {
+        UniError(EINVAL).ThrowErr(env, "Invalid path");
+        return nullptr;
+    }
+    path = tmp.get();
+
+    auto arg = make_shared<AsyncStatArg>();
+    auto cbExec = [arg, path](napi_env env) -> UniError {
+        if (stat(path.c_str(), &arg->stat_)) {
+            return UniError(errno);
+        } else {
+            return UniError(ERRNO_NOERR);
+        }
+    };
+    auto cbCompl = [arg](napi_env env, UniError err) -> NVal {
+        if (err) {
+            return { env, err.GetNapiErr(env) };
+        }
+        napi_value objStat = NClass::InstantiateClass(env, StatNExporter::className_, {});
+        if (!objStat) {
+            return { env, UniError(EIO).GetNapiErr(env) };
+        }
+        auto statEntity = NClass::GetEntityOf<StatEntity>(env, objStat);
+        if (!statEntity) {
+            return { env, UniError(EIO).GetNapiErr(env) };
+        }
+        statEntity->stat_ = arg->stat_;
+        return { env, objStat };
+    };
+    NVal thisVar(env, funcArg.GetThisVar());
+    string procedureName = "fileioStatStat";
+    if (funcArg.GetArgc() == NARG_CNT::ONE) {
+        return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbCompl).val_;
+    } else {
+        NVal cb(env, funcArg[NARG_POS::SECOND]);
+        return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbCompl).val_;
+    }
 }
 } // namespace ModuleFileIO
 } // namespace DistributedFS

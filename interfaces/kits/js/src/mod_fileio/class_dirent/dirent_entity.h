@@ -13,7 +13,8 @@
  * limitations under the License.
  */
 
-#pragma once
+#ifndef INTERFACES_KITS_JS_SRC_MOD_FILEIO_CLASS_DIRENT_DIRENT_ENTITY_H
+#define INTERFACES_KITS_JS_SRC_MOD_FILEIO_CLASS_DIRENT_DIRENT_ENTITY_H
 
 #include <dirent.h>
 
@@ -26,3 +27,4 @@ struct DirentEntity {
 } // namespace ModuleFileIO
 } // namespace DistributedFS
 } // namespace OHOS
+#endif // INTERFACES_KITS_JS_SRC_MOD_FILEIO_CLASS_DIRENT_DIRENT_ENTITY_H

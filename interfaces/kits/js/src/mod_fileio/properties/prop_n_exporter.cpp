@@ -24,25 +24,38 @@
 #include <sys/sendfile.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <unistd.h>
 
 #include "../../common/file_helper/fd_guard.h"
-#include "../../common/log.h"
-#include "../../common/napi/n_class.h"
-#include "../../common/napi/n_func_arg.h"
-#include "../../common/napi/n_val.h"
-#include "../../common/uni_error.h"
-#include "../class_dir/dir_entity.h"
-#include "../class_dir/dir_n_exporter.h"
-#include "../class_stat/stat_entity.h"
-#include "../class_stat/stat_n_exporter.h"
-#include "../class_stream/stream_entity.h"
-#include "../class_stream/stream_n_exporter.h"
 #include "../common_func.h"
-
+#include "chmod.h"
+#include "chown.h"
+#include "close.h"
+#include "copy_file.h"
 #include "create_stream.h"
+#include "fchmod.h"
+#include "fchown.h"
+#include "fdatasync.h"
 #include "fdopen_stream.h"
-#include "opendir.h"
+#include "fstat.h"
+#include "fsync.h"
+#include "ftruncate.h"
+#include "hash.h"
+#include "lchown.h"
+#include "link.h"
+#include "lseek.h"
+#include "lstat.h"
+#include "mkdtemp.h"
+#include "open.h"
+#include "open_dir.h"
+#include "posix_fallocate.h"
+#include "read_text.h"
+#include "rename.h"
+#include "rmdir.h"
 #include "stat.h"
+#include "symlink.h"
+#include "truncate.h"
+#include "watcher.h"
 
 namespace OHOS {
 namespace DistributedFS {
@@ -87,56 +100,195 @@ napi_value PropNExporter::AccessSync(napi_env env, napi_callback_info info)
     return NVal::CreateUndefined(env).val_;
 }
 
-napi_value PropNExporter::CopyFileSync(napi_env env, napi_callback_info info)
+static tuple<bool, string, int, bool> GetAccessArgs(napi_env env, const NFuncArg &funcArg)
+{
+    bool succ = false;
+    unique_ptr<char[]> path;
+    tie(succ, path, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
+    if (!succ) {
+        UniError(EINVAL).ThrowErr(env, "Invalid path");
+        return { false, nullptr, 0, false };
+    }
+
+    int argc = funcArg.GetArgc();
+    bool promise = true;
+    bool hasMode = false;
+    if (argc == NARG_CNT::ONE) {
+        hasMode = false;
+        promise = true;
+    } else if (argc == NARG_CNT::TWO) {
+        if (NVal(env, funcArg[NARG_POS::SECOND]).TypeIs(napi_function)) {
+            hasMode = false;
+            promise = false;
+        } else {
+            hasMode = true;
+            promise = true;
+        }
+    } else {
+        hasMode = true;
+        promise = false;
+    }
+
+    int mode = 0;
+    if (hasMode) {
+        tie(succ, mode) = NVal(env, funcArg[NARG_POS::SECOND]).ToInt32();
+        if (!succ) {
+            UniError(EINVAL).ThrowErr(env, "Invalid mode");
+            return { false, nullptr, 0, false };
+        }
+    }
+
+    return { true, path.get(), mode, promise };
+}
+
+struct AsyncAccessArg {
+    unique_ptr<char[]> fp = nullptr;
+};
+
+napi_value PropNExporter::Access(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-
-    if (!funcArg.InitArgs(NARG_CNT::TWO, NARG_CNT::THREE)) {
+    if (!funcArg.InitArgs(NARG_CNT::ONE, NARG_CNT::THREE)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
 
+    string path;
     bool succ = false;
-    unique_ptr<char[]> src;
-    tie(succ, src, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
+    bool promise = false;
+    int mode;
+    tie(succ, path, mode, promise) = GetAccessArgs(env, funcArg);
     if (!succ) {
-        UniError(EINVAL).ThrowErr(env, "Invalid src");
+        UniError(EINVAL).ThrowErr(env, "Invalid path");
         return nullptr;
     }
+    int argc = funcArg.GetArgc();
 
-    unique_ptr<char[]> dest;
-    tie(succ, dest, ignore) = NVal(env, funcArg[NARG_POS::SECOND]).ToUTF8String();
-    if (!succ) {
-        UniError(EINVAL).ThrowErr(env, "Invalid dest");
-        return nullptr;
-    }
+    auto cbExec = [path = move(path), mode](napi_env env) -> UniError {
+        int ret = access(path.c_str(), mode);
+        if (ret == -1) {
+            return UniError(errno);
+        } else {
+            return UniError(ERRNO_NOERR);
+        }
+    };
 
-    FDGuard sfd;
-    FDGuard ofd;
-    struct stat statbf;
-    sfd.SetFD(open(src.get(), O_RDONLY));
-    if (sfd.GetFD() == -1) {
-        UniError(errno).ThrowErr(env);
-        return nullptr;
-    }
-    int res = fstat(sfd.GetFD(), &statbf);
-    if (res == -1) {
-        UniError(errno).ThrowErr(env);
-        return nullptr;
-    }
-    // Note that mode means if we should force to save instead of the mode of newly create file
-    ofd.SetFD(open(dest.get(), O_WRONLY | O_CREAT, statbf.st_mode));
-    if (ofd.GetFD() == -1) {
-        UniError(errno).ThrowErr(env);
-        return nullptr;
-    }
-    int ret = sendfile(ofd.GetFD(), sfd.GetFD(), nullptr, statbf.st_size);
-    if (ret == -1) {
-        UniError(errno).ThrowErr(env);
-        return nullptr;
+    auto cbComplete = [](napi_env env, UniError err) -> NVal {
+        if (err) {
+            return { env, err.GetNapiErr(env) };
+        } else {
+            return NVal::CreateUndefined(env);
+        }
+    };
+    string procedureName = "FileIOAccess";
+    NVal thisVar(env, funcArg.GetThisVar());
+    if (promise) {
+        return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
+    } else {
+        int cbInd = ((argc == NARG_CNT::TWO) ? NARG_POS::SECOND : NARG_POS::THIRD);
+        NVal cb(env, funcArg[cbInd]);
+        return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
     }
 
     return NVal::CreateUndefined(env).val_;
+}
+
+napi_value PropNExporter::Unlink(napi_env env, napi_callback_info info)
+{
+    NFuncArg funcArg(env, info);
+
+    if (!funcArg.InitArgs(NARG_CNT::ONE, NARG_CNT::TWO)) {
+        UniError(EINVAL).ThrowErr(env, "Number of Arguments Unmatched");
+        return nullptr;
+    }
+
+    string path;
+    unique_ptr<char[]> tmp;
+    bool succ = false;
+    tie(succ, tmp, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
+    if (!succ) {
+        UniError(EINVAL).ThrowErr(env, "invalid path");
+        return nullptr;
+    }
+    path = tmp.get();
+
+    auto cbExec = [path](napi_env env) -> UniError {
+        if (unlink(path.c_str()) == -1) {
+            return UniError(errno);
+        } else {
+            return UniError(ERRNO_NOERR);
+        }
+    };
+    auto cbCompl = [](napi_env env, UniError err) -> NVal {
+        if (err) {
+            return { env, err.GetNapiErr(env) };
+        }
+        return { NVal::CreateUndefined(env) };
+    };
+
+    NVal thisVar(env, funcArg.GetThisVar());
+    string procedureName = "FileIOStreamUnlink";
+    if (funcArg.GetArgc() == NARG_CNT::ONE) {
+        return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbCompl).val_;
+    } else {
+        NVal cb(env, funcArg[NARG_POS::SECOND]);
+        return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbCompl).val_;
+    }
+    return NVal::CreateUndefined(env).val_;
+}
+
+napi_value PropNExporter::Mkdir(napi_env env, napi_callback_info info)
+{
+    NFuncArg funcArg(env, info);
+    if (!funcArg.InitArgs(NARG_CNT::ONE, NARG_CNT::THREE)) {
+        UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
+        return nullptr;
+    }
+
+    string path;
+    unique_ptr<char[]> tmp;
+    bool succ = false;
+    tie(succ, tmp, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
+    if (!succ) {
+        UniError(EINVAL).ThrowErr(env, "Invalid path");
+        return nullptr;
+    }
+    path = tmp.get();
+    int mode = 0775;
+    int argc = funcArg.GetArgc();
+    if ((argc == NARG_CNT::TWO && NVal(env, funcArg[NARG_POS::SECOND]).TypeIs(napi_number)) ||
+        argc == NARG_CNT::THREE) {
+        tie(succ, mode) = NVal(env, funcArg[NARG_POS::SECOND]).ToInt32();
+        if (!succ) {
+            UniError(EINVAL).ThrowErr(env, "Invalid mode");
+            return nullptr;
+        }
+    }
+    auto cbExec = [path, mode](napi_env env) -> UniError {
+        if (mkdir(path.c_str(), mode) == -1) {
+            return UniError(errno);
+        } else {
+            return UniError(ERRNO_NOERR);
+        }
+    };
+
+    auto cbCompl = [](napi_env env, UniError err) -> NVal {
+        if (err) {
+            return { env, err.GetNapiErr(env) };
+        }
+        return { NVal::CreateUndefined(env) };
+    };
+    NVal thisVar(env, funcArg.GetThisVar());
+    string procedureName = "fileioMkdir";
+    if ((argc == NARG_CNT::TWO && NVal(env, funcArg[NARG_POS::SECOND]).TypeIs(napi_number)) || argc == NARG_CNT::ONE) {
+        return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbCompl).val_;
+    } else {
+        int cbIdx = ((argc == NARG_CNT::TWO) ? NARG_POS::SECOND : NARG_POS::THIRD);
+        NVal cb(env, funcArg[cbIdx]);
+        return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbCompl).val_;
+    }
+
+    return nullptr;
 }
 
 napi_value PropNExporter::MkdirSync(napi_env env, napi_callback_info info)
@@ -171,151 +323,7 @@ napi_value PropNExporter::MkdirSync(napi_env env, napi_callback_info info)
     }
 
     if (ret == -1) {
-        UniError(errno).ThrowErr(env);
-        return nullptr;
-    }
-
-    return NVal::CreateUndefined(env).val_;
-}
-
-napi_value PropNExporter::OpenSync(napi_env env, napi_callback_info info)
-{
-    NFuncArg funcArg(env, info);
-
-    if (!funcArg.InitArgs(NARG_CNT::ONE, NARG_CNT::THREE)) {
-        UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
-        return nullptr;
-    }
-
-    bool succ = false;
-    unique_ptr<char[]> path;
-    tie(succ, path, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
-    if (!succ) {
-        UniError(EINVAL).ThrowErr(env, "Invalid path");
-        return nullptr;
-    }
-
-    int flags = O_RDONLY;
-    if (funcArg.GetArgc() >= NARG_CNT::TWO) {
-        tie(succ, flags) = NVal(env, funcArg[NARG_POS::SECOND]).ToInt32();
-        if (!succ) {
-            UniError(EINVAL).ThrowErr(env, "Invalid flags");
-            return nullptr;
-        }
-    }
-
-    int fd = -1;
-    int argc = funcArg.GetArgc();
-    if (argc != NARG_CNT::THREE) {
-        if ((flags & O_CREAT) || (flags & O_TMPFILE)) {
-            UniError(EINVAL).ThrowErr(env, "called with O_CREAT/O_TMPFILE but no mode");
-            return nullptr;
-        }
-        fd = open(path.get(), flags);
-    } else {
-        int mode;
-        tie(succ, mode) = NVal(env, funcArg.GetArg(NARG_POS::THIRD)).ToInt32();
-        if (!succ) {
-            UniError(EINVAL).ThrowErr(env, "Invalid mode");
-            return nullptr;
-        }
-        fd = open(path.get(), flags, mode);
-    }
-
-    if (fd == -1) {
-        UniError(errno).ThrowErr(env);
-        return nullptr;
-    }
-
-    return NVal::CreateInt64(env, fd).val_;
-}
-
-napi_value PropNExporter::ChmodSync(napi_env env, napi_callback_info info)
-{
-    NFuncArg funcArg(env, info);
-
-    if (!funcArg.InitArgs(NARG_CNT::TWO)) {
-        UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
-        return nullptr;
-    }
-
-    bool succ = false;
-    unique_ptr<char[]> path;
-    tie(succ, path, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
-    if (!succ) {
-        UniError(EINVAL).ThrowErr(env, "Invalid path");
-        return nullptr;
-    }
-
-    int mode;
-    tie(succ, mode) = NVal(env, funcArg[NARG_POS::SECOND]).ToInt32();
-    if (!succ) {
-        UniError(EINVAL).ThrowErr(env, "Invalid mode");
-        return nullptr;
-    }
-
-    if (chmod(path.get(), mode) == -1) {
-        UniError(errno).ThrowErr(env);
-        return nullptr;
-    }
-
-    return NVal::CreateUndefined(env).val_;
-}
-
-napi_value PropNExporter::ChownSync(napi_env env, napi_callback_info info)
-{
-    NFuncArg funcArg(env, info);
-
-    if (!funcArg.InitArgs(NARG_CNT::THREE)) {
-        UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
-        return nullptr;
-    }
-
-    bool succ = false;
-    unique_ptr<char[]> path;
-    tie(succ, path, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
-    if (!succ) {
-        UniError(EINVAL).ThrowErr(env, "Invalid path");
-        return nullptr;
-    }
-
-    int owner;
-    tie(succ, owner) = NVal(env, funcArg[NARG_POS::SECOND]).ToInt32();
-    if (!succ) {
-        UniError(EINVAL).ThrowErr(env, "Invalid owner");
-    }
-
-    int group;
-    tie(succ, group) = NVal(env, funcArg[NARG_POS::THIRD]).ToInt32();
-    if (!succ) {
-        UniError(EINVAL).ThrowErr(env, "Invalid group");
-    }
-
-    if (chown(path.get(), owner, group) == -1) {
-        UniError(errno).ThrowErr(env);
-        return nullptr;
-    }
-
-    return NVal::CreateUndefined(env).val_;
-}
-
-napi_value PropNExporter::CloseSync(napi_env env, napi_callback_info info)
-{
-    NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::ONE)) {
-        UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
-        return nullptr;
-    }
-
-    bool succ = false;
-    int fd;
-    tie(succ, fd) = NVal(env, funcArg[NARG_POS::FIRST]).ToInt32();
-    if (!succ) {
-        UniError(EINVAL).ThrowErr(env, "Invalid fd");
-        return nullptr;
-    }
-
-    if (close(fd) == -1) {
+        HILOGE("errno = %{public}d", errno);
         UniError(errno).ThrowErr(env);
         return nullptr;
     }
@@ -333,7 +341,6 @@ napi_value PropNExporter::FchmodSync(napi_env env, napi_callback_info info)
     }
 
     bool succ = false;
-
     int fd;
     tie(succ, fd) = NVal(env, funcArg[NARG_POS::FIRST]).ToInt32();
     if (!succ) {
@@ -396,84 +403,6 @@ napi_value PropNExporter::FchownSync(napi_env env, napi_callback_info info)
     return NVal::CreateUndefined(env).val_;
 }
 
-napi_value PropNExporter::FstatSync(napi_env env, napi_callback_info info)
-{
-    NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::ONE)) {
-        UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
-        return nullptr;
-    }
-
-    bool succ = false;
-
-    int fd;
-    tie(succ, fd) = NVal(env, funcArg[NARG_POS::FIRST]).ToInt32();
-    if (!succ) {
-        UniError(EINVAL).ThrowErr(env, "Invalid fd");
-        return nullptr;
-    }
-
-    struct stat buf;
-    if (fstat(fd, &buf) == -1) {
-        UniError(errno).ThrowErr(env);
-        return nullptr;
-    }
-
-    napi_value objStat = NClass::InstantiateClass(env, StatNExporter::className_, {});
-    if (!objStat) {
-        UniError(EINVAL).ThrowErr(env, "Cannot instantiate class");
-        return nullptr;
-    }
-
-    auto statEntity = NClass::GetEntityOf<StatEntity>(env, objStat);
-    if (!statEntity) {
-        UniError(EINVAL).ThrowErr(env, "Cannot get the entity of objStat");
-        return nullptr;
-    }
-    statEntity->stat_ = buf;
-
-    return objStat;
-}
-
-napi_value PropNExporter::FtruncateSync(napi_env env, napi_callback_info info)
-{
-    NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::ONE, NARG_CNT::TWO)) {
-        UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
-        return nullptr;
-    }
-
-    bool succ = false;
-
-    int fd;
-    tie(succ, fd) = NVal(env, funcArg[NARG_POS::FIRST]).ToInt32();
-    if (!succ) {
-        UniError(EINVAL).ThrowErr(env, "Invalid fd");
-        return nullptr;
-    }
-
-    int argc = funcArg.GetArgc();
-    int ret = -1;
-    if (argc == NARG_CNT::ONE) {
-        ret = ftruncate(fd, 0);
-    } else {
-        int len;
-        tie(succ, len) = NVal(env, funcArg[NARG_POS::SECOND]).ToInt32();
-        if (!succ) {
-            UniError(EINVAL).ThrowErr(env, "Invalid len");
-            return nullptr;
-        }
-        ret = ftruncate(fd, len);
-    }
-
-    if (ret == -1) {
-        UniError(errno).ThrowErr(env);
-        return nullptr;
-    }
-
-    return NVal::CreateUndefined(env).val_;
-}
-
 napi_value PropNExporter::ReadSync(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
@@ -496,7 +425,8 @@ napi_value PropNExporter::ReadSync(napi_env env, napi_callback_info info)
     int64_t len;
     bool hasPos = false;
     int64_t pos;
-    tie(succ, buf, len, hasPos, pos) = CommonFunc::GetReadArg(env, funcArg[NARG_POS::SECOND], funcArg[NARG_POS::THIRD]);
+    tie(succ, buf, len, hasPos, pos, ignore) =
+        CommonFunc::GetReadArg(env, funcArg[NARG_POS::SECOND], funcArg[NARG_POS::THIRD]);
     if (!succ) {
         return nullptr;
     }
@@ -515,58 +445,173 @@ napi_value PropNExporter::ReadSync(napi_env env, napi_callback_info info)
     return NVal::CreateInt64(env, actLen).val_;
 }
 
-napi_value PropNExporter::RenameSync(napi_env env, napi_callback_info info)
+struct AsyncIOReadArg {
+    ssize_t readed = 0;
+    int offset = 0;
+    NRef refReadBuf;
+
+    explicit AsyncIOReadArg(NVal jsReadBuf) : refReadBuf(jsReadBuf) {}
+    ~AsyncIOReadArg() = default;
+};
+
+napi_value PropNExporter::Read(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-
-    if (!funcArg.InitArgs(NARG_CNT::TWO)) {
+    if (!funcArg.InitArgs(NARG_CNT::TWO, NARG_CNT::FOUR)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
 
     bool succ = false;
-    unique_ptr<char[]> src;
-    tie(succ, src, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
+    void *buf = nullptr;
+    int64_t len;
+    int fd;
+    bool hasPos = false;
+    int64_t pos;
+    int offset;
+    tie(succ, fd) = NVal(env, funcArg[NARG_POS::FIRST]).ToInt32();
     if (!succ) {
-        UniError(EINVAL).ThrowErr(env, "Invalid src");
+        UniError(EINVAL).ThrowErr(env, "Invalid fd");
         return nullptr;
     }
 
-    unique_ptr<char[]> dest;
-    tie(succ, dest, ignore) = NVal(env, funcArg[NARG_POS::SECOND]).ToUTF8String();
+    tie(succ, buf, len, hasPos, pos, offset) =
+        CommonFunc::GetReadArg(env, funcArg[NARG_POS::SECOND], funcArg[NARG_POS::THIRD]);
     if (!succ) {
-        UniError(EINVAL).ThrowErr(env, "Invalid dest");
+        UniError(EINVAL).ThrowErr(env, "Invalid arguments");
         return nullptr;
     }
 
-    if (rename(src.get(), dest.get()) == -1) {
-        UniError(errno).ThrowErr(env);
-        return nullptr;
+    auto arg = make_shared<AsyncIOReadArg>(NVal(env, funcArg[NARG_POS::SECOND]));
+    auto cbExec = [arg, buf, len, fd, hasPos, pos, offset](napi_env env) -> UniError {
+        ssize_t actLen;
+        if (hasPos) {
+            actLen = pread(fd, buf, len, pos);
+        } else {
+            actLen = read(fd, buf, len);
+        }
+        if (actLen == -1) {
+            return UniError(errno);
+        } else {
+            arg->readed = actLen;
+            arg->offset = offset;
+            return UniError(ERRNO_NOERR);
+        }
+    };
+
+    auto cbCompl = [arg](napi_env env, UniError err) -> NVal {
+        if (err) {
+            return { env, err.GetNapiErr(env) };
+        }
+        NVal obj = NVal::CreateObject(env);
+        obj.AddProp({ NVal::DeclareNapiProperty("bytesRead", NVal::CreateInt64(env, arg->readed).val_),
+            NVal::DeclareNapiProperty("buffer", arg->refReadBuf.Deref(env).val_),
+            NVal::DeclareNapiProperty("offset", NVal::CreateInt64(env, arg->offset).val_) });
+        return { obj };
+    };
+
+    NVal thisVar(env, funcArg.GetThisVar());
+    int argc = funcArg.GetArgc();
+    bool hasOp = false;
+    if (argc == NARG_CNT::THREE) {
+        NVal op = NVal(env, funcArg[NARG_POS::THIRD]);
+        if (op.HasProp("offset") || op.HasProp("position") || op.HasProp("length")) {
+            hasOp = true;
+        }
+    }
+    if (argc == NARG_CNT::TWO || (argc == NARG_CNT::THREE && hasOp)) {
+        return NAsyncWorkPromise(env, thisVar).Schedule("FileIORead", cbExec, cbCompl).val_;
+    } else {
+        int cbIdx = ((argc == NARG_CNT::THREE) ? NARG_POS::THIRD : NARG_POS::FOURTH);
+        NVal cb(env, funcArg[cbIdx]);
+        return NAsyncWorkCallback(env, thisVar, cb).Schedule("FileIORead", cbExec, cbCompl).val_;
     }
 
     return NVal::CreateUndefined(env).val_;
 }
 
-napi_value PropNExporter::RmdirSync(napi_env env, napi_callback_info info)
+struct AsyncIOWrtieArg {
+    NRef refWriteArrayBuf_;
+    unique_ptr<char[]> guardWriteStr_;
+    ssize_t actLen = 0;
+
+    explicit AsyncIOWrtieArg(NVal refWriteArrayBuf) : refWriteArrayBuf_(refWriteArrayBuf) {}
+    explicit AsyncIOWrtieArg(unique_ptr<char[]> &&guardWriteStr) : guardWriteStr_(move(guardWriteStr)) {}
+    ~AsyncIOWrtieArg() = default;
+};
+
+napi_value PropNExporter::Write(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-
-    if (!funcArg.InitArgs(NARG_CNT::ONE)) {
+    if (!funcArg.InitArgs(NARG_CNT::TWO, NARG_CNT::FOUR)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
 
     bool succ = false;
-    unique_ptr<char[]> path;
-    tie(succ, path, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
+    int fd;
+    tie(succ, fd) = NVal(env, funcArg[NARG_POS::FIRST]).ToInt32();
     if (!succ) {
-        UniError(EINVAL).ThrowErr(env, "Invalid path");
+        UniError(EINVAL).ThrowErr(env, "Invalid fd");
         return nullptr;
     }
 
-    if (rmdir(path.get()) == -1) {
-        UniError(errno).ThrowErr(env);
+    unique_ptr<char[]> bufGuard;
+    void *buf = nullptr;
+    size_t len;
+    size_t position;
+    bool hasPos = false;
+    tie(succ, bufGuard, buf, len, hasPos, position) =
+        CommonFunc::GetWriteArg(env, funcArg[NARG_POS::SECOND], funcArg[NARG_POS::THIRD]);
+    if (!succ) {
+        UniError(EINVAL).ThrowErr(env, "Invalid arguments");
         return nullptr;
+    }
+
+    shared_ptr<AsyncIOWrtieArg> arg;
+    if (bufGuard) {
+        arg = make_shared<AsyncIOWrtieArg>(move(bufGuard));
+    } else {
+        arg = make_shared<AsyncIOWrtieArg>(NVal(env, funcArg[NARG_POS::SECOND]));
+    }
+    auto cbExec = [arg, buf, len, fd, position](napi_env env) -> UniError {
+        if ((position == (size_t)INVALID_POSITION)) {
+            arg->actLen = write(fd, buf, len);
+        } else {
+            arg->actLen = pwrite(fd, buf, len, position);
+        }
+
+        if (arg->actLen == -1) {
+            return UniError(errno);
+        } else {
+            return UniError(ERRNO_NOERR);
+        }
+    };
+
+    auto cbCompl = [arg](napi_env env, UniError err) -> NVal {
+        if (err) {
+            return { env, err.GetNapiErr(env) };
+        } else {
+            return { NVal::CreateInt64(env, arg->actLen) };
+        }
+    };
+
+    NVal thisVar(env, funcArg.GetThisVar());
+    bool hasOp = false;
+    int argc = funcArg.GetArgc();
+    if (argc == NARG_CNT::THREE) {
+        NVal op = NVal(env, funcArg[NARG_POS::THIRD]);
+        if (op.HasProp("offset") || op.HasProp("position") || op.HasProp("length") || op.HasProp("encoding")) {
+            hasOp = true;
+        }
+    }
+
+    if (argc == NARG_CNT::TWO || (argc == NARG_CNT::THREE && hasOp)) {
+        return NAsyncWorkPromise(env, thisVar).Schedule("FileIOWrite", cbExec, cbCompl).val_;
+    } else {
+        int cbIdx = ((argc == NARG_CNT::THREE) ? NARG_POS::THIRD : NARG_POS::FOURTH);
+        NVal cb(env, funcArg[cbIdx]);
+        return NAsyncWorkCallback(env, thisVar, cb).Schedule("FileIOWrite", cbExec, cbCompl).val_;
     }
 
     return NVal::CreateUndefined(env).val_;
@@ -594,67 +639,6 @@ napi_value PropNExporter::UnlinkSync(napi_env env, napi_callback_info info)
         return nullptr;
     }
 
-    return NVal::CreateUndefined(env).val_;
-}
-
-napi_value PropNExporter::FsyncSync(napi_env env, napi_callback_info info)
-{
-    NFuncArg funcArg(env, info);
-
-    if (!funcArg.InitArgs(NARG_CNT::ONE)) {
-        UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
-        return nullptr;
-    }
-
-    bool succ = false;
-    int fd;
-    tie(succ, fd) = NVal(env, funcArg[NARG_POS::FIRST]).ToInt32();
-    if (!succ) {
-        UniError(EINVAL).ThrowErr(env, "Invalid fd");
-        return nullptr;
-    }
-
-    if (fsync(fd) == -1) {
-        UniError(errno).ThrowErr(env);
-        return nullptr;
-    }
-
-    return NVal::CreateUndefined(env).val_;
-}
-
-napi_value PropNExporter::TruncateSync(napi_env env, napi_callback_info info)
-{
-    NFuncArg funcArg(env, info);
-
-    if (!funcArg.InitArgs(NARG_CNT::ONE, NARG_CNT::TWO)) {
-        UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
-        return nullptr;
-    }
-
-    bool succ = false;
-    unique_ptr<char[]> path;
-    tie(succ, path, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
-    if (!succ) {
-        UniError(EINVAL).ThrowErr(env, "Invalid path");
-        return nullptr;
-    }
-
-    int ret = -1;
-    if (funcArg.GetArgc() == NARG_CNT::ONE) {
-        ret = truncate(path.get(), 0);
-    } else {
-        int len;
-        tie(succ, len) = NVal(env, funcArg[NARG_POS::SECOND]).ToInt32();
-        if (!succ) {
-            UniError(EINVAL).ThrowErr(env, "Invalid len");
-        }
-        ret = truncate(path.get(), len);
-    }
-
-    if (ret == -1) {
-        UniError(errno).ThrowErr(env);
-        return nullptr;
-    }
     return NVal::CreateUndefined(env).val_;
 }
 
@@ -703,27 +687,69 @@ napi_value PropNExporter::WriteSync(napi_env env, napi_callback_info info)
 bool PropNExporter::Export()
 {
     return exports_.AddProp({
+        NVal::DeclareNapiFunction("access", Access),
         NVal::DeclareNapiFunction("accessSync", AccessSync),
-        NVal::DeclareNapiFunction("chmodSync", ChmodSync),
-        NVal::DeclareNapiFunction("chownSync", ChownSync),
-        NVal::DeclareNapiFunction("closeSync", CloseSync),
-        NVal::DeclareNapiFunction("copyFileSync", CopyFileSync),
-        NVal::DeclareNapiFunction("createStreamSync", CreateStream::Sync),
-        NVal::DeclareNapiFunction("fchmodSync", FchmodSync),
-        NVal::DeclareNapiFunction("fchownSync", FchownSync),
+        NVal::DeclareNapiFunction("chmod", Chmod::Async),
+        NVal::DeclareNapiFunction("chmodSync", Chmod::Sync),
+        NVal::DeclareNapiFunction("chown", Chown::Async),
+        NVal::DeclareNapiFunction("chownSync", Chown::Sync),
+        NVal::DeclareNapiFunction("close", Close::Async),
+        NVal::DeclareNapiFunction("closeSync", Close::Sync),
+        NVal::DeclareNapiFunction("copyFile", CopyFile::Async),
+        NVal::DeclareNapiFunction("copyFileSync", CopyFile::Sync),
+        NVal::DeclareNapiFunction("createStream", CreateSteam::Async),
+        NVal::DeclareNapiFunction("createStreamSync", CreateSteam::Sync),
+        NVal::DeclareNapiFunction("createWatcher", Watcher::CreateWatcher),
+        NVal::DeclareNapiFunction("fchmod", Fchmod::Async),
+        NVal::DeclareNapiFunction("fchmodSync", Fchmod::Sync),
+        NVal::DeclareNapiFunction("fchown", Fchown::Async),
+        NVal::DeclareNapiFunction("fchownSync", Fchown::Sync),
+        NVal::DeclareNapiFunction("fdatasync", Fdatasync::Async),
+        NVal::DeclareNapiFunction("fdatasyncSync", Fdatasync::Sync),
+        NVal::DeclareNapiFunction("fdopenStream", FdopenStream::Async),
         NVal::DeclareNapiFunction("fdopenStreamSync", FdopenStream::Sync),
-        NVal::DeclareNapiFunction("fstatSync", FstatSync),
-        NVal::DeclareNapiFunction("fsyncSync", FsyncSync),
-        NVal::DeclareNapiFunction("ftruncateSync", FtruncateSync),
+        NVal::DeclareNapiFunction("fstat", Fstat::Async),
+        NVal::DeclareNapiFunction("fstatSync", Fstat::Sync),
+        NVal::DeclareNapiFunction("fsync", Fsync::Async),
+        NVal::DeclareNapiFunction("fsyncSync", Fsync::Sync),
+        NVal::DeclareNapiFunction("ftruncate", Ftruncate::Async),
+        NVal::DeclareNapiFunction("ftruncateSync", Ftruncate::Sync),
+        NVal::DeclareNapiFunction("hash", Hash::Async),
+        NVal::DeclareNapiFunction("lchown", Lchown::Async),
+        NVal::DeclareNapiFunction("lchownSync", Lchown::Sync),
+        NVal::DeclareNapiFunction("link", Link::Async),
+        NVal::DeclareNapiFunction("linkSync", Link::Sync),
+        NVal::DeclareNapiFunction("lseek", Lseek::Async),
+        NVal::DeclareNapiFunction("lseekSync", Lseek::Sync),
+        NVal::DeclareNapiFunction("lstat", Lstat::Async),
+        NVal::DeclareNapiFunction("lstatSync", Lstat::Sync),
+        NVal::DeclareNapiFunction("mkdir", Mkdir),
         NVal::DeclareNapiFunction("mkdirSync", MkdirSync),
-        NVal::DeclareNapiFunction("opendirSync", Opendir::Sync),
-        NVal::DeclareNapiFunction("openSync", OpenSync),
+        NVal::DeclareNapiFunction("mkdtemp", Mkdtemp::Async),
+        NVal::DeclareNapiFunction("mkdtempSync", Mkdtemp::Sync),
+        NVal::DeclareNapiFunction("open", Open::Async),
+        NVal::DeclareNapiFunction("opendir", OpenDir::Async),
+        NVal::DeclareNapiFunction("opendirSync", OpenDir::Sync),
+        NVal::DeclareNapiFunction("openSync", Open::Sync),
+        NVal::DeclareNapiFunction("posixFallocate", PosixFallocate::Async),
+        NVal::DeclareNapiFunction("posixFallocateSync", PosixFallocate::Sync),
+        NVal::DeclareNapiFunction("read", Read),
         NVal::DeclareNapiFunction("readSync", ReadSync),
-        NVal::DeclareNapiFunction("renameSync", RenameSync),
-        NVal::DeclareNapiFunction("rmdirSync", RmdirSync),
+        NVal::DeclareNapiFunction("readText", ReadText::Async),
+        NVal::DeclareNapiFunction("readTextSync", ReadText::Sync),
+        NVal::DeclareNapiFunction("rename", Rename::Async),
+        NVal::DeclareNapiFunction("renameSync", Rename::Sync),
+        NVal::DeclareNapiFunction("rmdir", Rmdir::Async),
+        NVal::DeclareNapiFunction("rmdirSync", Rmdir::Sync),
+        NVal::DeclareNapiFunction("stat", Stat::Async),
         NVal::DeclareNapiFunction("statSync", Stat::Sync),
-        NVal::DeclareNapiFunction("truncateSync", TruncateSync),
+        NVal::DeclareNapiFunction("symlink", Symlink::Async),
+        NVal::DeclareNapiFunction("symlinkSync", Symlink::Sync),
+        NVal::DeclareNapiFunction("truncate", Truncate::Async),
+        NVal::DeclareNapiFunction("truncateSync", Truncate::Sync),
+        NVal::DeclareNapiFunction("unlink", Unlink),
         NVal::DeclareNapiFunction("unlinkSync", UnlinkSync),
+        NVal::DeclareNapiFunction("write", Write),
         NVal::DeclareNapiFunction("writeSync", WriteSync),
     });
 }

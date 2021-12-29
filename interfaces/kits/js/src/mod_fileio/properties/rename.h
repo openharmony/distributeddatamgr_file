@@ -12,17 +12,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#pragma once
 
-#include "../../common/napi/uni_header.h"
+#ifndef INTERFACES_KITS_JS_SRC_MOD_FILEIO_PROPERTIES_RENAME_H
+#define INTERFACES_KITS_JS_SRC_MOD_FILEIO_PROPERTIES_RENAME_H
 
+#include "../../common/napi/n_val.h"
 namespace OHOS {
 namespace DistributedFS {
 namespace ModuleFileIO {
-class Opendir final {
+class Rename final {
 public:
     static napi_value Sync(napi_env env, napi_callback_info info);
+    static napi_value Async(napi_env env, napi_callback_info info);
 };
 } // namespace ModuleFileIO
 } // namespace DistributedFS
 } // namespace OHOS
+#endif

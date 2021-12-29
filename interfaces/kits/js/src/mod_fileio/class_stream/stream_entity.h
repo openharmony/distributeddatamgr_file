@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-#pragma once
+#ifndef INTERFACES_KITS_JS_SRC_MOD_FILEIO_CLASS_STREAM_STREAM_ENTITY_H
+#define INTERFACES_KITS_JS_SRC_MOD_FILEIO_CLASS_STREAM_STREAM_ENTITY_H
 
-#include <cstdio>
 #include <memory>
 
 namespace OHOS {
@@ -27,3 +27,4 @@ struct StreamEntity {
 } // namespace ModuleFileIO
 } // namespace DistributedFS
 } // namespace OHOS
+#endif // INTERFACES_KITS_JS_SRC_MOD_FILEIO_CLASS_STREAM_STREAM_ENTITY_H
