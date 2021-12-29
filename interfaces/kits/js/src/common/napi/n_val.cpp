@@ -264,7 +264,7 @@ tuple<NVal, void *> NVal::CreateArrayBuffer(napi_env env, size_t len)
     napi_value val;
     void *buf = nullptr;
     napi_create_arraybuffer(env, len, &buf, &val);
-    return { { env, val }, { buf }};
+    return { { env, val }, { buf } };
 }
 
 napi_property_descriptor NVal::DeclareNapiProperty(const char *name, napi_value val)
