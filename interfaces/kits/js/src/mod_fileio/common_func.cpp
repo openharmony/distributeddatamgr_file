@@ -80,6 +80,7 @@ static tuple<bool, size_t> GetActualLen(napi_env env, int64_t bufLen, int64_t bu
 
     return { true, retLen };
 }
+
 tuple<bool, unique_ptr<char[]>, unique_ptr<char[]>> CommonFunc::GetCopyPathArg(napi_env env,
     napi_value srcPath,
     napi_value dstPath)

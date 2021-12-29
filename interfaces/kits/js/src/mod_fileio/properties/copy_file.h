@@ -17,6 +17,7 @@
 #define INTERFACES_KITS_JS_SRC_MOD_FILEIO_PROPERTIES_COPY_FILE_H
 
 #include "../../common/napi/n_val.h"
+
 namespace OHOS {
 namespace DistributedFS {
 namespace ModuleFileIO {
