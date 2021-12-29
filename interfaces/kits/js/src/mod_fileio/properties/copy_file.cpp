@@ -72,7 +72,8 @@ static FDGuard SetFDGuard(FileInfo fileInfo, const string &path, function<int(co
     return fdg;
 }
 
-static UniError HandleCopyFile(FileInfo srcFileInfo, FileInfo destFileInfo, string srcPath, string destPath)
+static UniError HandleCopyFile(FileInfo srcFileInfo, FileInfo destFileInfo,
+                               const string &srcPath, const string &destPath)
 {
     FDGuard sfd = SetFDGuard(srcFileInfo, srcPath, [](const char *buf) -> int { return open(buf, O_RDONLY, 0); });
     struct stat statbf;

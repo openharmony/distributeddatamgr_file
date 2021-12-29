@@ -195,7 +195,6 @@ napi_value DirNExporter::Read(napi_env env, napi_callback_info info)
     }
 }
 
-
 napi_value DirNExporter::ReadSync(napi_env env, napi_callback_info info)
 {
     DirEntity *dirEntity = GetDirEntity(env, info);

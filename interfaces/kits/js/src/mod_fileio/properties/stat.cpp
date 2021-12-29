@@ -68,6 +68,7 @@ napi_value Stat::Sync(napi_env env, napi_callback_info info)
     statEntity->stat_ = buf;
     return objStat;
 }
+
 struct AsyncStatArg {
     struct stat stat_;
 };

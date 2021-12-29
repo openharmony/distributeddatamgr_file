@@ -74,7 +74,6 @@ napi_value PosixFallocate::Sync(napi_env env, napi_callback_info info)
     return NVal::CreateUndefined(env).val_;
 }
 
-
 napi_value PosixFallocate::Async(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);

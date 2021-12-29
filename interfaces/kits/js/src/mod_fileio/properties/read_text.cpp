@@ -29,7 +29,6 @@ namespace DistributedFS {
 namespace ModuleFileIO {
 using namespace std;
 
-
 static tuple<bool, ssize_t, bool, ssize_t, unique_ptr<char[]>, bool> GetReadTextArg(napi_env env, napi_value argOption)
 {
     NVal op(env, argOption);
@@ -123,6 +122,7 @@ napi_value ReadText::Sync(napi_env env, napi_callback_info info)
     }
     return NVal::CreateUTF8String(env, readbuf.get(), ret).val_;
 }
+
 struct AsyncReadTextArg {
     NRef _refReadBuf;
     unique_ptr<char[]> buf;
@@ -130,6 +130,7 @@ struct AsyncReadTextArg {
     explicit AsyncReadTextArg(NVal refReadBuf) : _refReadBuf(refReadBuf) {};
     ~AsyncReadTextArg() = default;
 };
+
 napi_value ReadText::Async(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);

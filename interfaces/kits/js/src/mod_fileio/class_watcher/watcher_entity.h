@@ -30,11 +30,13 @@ public:
         uv_close(handle, [](uv_handle_t *handle) { delete handle; });
     }
 };
+
 struct WatcherInforArg {
     int events = 0;
     napi_env env = nullptr;
     napi_ref ref = nullptr;
 };
+
 struct WatcherEntity {
     std::unique_ptr<WatcherInforArg> data_;
     std::unique_ptr<uv_fs_event_t, WatcherHandleDeleter> fsEventReq_;

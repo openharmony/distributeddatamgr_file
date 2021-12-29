@@ -53,6 +53,7 @@ napi_value WatcherNExporter::Constructor(napi_env env, napi_callback_info info)
     }
     return funcArg.GetThisVar();
 }
+
 napi_value WatcherNExporter::StopSync(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
@@ -106,6 +107,7 @@ napi_value WatcherNExporter::Stop(napi_env env, napi_callback_info info)
         return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbCompl).val_;
     }
 }
+
 bool WatcherNExporter::Export()
 {
     vector<napi_property_descriptor> props = {
@@ -136,6 +138,7 @@ string WatcherNExporter::GetClassName()
 }
 
 WatcherNExporter::WatcherNExporter(napi_env env, napi_value exports) : NExporter(env, exports) {}
+
 WatcherNExporter::~WatcherNExporter() {}
 } // namespace ModuleFileIO
 } // namespace DistributedFS
