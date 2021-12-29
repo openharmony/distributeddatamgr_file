@@ -28,8 +28,7 @@ public:
     ~FDGuard();
 
     int GetFD() const;
-    void SetFD(int fd);
-    void SetFD(int fd, bool autoDestruct);
+    void SetFD(int fd, bool autoDestruct = true);
     void ClearFD();
     void operator=(int fd);
 

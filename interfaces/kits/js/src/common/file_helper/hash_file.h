@@ -22,9 +22,9 @@ namespace OHOS {
 namespace DistributedFS {
 class HashFile {
 public:
-    static std::tuple<int, std::string> HashWithMD5(std::string fpath);
-    static std::tuple<int, std::string> HashWithSHA1(std::string fpath);
-    static std::tuple<int, std::string> HashWithSHA256(std::string fpath);
+    static std::tuple<int, std::string> HashWithMD5(const std::string &fpath);
+    static std::tuple<int, std::string> HashWithSHA1(const std::string &fpath);
+    static std::tuple<int, std::string> HashWithSHA256(const std::string &fpath);
 };
 } // namespace DistributedFS
 } // namespace OHOS

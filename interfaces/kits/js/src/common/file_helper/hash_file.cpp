@@ -64,32 +64,41 @@ static int ForEachFileSegment(const string &fpath, function<void(char *, size_t)
     return ferror(filp.get()) ? errno : 0;
 }
 
-tuple<int, string> HashFile::HashWithMD5(string fpath)
+tuple<int, string> HashFile::HashWithMD5(const string &fpath)
 {
     auto res = make_unique<unsigned char[]>(MD5_DIGEST_LENGTH);
     MD5_CTX ctx;
     MD5_Init(&ctx);
-    int err = ForEachFileSegment(fpath, [ctx = &ctx](char *buf, size_t len) { MD5_Update(ctx, buf, len); });
+    auto md5Update = [ctx = &ctx](char *buf, size_t len) {
+        MD5_Update(ctx, buf, len);
+    };
+    int err = ForEachFileSegment(fpath, md5Update);
     MD5_Final(res.get(), &ctx);
     return HashFinal(err, res, MD5_DIGEST_LENGTH);
 }
 
-tuple<int, string> HashFile::HashWithSHA1(string fpath)
+tuple<int, string> HashFile::HashWithSHA1(const string &fpath)
 {
     auto res = make_unique<unsigned char[]>(SHA_DIGEST_LENGTH);
     SHA_CTX ctx;
     SHA1_Init(&ctx);
-    int err = ForEachFileSegment(fpath, [ctx = &ctx](char *buf, size_t len) { SHA1_Update(ctx, buf, len); });
+    auto sha1Update = [ctx = &ctx](char *buf, size_t len) {
+        SHA1_Update(ctx, buf, len);
+    };
+    int err = ForEachFileSegment(fpath, sha1Update);
     SHA1_Final(res.get(), &ctx);
     return HashFinal(err, res, SHA_DIGEST_LENGTH);
 }
 
-tuple<int, string> HashFile::HashWithSHA256(string fpath)
+tuple<int, string> HashFile::HashWithSHA256(const string &fpath)
 {
     auto res = make_unique<unsigned char[]>(SHA256_DIGEST_LENGTH);
     SHA256_CTX ctx;
     SHA256_Init(&ctx);
-    int err = ForEachFileSegment(fpath, [ctx = &ctx](char *buf, size_t len) { SHA256_Update(ctx, buf, len); });
+    auto sha256Update = [ctx = &ctx](char *buf, size_t len) {
+        SHA256_Update(ctx, buf, len);
+    };
+    int err = ForEachFileSegment(fpath, sha256Update);
     SHA256_Final(res.get(), &ctx);
     return HashFinal(err, res, SHA256_DIGEST_LENGTH);
 }

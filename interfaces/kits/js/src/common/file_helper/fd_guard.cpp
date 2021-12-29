@@ -45,12 +45,7 @@ int FDGuard::GetFD() const
     return fd_;
 }
 
-void FDGuard::SetFD(int fd)
-{
-    fd_ = fd;
-}
-
-void FDGuard::SetFD(int fd, bool autoDestruct = true)
+void FDGuard::SetFD(int fd, bool autoDestruct)
 {
     fd_ = fd;
     autoDestruct_ = autoDestruct;
