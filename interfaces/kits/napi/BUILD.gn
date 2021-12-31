@@ -29,7 +29,6 @@ ohos_shared_library("fileshare") {
     "//third_party/node/src",
     "//foundation/ace/napi/interfaces/kits",
     "//utils/native/base/include",
-    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/frameworks/file_manager_service/include",
   ]
 
   sources = common_src
@@ -41,7 +40,6 @@ ohos_shared_library("fileshare") {
   deps = [
     "//foundation/aafwk/standard/frameworks/kits/ability/native:abilitykit_native",
     "//foundation/ace/napi:ace_napi",
-    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/frameworks/file_manager_service:file_share_ability",
     "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/uri:zuri",
     "//utils/native/base:utilsecurec",
   ]
@@ -65,8 +63,6 @@ ohos_shared_library("devicesmgr") {
     "//third_party/node/src",
     "//foundation/ace/napi/interfaces/kits",
     "//utils/native/base/include",
-    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/frameworks/device_storage_manager/include",
-    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services/device_storage_service/include",
     "//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler/include",
     "//utils/system/safwk/native/include",
   ]
@@ -81,8 +77,6 @@ ohos_shared_library("devicesmgr") {
     "//foundation/aafwk/standard/frameworks/kits/ability/native:abilitykit_native",
     "//foundation/ace/napi:ace_napi",
     "//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler:libeventhandler",
-    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/frameworks/device_storage_manager:device_storage_manager",
-    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services/device_storage_service:device_storage_service",
     "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/uri:zuri",
     "//utils/native/base:utilsecurec",
   ]
@@ -108,11 +102,7 @@ ohos_shared_library("filepicker") {
     "//third_party/node/src",
     "//foundation/ace/napi/interfaces/kits",
     "//utils/native/base/include",
-    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/frameworks/file_manager_service/include",
     "//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler/include",
-    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services/device_storage_service/include",
-    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services/device_storage_manager/include",
-    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/frameworks/device_storage_manager/include",
     "//utils/system/safwk/native/include",
   ]
 
@@ -126,10 +116,6 @@ ohos_shared_library("filepicker") {
     "//foundation/aafwk/standard/frameworks/kits/ability/native:abilitykit_native",
     "//foundation/ace/napi:ace_napi",
     "//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler:libeventhandler",
-    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/frameworks/device_storage_manager:device_storage_manager",
-    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/frameworks/file_manager_service:native_file_manager",
-    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/frameworks/file_manager_service:storage_ability",
-    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services/device_storage_service:device_storage_service",
     "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/uri:zuri",
     "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/uri:zuri",
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
