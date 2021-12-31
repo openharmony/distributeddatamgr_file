@@ -25,9 +25,7 @@ ohos_shared_library("ss_crypto_api") {
     "//utils/native/base/include",
     "//third_party/openssl/include",
   ]
-  deps = [
-    "//utils/native/base:utils",
-  ]
+  deps = [ "//utils/native/base:utils" ]
   external_deps = [
     "aafwk_standard:want",
     "hiviewdfx_hilog_native:libhilog",
