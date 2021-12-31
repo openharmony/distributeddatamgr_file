@@ -16,16 +16,7 @@ import("//build/ohos.gni")
 ohos_shared_library("ss_crypto_api") {
   sources = [ "ss_crypto_api.cpp" ]
   include_dirs = [
-    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/interfaces/kits/native/storage_service",
-    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services/storage_service/crypto/include",
-    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services/storage_service/interface",
     "include",
-    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services/device_storage_service/include",
-    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services/storage_service/event_handler/include",
-    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services/storage_service/utils/include",
-    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services/storage_service/storage/include",
-    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services/storage_service/interface/include",
-    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services/storage_service/include",
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy/include",
     "//third_party/openssl/include/openssl",
     "//base/security/huks/interfaces/innerkits/huks_standard/main/include",
@@ -34,11 +25,7 @@ ohos_shared_library("ss_crypto_api") {
     "//utils/native/base/include",
     "//third_party/openssl/include",
   ]
-  deps = [
-    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services:storage_service",
-    "//foundation/distributeddatamgr/distributedfile/storage/diskmgr/services/device_storage_service:device_storage_service",
-    "//utils/native/base:utils",
-  ]
+  deps = [ "//utils/native/base:utils" ]
   external_deps = [
     "aafwk_standard:want",
     "hiviewdfx_hilog_native:libhilog",
@@ -47,5 +34,4 @@ ohos_shared_library("ss_crypto_api") {
     "samgr_standard:samgr_proxy",
   ]
   subsystem_name = "distributeddatamgr"
-  part_name = "storage_standard"
 }
