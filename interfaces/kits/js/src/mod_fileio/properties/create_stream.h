@@ -21,7 +21,7 @@
 namespace OHOS {
 namespace DistributedFS {
 namespace ModuleFileIO {
-class CreateSteam final {
+class CreateStream final {
 public:
     static napi_value Async(napi_env env, napi_callback_info info);
     static napi_value Sync(napi_env env, napi_callback_info info);

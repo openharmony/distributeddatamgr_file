@@ -70,7 +70,7 @@ static tuple<bool, string, string> GetCreateStreamArgs(napi_env env, const NFunc
     return { true, path.get(), mode.get() };
 }
 
-napi_value CreateSteam::Sync(napi_env env, napi_callback_info info)
+napi_value CreateStream::Sync(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
     if (!funcArg.InitArgs(NARG_CNT::TWO)) {
@@ -98,7 +98,7 @@ struct AsyncCreateStreamArg {
     unique_ptr<FILE, decltype(&fclose)> fp = { nullptr, fclose };
 };
 
-napi_value CreateSteam::Async(napi_env env, napi_callback_info info)
+napi_value CreateStream::Async(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
     if (!funcArg.InitArgs(NARG_CNT::TWO, NARG_CNT::THREE)) {

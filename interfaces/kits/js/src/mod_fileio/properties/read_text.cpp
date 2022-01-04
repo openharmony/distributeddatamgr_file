@@ -123,13 +123,45 @@ napi_value ReadText::Sync(napi_env env, napi_callback_info info)
     return NVal::CreateUTF8String(env, readbuf.get(), ret).val_;
 }
 
-struct AsyncReadTextArg {
-    NRef _refReadBuf;
-    unique_ptr<char[]> buf;
-    ssize_t len = 0;
-    explicit AsyncReadTextArg(NVal refReadBuf) : _refReadBuf(refReadBuf) {};
-    ~AsyncReadTextArg() = default;
-};
+UniError ReadText::AsyncExec(const std::string &path, std::shared_ptr<AsyncReadTextArg> arg, ssize_t position,
+    bool hasLen, ssize_t len)
+{
+    if (arg == nullptr) {
+        return UniError(ENOMEM);
+    }
+
+    FDGuard sfd;
+    struct stat statbf;
+    arg->len = len;
+    sfd.SetFD(open(path.c_str(), O_RDONLY));
+    if (sfd.GetFD() == -1) {
+        return UniError(EINVAL);
+    }
+    if (fstat(sfd.GetFD(), &statbf) == -1) {
+        return UniError(EINVAL);
+    }
+    if (position > statbf.st_size) {
+        return UniError(EINVAL);
+    }
+    if (!hasLen) {
+        arg->len = statbf.st_size;
+    }
+    arg->len = ((arg->len < statbf.st_size) ? arg->len : statbf.st_size);
+    arg->buf = std::make_unique<char[]>(arg->len);
+    if (arg->buf == nullptr) {
+        return UniError(ENOMEM);
+    }
+    if (position > 0) {
+        arg->len = pread(sfd.GetFD(), arg->buf.get(), arg->len, position);
+    } else {
+        arg->len = read(sfd.GetFD(), arg->buf.get(), arg->len);
+    }
+    if (arg->len == -1) {
+        return UniError(EINVAL);
+    }
+
+    return UniError(ERRNO_NOERR);
+}
 
 napi_value ReadText::Async(napi_env env, napi_callback_info info)
 {
@@ -160,36 +192,7 @@ napi_value ReadText::Async(napi_env env, napi_callback_info info)
         return nullptr;
     }
     auto cbExec = [path = string(path.get()), arg, position, hasLen, len](napi_env env) -> UniError {
-        FDGuard sfd;
-        struct stat statbf;
-        arg->len = len;
-        sfd.SetFD(open(path.c_str(), O_RDONLY));
-        if (sfd.GetFD() == -1) {
-            return UniError(EINVAL);
-        }
-        if (fstat(sfd.GetFD(), &statbf) == -1) {
-            return UniError(EINVAL);
-        }
-        if (position > statbf.st_size) {
-            return UniError(EINVAL);
-        }
-        if (!hasLen) {
-            arg->len = statbf.st_size;
-        }
-        arg->len = ((arg->len < statbf.st_size) ? arg->len : statbf.st_size);
-        arg->buf = unique_ptr<char[]>(new (std::nothrow) char[arg->len]);
-        if (arg->buf == nullptr) {
-            return UniError(ENOMEM);
-        }
-        if (position > 0) {
-            arg->len = pread(sfd.GetFD(), arg->buf.get(), arg->len, position);
-        } else {
-            arg->len = read(sfd.GetFD(), arg->buf.get(), arg->len);
-        }
-        if (arg->len == -1) {
-            return UniError(EINVAL);
-        }
-        return UniError(ERRNO_NOERR);
+        return AsyncExec(path, arg, position, hasLen, len);
     };
     auto cbComplete = [arg](napi_env env, UniError err) -> NVal {
         if (err) {

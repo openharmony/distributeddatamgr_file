@@ -264,8 +264,10 @@ napi_value StreamNExporter::Read(napi_env env, napi_callback_info info)
             return { env, err.GetNapiErr(env) };
         }
         NVal obj = NVal::CreateObject(env);
-        obj.AddProp({ NVal::DeclareNapiProperty("bytesRead", NVal::CreateInt64(env, arg->readed).val_),
-            NVal::DeclareNapiProperty("buffer", arg->refReadBuf.Deref(env).val_) });
+        obj.AddProp({
+            NVal::DeclareNapiProperty("bytesRead", NVal::CreateInt64(env, arg->readed).val_),
+            NVal::DeclareNapiProperty("buffer", arg->refReadBuf.Deref(env).val_)
+            });
         return { obj };
     };
 

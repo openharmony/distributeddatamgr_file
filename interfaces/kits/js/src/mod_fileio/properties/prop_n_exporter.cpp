@@ -504,9 +504,11 @@ napi_value PropNExporter::Read(napi_env env, napi_callback_info info)
             return { env, err.GetNapiErr(env) };
         }
         NVal obj = NVal::CreateObject(env);
-        obj.AddProp({ NVal::DeclareNapiProperty("bytesRead", NVal::CreateInt64(env, arg->readed).val_),
+        obj.AddProp({
+            NVal::DeclareNapiProperty("bytesRead", NVal::CreateInt64(env, arg->readed).val_),
             NVal::DeclareNapiProperty("buffer", arg->refReadBuf.Deref(env).val_),
-            NVal::DeclareNapiProperty("offset", NVal::CreateInt64(env, arg->offset).val_) });
+            NVal::DeclareNapiProperty("offset", NVal::CreateInt64(env, arg->offset).val_)
+            });
         return { obj };
     };
 
@@ -530,15 +532,20 @@ napi_value PropNExporter::Read(napi_env env, napi_callback_info info)
     return NVal::CreateUndefined(env).val_;
 }
 
-struct AsyncIOWrtieArg {
-    NRef refWriteArrayBuf_;
-    unique_ptr<char[]> guardWriteStr_;
-    ssize_t actLen = 0;
+UniError PropNExporter::WriteExec(shared_ptr<AsyncIOWrtieArg> arg, void *buf, size_t len, int fd, size_t position)
+{
+    if (position == (size_t)INVALID_POSITION) {
+        arg->actLen = write(fd, buf, len);
+    } else {
+        arg->actLen = pwrite(fd, buf, len, position);
+    }
 
-    explicit AsyncIOWrtieArg(NVal refWriteArrayBuf) : refWriteArrayBuf_(refWriteArrayBuf) {}
-    explicit AsyncIOWrtieArg(unique_ptr<char[]> &&guardWriteStr) : guardWriteStr_(move(guardWriteStr)) {}
-    ~AsyncIOWrtieArg() = default;
-};
+    if (arg->actLen == -1) {
+        return UniError(errno);
+    } else {
+        return UniError(ERRNO_NOERR);
+    }
+}
 
 napi_value PropNExporter::Write(napi_env env, napi_callback_info info)
 {
@@ -575,17 +582,7 @@ napi_value PropNExporter::Write(napi_env env, napi_callback_info info)
         arg = make_shared<AsyncIOWrtieArg>(NVal(env, funcArg[NARG_POS::SECOND]));
     }
     auto cbExec = [arg, buf, len, fd, position](napi_env env) -> UniError {
-        if ((position == (size_t)INVALID_POSITION)) {
-            arg->actLen = write(fd, buf, len);
-        } else {
-            arg->actLen = pwrite(fd, buf, len, position);
-        }
-
-        if (arg->actLen == -1) {
-            return UniError(errno);
-        } else {
-            return UniError(ERRNO_NOERR);
-        }
+        return WriteExec(arg, buf, len, fd, position);
     };
 
     auto cbCompl = [arg](napi_env env, UniError err) -> NVal {
@@ -697,8 +694,8 @@ bool PropNExporter::Export()
         NVal::DeclareNapiFunction("closeSync", Close::Sync),
         NVal::DeclareNapiFunction("copyFile", CopyFile::Async),
         NVal::DeclareNapiFunction("copyFileSync", CopyFile::Sync),
-        NVal::DeclareNapiFunction("createStream", CreateSteam::Async),
-        NVal::DeclareNapiFunction("createStreamSync", CreateSteam::Sync),
+        NVal::DeclareNapiFunction("createStream", CreateStream::Async),
+        NVal::DeclareNapiFunction("createStreamSync", CreateStream::Sync),
         NVal::DeclareNapiFunction("createWatcher", Watcher::CreateWatcher),
         NVal::DeclareNapiFunction("fchmod", Fchmod::Async),
         NVal::DeclareNapiFunction("fchmodSync", Fchmod::Sync),

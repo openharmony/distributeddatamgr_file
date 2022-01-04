@@ -16,11 +16,24 @@
 #ifndef INTERFACES_KITS_JS_SRC_MOD_FILEIO_PROPERTIES_PROP_N_EXPORTER_H
 #define INTERFACES_KITS_JS_SRC_MOD_FILEIO_PROPERTIES_PROP_N_EXPORTER_H
 
+#include "../../common/napi/n_async/n_ref.h"
 #include "../../common/napi/n_exporter.h"
+#include "../../common/napi/n_val.h"
+#include "../../common/uni_error.h"
 
 namespace OHOS {
 namespace DistributedFS {
 namespace ModuleFileIO {
+struct AsyncIOWrtieArg {
+    NRef refWriteArrayBuf_;
+    std::unique_ptr<char[]> guardWriteStr_;
+    ssize_t actLen = 0;
+
+    explicit AsyncIOWrtieArg(NVal refWriteArrayBuf) : refWriteArrayBuf_(refWriteArrayBuf) {}
+    explicit AsyncIOWrtieArg(std::unique_ptr<char[]> &&guardWriteStr) : guardWriteStr_(move(guardWriteStr)) {}
+    ~AsyncIOWrtieArg() = default;
+};
+
 class PropNExporter final : public NExporter {
 public:
     inline static const std::string className_ = "__properities__";
@@ -40,6 +53,7 @@ public:
     static napi_value Mkdir(napi_env env, napi_callback_info info);
     static napi_value Read(napi_env env, napi_callback_info info);
     static napi_value Write(napi_env env, napi_callback_info info);
+    static UniError WriteExec(std::shared_ptr<AsyncIOWrtieArg> arg, void *buf, size_t len, int fd, size_t position);
     bool Export() override;
     std::string GetClassName() override;
 
