@@ -14,6 +14,8 @@
  */
 
 #include "stat_n_exporter.h"
+#include "../../common/napi/n_async/n_async_work_callback.h"
+#include "../../common/napi/n_async/n_async_work_promise.h"
 
 #include <cstdio>
 #include <cstdlib>

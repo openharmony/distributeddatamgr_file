@@ -13,11 +13,8 @@
  * limitations under the License.
  */
 
-#pragma once
-
-#include <limits>
-#include <memory>
-#include <string>
+#ifndef INTERFACES_KITS_JS_SRC_MOD_FILEIO_CLASS_STREAM_STREAM_N_EXPORTER_H
+#define INTERFACES_KITS_JS_SRC_MOD_FILEIO_CLASS_STREAM_STREAM_N_EXPORTER_H
 
 #include "../../common/napi/n_exporter.h"
 
@@ -33,12 +30,14 @@ public:
 
     static napi_value Constructor(napi_env env, napi_callback_info cbinfo);
 
-    static napi_value CreateStreamSync(napi_env env, napi_callback_info info);
-    static napi_value FdopenStreamSync(napi_env env, napi_callback_info info);
     static napi_value WriteSync(napi_env env, napi_callback_info cbinfo);
     static napi_value FlushSync(napi_env env, napi_callback_info cbinfo);
     static napi_value ReadSync(napi_env env, napi_callback_info cbinfo);
     static napi_value CloseSync(napi_env env, napi_callback_info cbinfo);
+
+    static napi_value Write(napi_env env, napi_callback_info cbinfo);
+    static napi_value Read(napi_env env, napi_callback_info cbinfo);
+    static napi_value Close(napi_env env, napi_callback_info cbinfo);
 
     StreamNExporter(napi_env env, napi_value exports);
     ~StreamNExporter() override;
@@ -46,3 +45,4 @@ public:
 } // namespace ModuleFileIO
 } // namespace DistributedFS
 } // namespace OHOS
+#endif

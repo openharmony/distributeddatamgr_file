@@ -14,11 +14,15 @@
  */
 
 #include "fdopen_stream.h"
+#include <memory>
+#include <tuple>
 
+#include "../../common/napi/n_async/n_async_work_callback.h"
+#include "../../common/napi/n_async/n_async_work_promise.h"
 #include "../../common/napi/n_class.h"
 #include "../../common/napi/n_func_arg.h"
+#include "../../common/napi/n_val.h"
 #include "../../common/uni_error.h"
-
 #include "../class_stream/stream_entity.h"
 #include "../class_stream/stream_n_exporter.h"
 
@@ -42,7 +46,26 @@ static NVal InstantiateStream(napi_env env, unique_ptr<FILE, decltype(&fclose)> 
     }
 
     streamEntity->fp.swap(fp);
-    return {env, objStream};
+    return { env, objStream };
+}
+
+static tuple<bool, int, string> GetFdopenStreamArgs(napi_env env, const NFuncArg &funcArg)
+{
+    bool succ = false;
+    int fd;
+    tie(succ, fd) = NVal(env, funcArg[NARG_POS::FIRST]).ToInt32();
+    if (!succ) {
+        UniError(EINVAL).ThrowErr(env, "Arg fd is required to be type integer");
+        return { false, -1, "" };
+    }
+
+    unique_ptr<char[]> mode;
+    tie(succ, mode, ignore) = NVal(env, funcArg[NARG_POS::SECOND]).ToUTF8String();
+    if (!succ) {
+        UniError(EINVAL).ThrowErr(env, "Arg mode is required to be type string");
+        return { false, -1, "" };
+    }
+    return { true, fd, mode.get() };
 }
 
 napi_value FdopenStream::Sync(napi_env env, napi_callback_info info)
@@ -55,28 +78,68 @@ napi_value FdopenStream::Sync(napi_env env, napi_callback_info info)
     }
 
     bool succ = false;
-
     int fd;
-    tie(succ, fd) = NVal(env, funcArg[NARG_POS::FIRST]).ToInt32();
+    string mode;
+
+    tie(succ, fd, mode) = GetFdopenStreamArgs(env, funcArg);
     if (!succ) {
-        UniError(EINVAL).ThrowErr(env, "Arg fd is required to be type integer");
         return nullptr;
     }
 
-    unique_ptr<char[]> mode;
-    tie(succ, mode, ignore) = NVal(env, funcArg[NARG_POS::SECOND]).ToUTF8String();
-    if (!succ) {
-        UniError(EINVAL).ThrowErr(env, "Arg mode is required to be type string");
-        return nullptr;
-    }
-
-    unique_ptr<FILE, decltype(&fclose)> fp = {fdopen(fd, mode.get()), fclose};
+    unique_ptr<FILE, decltype(&fclose)> fp = { fdopen(fd, mode.c_str()), fclose };
     if (!fp) {
         UniError(errno).ThrowErr(env);
         return nullptr;
     }
 
     return InstantiateStream(env, move(fp)).val_;
+}
+
+struct AsyncFdopenStreamArg {
+    unique_ptr<FILE, decltype(&fclose)> fp = { nullptr, fclose };
+};
+
+napi_value FdopenStream::Async(napi_env env, napi_callback_info info)
+{
+    NFuncArg funcArg(env, info);
+    if (!funcArg.InitArgs(NARG_CNT::TWO, NARG_CNT::THREE)) {
+        UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
+        return nullptr;
+    }
+
+    bool success = false;
+    int fd;
+    string mode;
+    tie(success, fd, mode) = GetFdopenStreamArgs(env, funcArg);
+    if (!success) {
+        return nullptr;
+    }
+
+    auto arg = make_shared<AsyncFdopenStreamArg>();
+    auto cbExec = [arg, fd, mode = move(mode)](napi_env env) -> UniError {
+        arg->fp = { fdopen(fd, mode.c_str()), fclose };
+        if (!arg->fp) {
+            return UniError(errno);
+        } else {
+            return UniError(ERRNO_NOERR);
+        }
+    };
+
+    auto cbCompl = [arg](napi_env env, UniError err) -> NVal {
+        if (err) {
+            return { env, err.GetNapiErr(env) };
+        }
+        return InstantiateStream(env, move(arg->fp));
+    };
+
+    string procedureName = "FileIOFdopenStream";
+    NVal thisVar(env, funcArg.GetThisVar());
+    if (funcArg.GetArgc() == NARG_CNT::TWO) {
+        return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbCompl).val_;
+    } else {
+        NVal cb(env, funcArg[NARG_POS::THIRD]);
+        return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbCompl).val_;
+    }
 }
 } // namespace ModuleFileIO
 } // namespace DistributedFS

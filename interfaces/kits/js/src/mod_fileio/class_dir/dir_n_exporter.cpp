@@ -14,28 +14,21 @@
  */
 
 #include "dir_n_exporter.h"
-
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
 #include <dirent.h>
 #include <iostream>
 #include <memory>
 #include <mutex>
 #include <sstream>
-#include <sys/stat.h>
-#include <unistd.h>
-
+#include "dir_entity.h"
 #include "securec.h"
 
-#include "../../common/log.h"
+#include "../../common/napi/n_async/n_async_work_callback.h"
+#include "../../common/napi/n_async/n_async_work_promise.h"
 #include "../../common/napi/n_class.h"
 #include "../../common/napi/n_func_arg.h"
-#include "../../common/uni_error.h"
 #include "../class_dirent/dirent_entity.h"
 #include "../class_dirent/dirent_n_exporter.h"
 #include "../common_func.h"
-#include "dir_entity.h"
 
 namespace OHOS {
 namespace DistributedFS {
@@ -68,6 +61,138 @@ napi_value DirNExporter::CloseSync(napi_env env, napi_callback_info info)
 
     dirEntity->dir_.reset();
     return nullptr;
+}
+
+napi_value DirNExporter::Close(napi_env env, napi_callback_info info)
+{
+    NFuncArg funcArg(env, info);
+    if (!funcArg.InitArgs(NARG_CNT::ZERO, NARG_CNT::ONE)) {
+        UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
+        return nullptr;
+    }
+
+    auto dirEntity = NClass::GetEntityOf<DirEntity>(env, funcArg.GetThisVar());
+    if (!dirEntity) {
+        UniError(EIO).ThrowErr(env, "Cannot get entity of Dir");
+        return nullptr;
+    }
+
+    if (!dirEntity || !dirEntity->dir_) {
+        UniError(EBADF).ThrowErr(env, "Dir has been closed yet");
+        return nullptr;
+    }
+
+    auto cbExec = [dirEntity](napi_env env) -> UniError {
+        DIR *dir = dirEntity->dir_.release();
+        int ret = closedir(dir);
+        if (ret == -1) {
+            return UniError(errno);
+        } else {
+            return UniError(ERRNO_NOERR);
+        }
+    };
+    auto cbCompl = [](napi_env env, UniError err) -> NVal {
+        if (err) {
+            return { env, err.GetNapiErr(env) };
+        } else {
+            return NVal::CreateUndefined(env);
+        }
+    };
+
+    NVal thisVar(env, funcArg.GetThisVar());
+    string procedureName = "fileioDirClose";
+    if (funcArg.GetArgc() == NARG_CNT::ZERO) {
+        return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbCompl).val_;
+    } else {
+        NVal cb(env, funcArg[NARG_POS::FIRST]);
+        return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbCompl).val_;
+    }
+}
+
+struct DirReadArgs {
+    NRef thisptrRef_;
+    struct dirent dirRes = {
+        .d_ino = 0,
+        .d_off = 0,
+        .d_reclen = 0,
+        .d_type = 0,
+        .d_name = { '\0' },
+    };
+    explicit DirReadArgs(NVal obj) : thisptrRef_(obj) {}
+};
+
+static NVal DoReadCompile(napi_env env, UniError err, shared_ptr<DirReadArgs> arg)
+{
+    if (err) {
+        return { env, err.GetNapiErr(env) };
+    } else {
+        napi_value objDirent = NClass::InstantiateClass(env, DirentNExporter::className_, {});
+        if (!objDirent) {
+            return { env, UniError(EINVAL).GetNapiErr(env) };
+        }
+        auto direntEntity = NClass::GetEntityOf<DirentEntity>(env, objDirent);
+        if (!direntEntity) {
+            return { env, UniError(EINVAL).GetNapiErr(env) };
+        }
+        direntEntity->dirent_ = arg->dirRes;
+        return { env, objDirent };
+    }
+}
+
+napi_value DirNExporter::Read(napi_env env, napi_callback_info info)
+{
+    NFuncArg funcArg(env, info);
+    if (!funcArg.InitArgs(NARG_CNT::ZERO, NARG_CNT::ONE)) {
+        UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
+        return nullptr;
+    }
+
+    auto dirEntity = NClass::GetEntityOf<DirEntity>(env, funcArg.GetThisVar());
+    if (!dirEntity) {
+        UniError(EIO).ThrowErr(env, "Cannot get entity of Dir");
+        return nullptr;
+    }
+
+    if (!dirEntity || !dirEntity->dir_) {
+        UniError(EBADF).ThrowErr(env, "Dir has been closed yet");
+        return nullptr;
+    }
+
+    DIR *dir = dirEntity->dir_.get();
+    auto arg = make_shared<DirReadArgs>(NVal(env, funcArg.GetThisVar()));
+    auto cbExec = [arg, dir, dirEntity](napi_env env) -> UniError {
+        struct dirent tmpDirent;
+        lock_guard(dirEntity->lock_);
+        errno = 0;
+        dirent *res = nullptr;
+        do {
+            res = readdir(dir);
+            if (res == nullptr && errno) {
+                return UniError(errno);
+            } else if (res == nullptr) {
+                return UniError(ERRNO_NOERR);
+            } else if (string(res->d_name) == "." || string(res->d_name) == "..") {
+                continue;
+            } else {
+                tmpDirent = *res;
+                break;
+            }
+        } while (true);
+
+        arg->dirRes = tmpDirent;
+        return UniError(ERRNO_NOERR);
+    };
+    auto cbCompl = [arg](napi_env env, UniError err) -> NVal {
+        return DoReadCompile(env, err, arg);
+    };
+    NVal thisVar(env, funcArg.GetThisVar());
+
+    if (funcArg.GetArgc() == NARG_CNT::ZERO) {
+        return NAsyncWorkPromise(env, thisVar).Schedule("fileioDirRead", cbExec, cbCompl).val_;
+    } else {
+        NVal cb(env, funcArg[NARG_POS::FIRST]);
+        return NAsyncWorkCallback(env, thisVar, cb).Schedule("fileioDirRead", cbExec, cbCompl).val_;
+    }
 }
 
 napi_value DirNExporter::ReadSync(napi_env env, napi_callback_info info)
@@ -136,6 +261,8 @@ bool DirNExporter::Export()
     vector<napi_property_descriptor> props = {
         NVal::DeclareNapiFunction("readSync", ReadSync),
         NVal::DeclareNapiFunction("closeSync", CloseSync),
+        NVal::DeclareNapiFunction("read", Read),
+        NVal::DeclareNapiFunction("close", Close),
     };
 
     string className = GetClassName();

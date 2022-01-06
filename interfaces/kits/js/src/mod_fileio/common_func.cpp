@@ -31,20 +31,19 @@ namespace DistributedFS {
 namespace ModuleFileIO {
 using namespace std;
 
-static tuple<bool, void *> GetActualBuf(napi_env env, void *rawBuf, int64_t bufLen, NVal op)
+static tuple<bool, void *, int> GetActualBuf(napi_env env, void *rawBuf, int64_t bufLen, NVal op)
 {
     bool succ = false;
     void *realBuf = nullptr;
-
+    int64_t opOffset = 0;
     if (op.HasProp("offset")) {
-        int64_t opOffset;
         tie(succ, opOffset) = op.GetProp("offset").ToInt64();
         if (!succ || opOffset < 0) {
             UniError(EINVAL).ThrowErr(env, "Invalid option.offset, positive integer is desired");
-            return { false, nullptr };
+            return { false, nullptr, opOffset };
         } else if (opOffset > bufLen) {
             UniError(EINVAL).ThrowErr(env, "Invalid option.offset, buffer limit exceeded");
-            return { false, nullptr };
+            return { false, nullptr, opOffset };
         } else {
             realBuf = static_cast<uint8_t *>(rawBuf) + opOffset;
         }
@@ -52,7 +51,7 @@ static tuple<bool, void *> GetActualBuf(napi_env env, void *rawBuf, int64_t bufL
         realBuf = rawBuf;
     }
 
-    return { true, realBuf };
+    return { true, realBuf, opOffset };
 }
 
 static tuple<bool, size_t> GetActualLen(napi_env env, int64_t bufLen, int64_t bufOff, NVal op)
@@ -82,7 +81,28 @@ static tuple<bool, size_t> GetActualLen(napi_env env, int64_t bufLen, int64_t bu
     return { true, retLen };
 }
 
-tuple<bool, void *, int64_t, bool, int64_t> CommonFunc::GetReadArg(napi_env env, napi_value readBuf, napi_value option)
+tuple<bool, unique_ptr<char[]>, unique_ptr<char[]>> CommonFunc::GetCopyPathArg(napi_env env,
+    napi_value srcPath,
+    napi_value dstPath)
+{
+    bool succ = false;
+    unique_ptr<char[]> src;
+    tie(succ, src, ignore) = NVal(env, srcPath).ToUTF8String();
+    if (!succ) {
+        return { false, nullptr, nullptr };
+    }
+
+    unique_ptr<char[]> dest;
+    tie(succ, dest, ignore) = NVal(env, dstPath).ToUTF8String();
+    if (!succ) {
+        return { false, nullptr, nullptr };
+    }
+    return make_tuple(succ, move(src), move(dest));
+}
+
+tuple<bool, void *, int64_t, bool, int64_t, int> CommonFunc::GetReadArg(napi_env env,
+                                                                        napi_value readBuf,
+                                                                        napi_value option)
 {
     bool succ = false;
     void *retBuf = nullptr;
@@ -93,29 +113,30 @@ tuple<bool, void *, int64_t, bool, int64_t> CommonFunc::GetReadArg(napi_env env,
     NVal txt(env, readBuf);
     void *buf = nullptr;
     int64_t bufLen;
+    int offset = 0;
     tie(succ, buf, bufLen) = txt.ToArraybuffer();
     if (!succ) {
         UniError(EINVAL).ThrowErr(env, "Invalid read buffer, expect arraybuffer");
-        return { false, nullptr, 0, posAssigned, position };
+        return { false, nullptr, 0, posAssigned, position, offset };
     }
 
     NVal op = NVal(env, option);
-    tie(succ, retBuf) = GetActualBuf(env, buf, bufLen, op);
+    tie(succ, retBuf, offset) = GetActualBuf(env, buf, bufLen, op);
     if (!succ) {
-        return { false, nullptr, 0, posAssigned, position };
+        return { false, nullptr, 0, posAssigned, position, offset };
     }
 
     int64_t bufOff = static_cast<uint8_t *>(retBuf) - static_cast<uint8_t *>(buf);
     tie(succ, retLen) = GetActualLen(env, bufLen, bufOff, op);
     if (!succ) {
-        return { false, nullptr, 0, posAssigned, position };
+        return { false, nullptr, 0, posAssigned, position, offset };
     }
 
     tie(succ, position) = op.GetProp("position").ToInt64();
     if (succ && position >= 0) {
         posAssigned = true;
     }
-    return { true, retBuf, retLen, posAssigned, position };
+    return { true, retBuf, retLen, posAssigned, position, offset };
 }
 
 static tuple<bool, unique_ptr<char[]>, int64_t> DecodeString(napi_env env, NVal jsStr, NVal encoding)
@@ -173,7 +194,7 @@ tuple<bool, unique_ptr<char[]>, void *, int64_t, bool, int64_t> CommonFunc::GetW
         buf = bufferGuard.get();
     }
 
-    tie(succ, retBuf) = GetActualBuf(env, buf, bufLen, op);
+    tie(succ, retBuf, ignore) = GetActualBuf(env, buf, bufLen, op);
     if (!succ) {
         return { false, nullptr, nullptr, 0, hasPos, retPos };
     }

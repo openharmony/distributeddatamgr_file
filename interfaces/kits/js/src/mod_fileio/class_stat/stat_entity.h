@@ -13,16 +13,10 @@
  * limitations under the License.
  */
 
-#pragma once
-
-#include <cstdio>
-#include <memory>
+#ifndef INTERFACES_KITS_JS_SRC_MOD_FILEIO_CLASS_STAT_STAT_ENTITY_H
+#define INTERFACES_KITS_JS_SRC_MOD_FILEIO_CLASS_STAT_STAT_ENTITY_H
 
 #include <sys/stat.h>
-#include <sys/types.h>
-#include <unistd.h>
-
-#include "../../common/napi/uni_header.h"
 
 namespace OHOS {
 namespace DistributedFS {
@@ -33,3 +27,4 @@ struct StatEntity {
 } // namespace ModuleFileIO
 } // namespace DistributedFS
 } // namespace OHOS
+#endif

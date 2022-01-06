@@ -13,7 +13,8 @@
  * limitations under the License.
  */
 
-#pragma once
+#ifndef INTERFACES_KITS_JS_SRC_MOD_FILEIO_CLASS_STAT_N_EXPORTER_H
+#define INTERFACES_KITS_JS_SRC_MOD_FILEIO_CLASS_STAT_N_EXPORTER_H
 
 #include <memory>
 #include <string>
@@ -31,8 +32,6 @@ public:
     std::string GetClassName() override;
 
     static napi_value Constructor(napi_env env, napi_callback_info cbinfo);
-
-    static napi_value StatSync(napi_env env, napi_callback_info info);
 
     static napi_value IsBlockDevice(napi_env env, napi_callback_info cbinfo);
     static napi_value IsCharacterDevice(napi_env env, napi_callback_info cbinfo);
@@ -62,3 +61,4 @@ public:
 } // namespace ModuleFileIO
 } // namespace DistributedFS
 } // namespace OHOS
+#endif // INTERFACES_KITS_JS_SRC_MOD_FILEIO_CLASS_STAT_N_EXPORTER_H
