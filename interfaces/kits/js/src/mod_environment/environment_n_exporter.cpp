@@ -62,7 +62,7 @@ napi_value GetStorageDataDir(napi_env env, napi_callback_info info)
 
 int GetUserId()
 {
-	return 0;
+    return 0;
 }
 
 napi_value GetUserDataDir(napi_env env, napi_callback_info info)
