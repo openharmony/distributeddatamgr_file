@@ -21,8 +21,8 @@
 namespace OHOS {
 namespace DistributedFS {
 namespace ModuleEnvironment {
-napi_value GetStorageData(napi_env env, napi_callback_info info);
-napi_value GetUserData(napi_env env, napi_callback_info info);
+napi_value GetStorageDataDir(napi_env env, napi_callback_info info);
+napi_value GetUserDataDir(napi_env env, napi_callback_info info);
 } // namespace ModuleEnvironment
 } // namespace DistributedFS
 } // namespace OHOS

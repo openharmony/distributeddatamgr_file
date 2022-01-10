@@ -28,15 +28,15 @@ declare namespace Environment {
    *
    * @since 8
    */
-  function getStorageData(callback: AsyncCallback<string>): void;
-  function getStorageData(): Promise<string>;
+  function getStorageDataDir(callback: AsyncCallback<string>): void;
+  function getStorageDataDir(): Promise<string>;
   /**
    * Get the User storage path.
    *
    * @since 8
    */
-  function getUserData(callback: AsyncCallback<string>): void;
-  function getUserData(): Promise<string>;
+  function getUserDataDir(callback: AsyncCallback<string>): void;
+  function getUserDataDir(): Promise<string>;
 }
 
 export default Environment;

@@ -28,8 +28,8 @@ namespace ModuleEnvironment {
 napi_value EnvironmentExport(napi_env env, napi_value exports)
 {
     static napi_property_descriptor desc[] = {
-        DECLARE_NAPI_FUNCTION("getStorageData", GetStorageData),
-        DECLARE_NAPI_FUNCTION("getUserData", GetUserData),
+        DECLARE_NAPI_FUNCTION("getStorageDataDir", GetStorageDataDir),
+        DECLARE_NAPI_FUNCTION("getUserDataDir", GetUserDataDir),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc));
     return exports;

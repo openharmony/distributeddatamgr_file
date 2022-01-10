@@ -21,7 +21,6 @@
 #include "../common/napi/n_func_arg.h"
 #include "../common/napi/n_val.h"
 #include "../common/uni_error.h"
-
 #include "../common/napi/n_async/n_async_work_callback.h"
 #include "../common/napi/n_async/n_async_work_promise.h"
 
@@ -32,7 +31,7 @@ namespace {
     const std::string STORAGE_DATA_PATH = "/data";
     const std::string USER_DATA_PATH = "/data/storage/0";
 }
-napi_value GetStorageData(napi_env env, napi_callback_info info)
+napi_value GetStorageDataDir(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
     if (!funcArg.InitArgs(NARG_CNT::ZERO, NARG_CNT::ONE)) {
@@ -50,7 +49,7 @@ napi_value GetStorageData(napi_env env, napi_callback_info info)
         return NVal::CreateUTF8String(env, STORAGE_DATA_PATH);
     };
 
-    std::string procedureName = "GetStorageData";
+    std::string procedureName = "GetStorageDataDir";
     NVal thisVar(env, funcArg.GetThisVar());
     if (funcArg.GetArgc() == NARG_CNT::ZERO) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
@@ -61,7 +60,12 @@ napi_value GetStorageData(napi_env env, napi_callback_info info)
     return NVal::CreateUndefined(env).val_;
 }
 
-napi_value GetUserData(napi_env env, napi_callback_info info)
+int GetUserId()
+{
+	return 0;
+}
+
+napi_value GetUserDataDir(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
     if (!funcArg.InitArgs(NARG_CNT::ZERO, NARG_CNT::ONE)) {
@@ -69,17 +73,19 @@ napi_value GetUserData(napi_env env, napi_callback_info info)
         return nullptr;
     }
 
-    auto cbExec = [](napi_env env) -> UniError {
+    auto userDataPath = std::make_shared<std::string>();
+    auto cbExec = [userDataPath](napi_env env) -> UniError {
+        (*userDataPath).append("/storage/media/").append(std::to_string(GetUserId())).append("/local");
         return UniError(ERRNO_NOERR);
     };
-    auto cbComplete = [](napi_env env, UniError err) -> NVal {
+    auto cbComplete = [userDataPath](napi_env env, UniError err) -> NVal {
         if (err) {
             return { env, err.GetNapiErr(env) };
         }
-        return NVal::CreateUTF8String(env, USER_DATA_PATH);
+        return NVal::CreateUTF8String(env, *userDataPath);
     };
 
-    std::string procedureName = "GetUserData";
+    std::string procedureName = "GetUserDataDir";
     NVal thisVar(env, funcArg.GetThisVar());
     if (funcArg.GetArgc() == NARG_CNT::ZERO) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
