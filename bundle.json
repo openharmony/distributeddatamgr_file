@@ -17,8 +17,8 @@
         "distributeddatamgr",
         "file"
     ],
-    "envs": [],
-    "dirs": [],
+    "envs": {},
+    "dirs": {},
     "author": {
         "name": "",
         "email": "",
