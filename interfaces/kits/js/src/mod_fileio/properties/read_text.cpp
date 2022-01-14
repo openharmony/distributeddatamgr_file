@@ -106,7 +106,7 @@ napi_value ReadText::Sync(napi_env env, napi_callback_info info)
         len = statbf.st_size;
     }
     len = ((len  < statbf.st_size) ? len : statbf.st_size);
-	unique_ptr<char[]> readbuf = std::make_unique<char[]>(len + 1, '\0');
+    unique_ptr<char[]> readbuf = std::make_unique<char[]>(len + 1, '\0');
     if (readbuf == nullptr) {
         UniError(EINVAL).ThrowErr(env, "file is too large");
         return nullptr;
