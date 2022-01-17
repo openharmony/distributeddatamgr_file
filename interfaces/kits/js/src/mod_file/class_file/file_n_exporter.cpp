@@ -728,12 +728,12 @@ void ReadTextExec(napi_env env, void *data)
         struct stat buf;
         int result = stat((char *)path.c_str(), &buf);
         if (fdg.GetFD() != FAILD && result != FAILD) {
-            char *buffer = new char[buf.st_size];
+            char *buffer = (char *)malloc(buf.st_size + 1);
+            memset_s(buffer, buf.st_size + 1, '\0', buf.st_size + 1);
             if (read(fdg.GetFD(), buffer, buf.st_size) != FAILD) {
                 asyncCallbackInfo->result = SUCCESS;
                 asyncCallbackInfo->contents = buffer;
             }
-            delete[] buffer;
         }
     } else if (statPath == ENOENT) {
         asyncCallbackInfo->errorType = FILE_PATH_ERROR;
