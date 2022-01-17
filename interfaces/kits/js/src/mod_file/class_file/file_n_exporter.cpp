@@ -734,7 +734,6 @@ void ReadTextExec(napi_env env, void *data)
                 asyncCallbackInfo->result = SUCCESS;
                 asyncCallbackInfo->contents = buffer;
             }
-            delete[] buffer;
         }
     } else if (statPath == ENOENT) {
         asyncCallbackInfo->errorType = FILE_PATH_ERROR;
