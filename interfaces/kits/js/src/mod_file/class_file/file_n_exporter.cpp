@@ -728,7 +728,7 @@ void ReadTextExec(napi_env env, void *data)
         struct stat buf;
         int result = stat((char *)path.c_str(), &buf);
         if (fdg.GetFD() != FAILD && result != FAILD) {
-            char *buffer = new char[buf.st_size + 1];
+            std::unique_ptr<char[]> buffer = std::make_unique<char[]>(buf.st_size + 1);
             memset_s(buffer, buf.st_size + 1, '\0', buf.st_size + 1);
             if (read(fdg.GetFD(), buffer, buf.st_size) != FAILD) {
                 asyncCallbackInfo->result = SUCCESS;
