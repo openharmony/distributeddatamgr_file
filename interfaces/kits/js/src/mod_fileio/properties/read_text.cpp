@@ -14,10 +14,8 @@
  */
 #include "read_text.h"
 
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
 #include <fcntl.h>
+#include <securec.h>
 #include <sys/stat.h>
 #include <tuple>
 #include <unistd.h>
@@ -114,7 +112,7 @@ napi_value ReadText::Sync(napi_env env, napi_callback_info info)
         UniError(EINVAL).ThrowErr(env, "file is too large");
         return nullptr;
     }
-    memset(readbuf.get(), 0, len + 1);
+    memset_s(readbuf.get(), len + 1, 0, len + 1);
     if (position > 0) {
         ret = pread(sfd.GetFD(), readbuf.get(), len, position);
     } else {
