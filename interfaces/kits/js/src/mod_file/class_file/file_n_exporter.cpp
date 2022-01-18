@@ -206,10 +206,8 @@ bool Mkdirs(string path)
     for (size_t i = 1; i < path.length(); ++i) {
         if (path[i] == '/') {
             path[i] = '\0';
-            if (access(path.c_str(), 0) != 0) {
-                if (mkdir(path.c_str(), DIR_FAULT_PERM) == FAILED) {
-                    return false;
-                }
+            if (access(path.c_str(), 0) != 0 && mkdir(path.c_str(), DIR_FAULT_PERM) == FAILED) {
+                return false;
             }
             path[i] = '/';
         }
