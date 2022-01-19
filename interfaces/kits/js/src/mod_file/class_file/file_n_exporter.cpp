@@ -45,7 +45,7 @@ namespace OHOS {
 namespace DistributedFS {
 namespace ModuleFile {
 using namespace std;
-
+ 
 constexpr int SUCCESS = 0;
 constexpr int FAILED = -1;
 constexpr int URI_PARAMER_ERROR = 202;
