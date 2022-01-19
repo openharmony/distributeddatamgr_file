@@ -44,7 +44,6 @@
 namespace OHOS {
 namespace DistributedFS {
 namespace ModuleFile {
-	
 using namespace std;
 
 constexpr int SUCCESS = 0;
