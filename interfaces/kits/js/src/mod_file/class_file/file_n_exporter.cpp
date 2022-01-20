@@ -774,14 +774,14 @@ void ReadArrayBufferExec(napi_env env, void *data)
             int32_t begin = (buf.st_size < asyncCallbackInfo->position) ? buf.st_size : asyncCallbackInfo->position;
             int32_t len =
                 (asyncCallbackInfo->length == COMMON_NUM::ZERO) ? (buf.st_size - begin) : asyncCallbackInfo->length;
-            char *buffer = new char[len + 1];
+            std::unique_ptr<char[]> buffer = std::make_unique<char[]>(len + 1);
+            memset_s(buffer.get(), len + 1, '\0', len + 1);
             lseek(fdg.GetFD(), begin, SEEK_CUR);
-            if (read(fdg.GetFD(), buffer, len) != FAILED) {
+            if (read(fdg.GetFD(), buffer.get(), len) != FAILED) {
                 asyncCallbackInfo->result = SUCCESS;
                 asyncCallbackInfo->len = len;
-                asyncCallbackInfo->contents = buffer;
+                asyncCallbackInfo->contents = buffer.get();
             }
-            delete[] buffer;
         }
     } else if (statPath == ENOENT) {
         asyncCallbackInfo->errorType = FILE_PATH_ERROR;
