@@ -47,7 +47,7 @@ namespace ModuleFile {
 using namespace std;
 
 constexpr int SUCCESS = 0;
-constexpr int FAILD = -1;
+constexpr int FAILED = -1;
 constexpr int URI_PARAMER_ERROR = 202;
 constexpr int FILE_IO_ERROR = 300;
 constexpr int FILE_PATH_ERROR = 301;
@@ -206,15 +206,13 @@ bool Mkdirs(string path)
     for (size_t i = 1; i < path.length(); ++i) {
         if (path[i] == '/') {
             path[i] = '\0';
-            if (access(path.c_str(), 0) != 0) {
-                if (mkdir(path.c_str(), DIR_FAULT_PERM) == FAILD) {
-                    return false;
-                }
+            if (access(path.c_str(), 0) != 0 && mkdir(path.c_str(), DIR_FAULT_PERM) == FAILED) {
+                return false;
             }
             path[i] = '/';
         }
     }
-    if (path.length() <= 0 || access(path.c_str(), 0) == 0 || mkdir(path.c_str(), DIR_FAULT_PERM) == FAILD) {
+    if (path.length() <= 0 || access(path.c_str(), 0) == 0 || mkdir(path.c_str(), DIR_FAULT_PERM) == FAILED) {
         return false;
     }
     return true;
@@ -261,13 +259,13 @@ void MkdirExec(napi_env env, void *data)
 {
     auto *asyncCallbackInfo = (AsyncMkdirCallbackInfo *)data;
     string path = asyncCallbackInfo->url;
-    asyncCallbackInfo->result = FAILD;
+    asyncCallbackInfo->result = FAILED;
     asyncCallbackInfo->errorType = FILE_IO_ERROR;
     if (GetRealPath(path) == ENOENT) {
         path = UriToAbsolute(path);
         if (asyncCallbackInfo->recursive && Mkdirs(path)) {
             asyncCallbackInfo->result = SUCCESS;
-        } else if (mkdir((char *)path.c_str(), DIR_FAULT_PERM) != FAILD) {
+        } else if (mkdir((char *)path.c_str(), DIR_FAULT_PERM) != FAILED) {
             asyncCallbackInfo->result = SUCCESS;
         }
     }
@@ -279,7 +277,7 @@ void MkdirComp(napi_env env, napi_status status, void *data)
 
     if (asyncCallbackInfo->result == SUCCESS) {
         CallBackSuccess(env, asyncCallbackInfo->callback[COMMON_NUM::ZERO], COMMON_NUM::ZERO, nullptr);
-    } else if (asyncCallbackInfo->result == FAILD) {
+    } else if (asyncCallbackInfo->result == FAILED) {
         CallBackError(env, asyncCallbackInfo->callback[COMMON_NUM::ONE], "make directory failed", FILE_IO_ERROR);
     }
     CallComplete(env, asyncCallbackInfo->callback[COMMON_NUM::TWO]);
@@ -294,13 +292,13 @@ void RmdirExec(napi_env env, void *data)
 {
     auto *asyncCallbackInfo = (AsyncRmdirCallbackInfo *)data;
     string path = asyncCallbackInfo->url;
-    asyncCallbackInfo->result = FAILD;
+    asyncCallbackInfo->result = FAILED;
     asyncCallbackInfo->errorType = FILE_IO_ERROR;
     int statPath = GetRealPath(path);
     if (statPath == COMMON_NUM::ZERO) {
         if (asyncCallbackInfo->recursive && Rmdirs(path)) {
             asyncCallbackInfo->result = SUCCESS;
-        } else if (remove((char *)path.c_str()) != FAILD) {
+        } else if (remove((char *)path.c_str()) != FAILED) {
             asyncCallbackInfo->result = SUCCESS;
         }
     } else if (statPath == ENOENT) {
@@ -330,7 +328,7 @@ void GetExec(napi_env env, void *data)
 {
     auto *asyncCallbackInfo = (AsyncGetCallbackInfo *)data;
     string path = asyncCallbackInfo->url;
-    asyncCallbackInfo->result = FAILD;
+    asyncCallbackInfo->result = FAILED;
     asyncCallbackInfo->errorType = FILE_IO_ERROR;
     struct stat buf;
     int statPath = GetRealPath(path);
@@ -394,7 +392,7 @@ void ListExec(napi_env env, void *data)
 {
     auto *asyncCallbackInfo = (AsyncListCallbackInfo *)data;
     string path = asyncCallbackInfo->url;
-    asyncCallbackInfo->result = FAILD;
+    asyncCallbackInfo->result = FAILED;
     std::vector<string> fileNames;
     struct stat buf;
     int statPath = GetRealPath(path);
@@ -471,7 +469,7 @@ void CopyExec(napi_env env, void *data)
     auto *asyncCallbackInfo = (AsyncCopyCallbackInfo *)data;
     string path = asyncCallbackInfo->url;
     string pathDst = asyncCallbackInfo->urlDst;
-    asyncCallbackInfo->result = FAILD;
+    asyncCallbackInfo->result = FAILED;
     asyncCallbackInfo->errorType = FILE_IO_ERROR;
     int statPath = GetRealPath(path);
     int statDst = GetRealPath(pathDst);
@@ -483,11 +481,11 @@ void CopyExec(napi_env env, void *data)
         sfd.SetFD(open((char *)path.c_str(), O_RDONLY));
         int res = stat((char *)path.c_str(), &statbf);
         ofd.SetFD(open((char *)pathDst.c_str(), O_WRONLY | O_CREAT, statbf.st_mode));
-        if (sfd.GetFD() != FAILD && ofd.GetFD() != FAILD && res != FAILD &&
-            sendfile(ofd.GetFD(), sfd.GetFD(), nullptr, statbf.st_size) != FAILD) {
+        if (sfd.GetFD() != FAILED && ofd.GetFD() != FAILED && res != FAILED &&
+            sendfile(ofd.GetFD(), sfd.GetFD(), nullptr, statbf.st_size) != FAILED) {
             asyncCallbackInfo->result = SUCCESS;
         }
-        if (asyncCallbackInfo->result == FAILD) {
+        if (asyncCallbackInfo->result == FAILED) {
             remove((char *)pathDst.c_str());
         }
     } else if (statPath == ENOENT) {
@@ -519,7 +517,7 @@ void MoveExec(napi_env env, void *data)
     auto *asyncCallbackInfo = (AsyncMoveCallbackInfo *)data;
     string path = asyncCallbackInfo->url;
     string pathDst = asyncCallbackInfo->urlDst;
-    asyncCallbackInfo->result = FAILD;
+    asyncCallbackInfo->result = FAILED;
     asyncCallbackInfo->errorType = FILE_IO_ERROR;
     int statPath = GetRealPath(path);
     int statDst = GetRealPath(pathDst);
@@ -531,12 +529,12 @@ void MoveExec(napi_env env, void *data)
         sfd.SetFD(open((char *)path.c_str(), O_RDONLY));
         int res = stat((char *)path.c_str(), &statbf);
         ofd.SetFD(open((char *)pathDst.c_str(), O_WRONLY | O_CREAT, statbf.st_mode));
-        if (sfd.GetFD() != FAILD && ofd.GetFD() != FAILD && res != FAILD &&
-            sendfile(ofd.GetFD(), sfd.GetFD(), nullptr, statbf.st_size) != FAILD) {
+        if (sfd.GetFD() != FAILED && ofd.GetFD() != FAILED && res != FAILED &&
+            sendfile(ofd.GetFD(), sfd.GetFD(), nullptr, statbf.st_size) != FAILED) {
             asyncCallbackInfo->result = SUCCESS;
             remove((char *)path.c_str());
         }
-        if (asyncCallbackInfo->result == FAILD) {
+        if (asyncCallbackInfo->result == FAILED) {
             asyncCallbackInfo->errorType = FILE_IO_ERROR;
             remove((char *)pathDst.c_str());
         }
@@ -568,11 +566,11 @@ void DeleteExec(napi_env env, void *data)
 {
     auto *asyncCallbackInfo = (AsyncDeleteCallbackInfo *)data;
     string path = asyncCallbackInfo->url;
-    asyncCallbackInfo->result = FAILD;
+    asyncCallbackInfo->result = FAILED;
     int statPath = GetRealPath(path);
     if (statPath == ENOENT) {
         asyncCallbackInfo->errorType = FILE_PATH_ERROR;
-    } else if (statPath == COMMON_NUM::ZERO && remove((char *)path.c_str()) != FAILD) {
+    } else if (statPath == COMMON_NUM::ZERO && remove((char *)path.c_str()) != FAILED) {
         asyncCallbackInfo->result = SUCCESS;
     } else {
         asyncCallbackInfo->errorType = FILE_IO_ERROR;
@@ -601,7 +599,7 @@ void AccessExec(napi_env env, void *data)
 {
     auto *asyncCallbackInfo = (AsyncAccessCallbackInfo *)data;
     string path = asyncCallbackInfo->url;
-    asyncCallbackInfo->result = FAILD;
+    asyncCallbackInfo->result = FAILED;
     int statPath = GetRealPath(path);
     if (statPath == ENOENT) {
         asyncCallbackInfo->errorType = FILE_PATH_ERROR;
@@ -635,7 +633,7 @@ void WriteTextExec(napi_env env, void *data)
     auto *asyncCallbackInfo = (AsyncWriteCallbackInfo *)data;
     string path = asyncCallbackInfo->url;
     string text = asyncCallbackInfo->text;
-    asyncCallbackInfo->result = FAILD;
+    asyncCallbackInfo->result = FAILED;
     asyncCallbackInfo->errorType = FILE_IO_ERROR;
     int fd = -1;
     int statPath = GetRealPath(path);
@@ -645,8 +643,8 @@ void WriteTextExec(napi_env env, void *data)
         } else {
             fd = open(path.c_str(), O_WRONLY | O_TRUNC | O_CREAT, S_IRUSR | S_IWUSR);
         }
-        if (fd != FAILD) {
-            if (write(fd, text.c_str(), text.length()) != FAILD) {
+        if (fd != FAILED) {
+            if (write(fd, text.c_str(), text.length()) != FAILED) {
                 asyncCallbackInfo->result = SUCCESS;
             }
             close(fd);
@@ -674,24 +672,24 @@ void WriteArrayBufferExec(napi_env env, void *data)
 {
     auto *asyncCallbackInfo = (AsyncWriteBufferCallbackInfo *)data;
     string path = asyncCallbackInfo->url;
-    asyncCallbackInfo->result = FAILD;
+    asyncCallbackInfo->result = FAILED;
     asyncCallbackInfo->errorType = FILE_IO_ERROR;
     int fd = -1;
     int statPath = GetRealPath(path);
     if (statPath == COMMON_NUM::ZERO || statPath == ENOENT) {
         if (asyncCallbackInfo->append) {
             fd = open(path.c_str(), O_WRONLY | O_APPEND | O_CREAT, S_IRUSR | S_IWUSR);
-            if (fd == FAILD) {
+            if (fd == FAILED) {
                 return;
             }
         } else {
             fd = open(path.c_str(), O_WRONLY | O_TRUNC | O_CREAT, S_IRUSR | S_IWUSR);
-            if (fd == FAILD) {
+            if (fd == FAILED) {
                 return;
             }
             lseek(fd, asyncCallbackInfo->position, SEEK_CUR);
         }
-        if (write(fd, asyncCallbackInfo->buf, asyncCallbackInfo->length) != FAILD) {
+        if (write(fd, asyncCallbackInfo->buf, asyncCallbackInfo->length) != FAILED) {
             asyncCallbackInfo->result = SUCCESS;
         }
         close(fd);
@@ -719,7 +717,7 @@ void ReadTextExec(napi_env env, void *data)
 {
     auto *asyncCallbackInfo = (AsyncReadCallbackInfo *)data;
     string path = asyncCallbackInfo->url;
-    asyncCallbackInfo->result = FAILD;
+    asyncCallbackInfo->result = FAILED;
     asyncCallbackInfo->errorType = FILE_IO_ERROR;
     int statPath = GetRealPath(path);
     if (statPath == COMMON_NUM::ZERO) {
@@ -727,13 +725,13 @@ void ReadTextExec(napi_env env, void *data)
         fdg.SetFD(open(path.c_str(), O_RDONLY));
         struct stat buf;
         int result = stat((char *)path.c_str(), &buf);
-        if (fdg.GetFD() != FAILD && result != FAILD) {
-            char *buffer = new char[buf.st_size];
-            if (read(fdg.GetFD(), buffer, buf.st_size) != FAILD) {
+        if (fdg.GetFD() != FAILED && result != FAILED) {
+            std::unique_ptr<char[]> buffer = std::make_unique<char[]>(buf.st_size + 1);
+            memset_s(buffer.get(), buf.st_size + 1, '\0', buf.st_size + 1);
+            if (read(fdg.GetFD(), buffer.get(), buf.st_size) != FAILED) {
                 asyncCallbackInfo->result = SUCCESS;
-                asyncCallbackInfo->contents = buffer;
+                asyncCallbackInfo->contents = buffer.get();
             }
-            delete[] buffer;
         }
     } else if (statPath == ENOENT) {
         asyncCallbackInfo->errorType = FILE_PATH_ERROR;
@@ -764,7 +762,7 @@ void ReadArrayBufferExec(napi_env env, void *data)
 {
     auto *asyncCallbackInfo = (AsyncReadBufferCallbackInfo *)data;
     string path = asyncCallbackInfo->url;
-    asyncCallbackInfo->result = FAILD;
+    asyncCallbackInfo->result = FAILED;
     asyncCallbackInfo->errorType = FILE_IO_ERROR;
     int statPath = GetRealPath(path);
     if (statPath == COMMON_NUM::ZERO) {
@@ -772,13 +770,13 @@ void ReadArrayBufferExec(napi_env env, void *data)
         fdg.SetFD(open(path.c_str(), O_RDONLY));
         struct stat buf;
         int result = stat((char *)path.c_str(), &buf);
-        if (fdg.GetFD() != FAILD && result != FAILD) {
+        if (fdg.GetFD() != FAILED && result != FAILED) {
             int32_t begin = (buf.st_size < asyncCallbackInfo->position) ? buf.st_size : asyncCallbackInfo->position;
             int32_t len =
                 (asyncCallbackInfo->length == COMMON_NUM::ZERO) ? (buf.st_size - begin) : asyncCallbackInfo->length;
             char *buffer = new char[len + 1];
             lseek(fdg.GetFD(), begin, SEEK_CUR);
-            if (read(fdg.GetFD(), buffer, len) != FAILD) {
+            if (read(fdg.GetFD(), buffer, len) != FAILED) {
                 asyncCallbackInfo->result = SUCCESS;
                 asyncCallbackInfo->len = len;
                 asyncCallbackInfo->contents = buffer;
