@@ -15,6 +15,7 @@
 #include "read_text.h"
 
 #include <fcntl.h>
+#include <securec.h>
 #include <sys/stat.h>
 #include <tuple>
 #include <unistd.h>
@@ -106,11 +107,12 @@ napi_value ReadText::Sync(napi_env env, napi_callback_info info)
         len = statbf.st_size;
     }
     len = ((len  < statbf.st_size) ? len : statbf.st_size);
-    unique_ptr<char[]> readbuf = unique_ptr<char[]>(new (std::nothrow) char[len]);
+    std::unique_ptr<char[]> readbuf = std::make_unique<char[]>(len + 1);
     if (readbuf == nullptr) {
         UniError(EINVAL).ThrowErr(env, "file is too large");
         return nullptr;
     }
+    memset_s(readbuf.get(), len + 1, 0, len + 1);
     if (position > 0) {
         ret = pread(sfd.GetFD(), readbuf.get(), len, position);
     } else {

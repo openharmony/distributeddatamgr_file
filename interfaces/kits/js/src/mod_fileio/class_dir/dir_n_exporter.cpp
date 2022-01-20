@@ -197,6 +197,12 @@ napi_value DirNExporter::Read(napi_env env, napi_callback_info info)
 
 napi_value DirNExporter::ReadSync(napi_env env, napi_callback_info info)
 {
+    NFuncArg funcArg(env, info);
+    if (!funcArg.InitArgs(NARG_CNT::ZERO)) {
+        UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
+        return nullptr;
+    }
+    
     DirEntity *dirEntity = GetDirEntity(env, info);
     if (!dirEntity || !dirEntity->dir_) {
         UniError(EBADF).ThrowErr(env, "Dir has been closed yet");
