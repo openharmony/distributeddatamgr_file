@@ -726,8 +726,7 @@ void ReadTextExec(napi_env env, void *data)
         struct stat buf;
         int result = stat((char *)path.c_str(), &buf);
         if (fdg.GetFD() != FAILED && result != FAILED) {
-            std::unique_ptr<char[]> buffer = std::make_unique<char[]>(buf.st_size + 1);
-            memset_s(buffer.get(), buf.st_size + 1, '\0', buf.st_size + 1);
+            auto buffer = std::make_unique<char[]>(buf.st_size + 1);
             if (read(fdg.GetFD(), buffer.get(), buf.st_size) != FAILED) {
                 asyncCallbackInfo->result = SUCCESS;
                 asyncCallbackInfo->contents = std::string(buffer.get());
@@ -774,8 +773,7 @@ void ReadArrayBufferExec(napi_env env, void *data)
             int32_t begin = (buf.st_size < asyncCallbackInfo->position) ? buf.st_size : asyncCallbackInfo->position;
             int32_t len =
                 (asyncCallbackInfo->length == COMMON_NUM::ZERO) ? (buf.st_size - begin) : asyncCallbackInfo->length;
-            std::unique_ptr<char[]> buffer = std::make_unique<char[]>(len + 1);
-            memset_s(buffer.get(), len + 1, '\0', len + 1);
+            auto buffer = std::make_unique<char[]>(len + 1);
             lseek(fdg.GetFD(), begin, SEEK_CUR);
             if (read(fdg.GetFD(), buffer.get(), len) != FAILED) {
                 asyncCallbackInfo->result = SUCCESS;
