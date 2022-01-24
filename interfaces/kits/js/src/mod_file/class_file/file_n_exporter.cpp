@@ -730,7 +730,7 @@ void ReadTextExec(napi_env env, void *data)
             memset_s(buffer.get(), buf.st_size + 1, '\0', buf.st_size + 1);
             if (read(fdg.GetFD(), buffer.get(), buf.st_size) != FAILED) {
                 asyncCallbackInfo->result = SUCCESS;
-                asyncCallbackInfo->contents = buffer.get();
+                asyncCallbackInfo->contents = std::string(buffer.get());
             }
         }
     } else if (statPath == ENOENT) {
@@ -780,7 +780,7 @@ void ReadArrayBufferExec(napi_env env, void *data)
             if (read(fdg.GetFD(), buffer.get(), len) != FAILED) {
                 asyncCallbackInfo->result = SUCCESS;
                 asyncCallbackInfo->len = len;
-                asyncCallbackInfo->contents = buffer.get();
+                asyncCallbackInfo->contents = std::string(buffer.get());
             }
         }
     } else if (statPath == ENOENT) {
