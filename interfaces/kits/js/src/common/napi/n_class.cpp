@@ -25,7 +25,7 @@ namespace DistributedFS {
 using namespace std;
 NClass &NClass::GetInstance()
 {
-    static NClass nClass;
+    static thread_local NClass nClass;
     return nClass;
 }
 
