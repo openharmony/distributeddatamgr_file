@@ -75,7 +75,6 @@ napi_value Fdatasync::Async(napi_env env, napi_callback_info info)
     auto cbExec = [fd](napi_env env) -> UniError {
         int ret = fdatasync(fd);
         if (ret == -1) {
-            UniError(errno).ThrowErr(env);
             return UniError(errno);
         } else {
             return UniError(ERRNO_NOERR);

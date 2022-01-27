@@ -88,7 +88,6 @@ napi_value Fchmod::Async(napi_env env, napi_callback_info info)
     auto cbExec = [fd, mode](napi_env env) -> UniError {
         int ret = fchmod(fd, mode);
         if (ret == -1) {
-            UniError(errno).ThrowErr(env);
             return UniError(errno);
         } else {
             return UniError(ERRNO_NOERR);
