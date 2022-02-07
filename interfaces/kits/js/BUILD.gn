@@ -15,7 +15,6 @@ import("//build/ohos.gni")
 
 file_common_src = [
   "src/common/file_helper/fd_guard.cpp",
-  "src/common/file_helper/hash_file.cpp",
   "src/common/napi/n_async/n_async_work_callback.cpp",
   "src/common/napi/n_async/n_async_work_promise.cpp",
   "src/common/napi/n_async/n_ref.cpp",
@@ -44,6 +43,7 @@ ohos_shared_library("fileio") {
 
   sources = file_common_src
   sources += [
+    "src/common/file_helper/hash_file.cpp",
     "src/mod_fileio/class_constants/constants.cpp",
     "src/mod_fileio/class_dir/dir_n_exporter.cpp",
     "src/mod_fileio/class_dirent/dirent_n_exporter.cpp",
@@ -103,9 +103,6 @@ ohos_shared_library("file") {
     "//third_party/node/src",
     "//foundation/ace/napi/interfaces/kits",
     "//utils/native/base/include",
-    "//third_party/openssl",
-    "//third_party/openssl/include/openssl",
-    "//third_party/openssl/crypto/evp",
     "//foundation/distributeddatamgr/distributedfile/interfaces/kits/js/src/common/napi",
     "//foundation/distributeddatamgr/distributedfile/interfaces/kits/js/src/common/napi/n_async",
     "//foundation/distributeddatamgr/distributedfile/interfaces/kits/js/src/common/file_helper",
@@ -122,8 +119,6 @@ ohos_shared_library("file") {
   deps = [
     "//foundation/aafwk/standard/frameworks/kits/ability/native:abilitykit_native",
     "//foundation/ace/napi:ace_napi",
-    "//third_party/openssl:crypto_source",
-    "//third_party/openssl:ssl_source",
     "//utils/native/base:utilsecurec",
   ]
 
@@ -147,7 +142,6 @@ ohos_shared_library("statfs") {
 
   include_dirs = [
     "//third_party/node/src",
-    "//third_party/openssl/include",
     "//foundation/ace/napi/interfaces/kits",
     "//foundation/distributeddatamgr/distributedfile/interfaces/kits/js/src/common/napi/n_async",
   ]
@@ -163,10 +157,7 @@ ohos_shared_library("statfs") {
     "src/mod_statfs/statfs_napi.cpp",
   ]
 
-  deps = [
-    "//foundation/ace/napi:ace_napi",
-    "//third_party/openssl:libcrypto_static",
-  ]
+  deps = [ "//foundation/ace/napi:ace_napi" ]
 
   external_deps = [ "hiviewdfx_hilog_native:libhilog" ]
 }
@@ -179,7 +170,6 @@ ohos_shared_library("environment") {
 
   include_dirs = [
     "//third_party/node/src",
-    "//third_party/openssl/include",
     "//foundation/ace/napi/interfaces/kits",
     "//foundation/distributeddatamgr/distributedfile/interfaces/kits/js/src/common/napi/n_async",
   ]
@@ -195,10 +185,7 @@ ohos_shared_library("environment") {
     "src/mod_environment/environment_napi.cpp",
   ]
 
-  deps = [
-    "//foundation/ace/napi:ace_napi",
-    "//third_party/openssl:libcrypto_static",
-  ]
+  deps = [ "//foundation/ace/napi:ace_napi" ]
 
   external_deps = [ "hiviewdfx_hilog_native:libhilog" ]
 }
