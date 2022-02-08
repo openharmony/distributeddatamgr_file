@@ -16,7 +16,7 @@
 #ifndef STATFS_NAPI_H
 #define STATFS_NAPI_H
 
-#include "napi/native_api.h"
+#include "filemgmt_libn.h"
 
 namespace OHOS {
 namespace DistributedFS {
