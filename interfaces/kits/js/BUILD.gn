@@ -140,24 +140,15 @@ ohos_shared_library("statfs") {
 
   relative_install_dir = "module"
 
-  include_dirs = [
-    "//third_party/node/src",
-    "//foundation/ace/napi/interfaces/kits",
-    "//foundation/distributeddatamgr/distributedfile/interfaces/kits/js/src/common/napi/n_async",
-  ]
-
   sources = [
-    "src/common/napi/n_async/n_async_work_callback.cpp",
-    "src/common/napi/n_async/n_async_work_promise.cpp",
-    "src/common/napi/n_async/n_ref.cpp",
-    "src/common/napi/n_func_arg.cpp",
-    "src/common/napi/n_val.cpp",
-    "src/common/uni_error.cpp",
     "src/mod_statfs/statfs_n_exporter.cpp",
     "src/mod_statfs/statfs_napi.cpp",
   ]
 
-  deps = [ "//foundation/ace/napi:ace_napi" ]
+  deps = [
+    "//foundation/distributeddatamgr/distributedfile/utils/filemgmt_libhilog",
+    "//foundation/distributeddatamgr/distributedfile/utils/filemgmt_libn",
+  ]
 
   external_deps = [ "hiviewdfx_hilog_native:libhilog" ]
 }

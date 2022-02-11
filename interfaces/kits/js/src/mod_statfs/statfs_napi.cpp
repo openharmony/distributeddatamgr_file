@@ -13,9 +13,6 @@
  * limitations under the License.
  */
 
-#include "napi/native_api.h"
-#include "napi/native_node_api.h"
-
 #include "statfs_n_exporter.h"
 #include "statfs_napi.h"
 

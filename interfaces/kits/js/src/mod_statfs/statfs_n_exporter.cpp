@@ -18,22 +18,16 @@
 #include <sys/statvfs.h>
 #include <tuple>
 
-#include "../common/napi/n_class.h"
-#include "../common/napi/n_func_arg.h"
-#include "../common/napi/n_val.h"
-#include "../common/uni_error.h"
-
-#include "../common/napi/n_async/n_async_work_callback.h"
-#include "../common/napi/n_async/n_async_work_promise.h"
-
 namespace OHOS {
 namespace DistributedFS {
 namespace ModuleStatfs {
+using namespace FileManagement::LibN;
+
 napi_value GetFrSizeSync(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
     if (!funcArg.InitArgs(NARG_CNT::ONE)) {
-        UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
+        NError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
 
@@ -41,14 +35,14 @@ napi_value GetFrSizeSync(napi_env env, napi_callback_info info)
     std::unique_ptr<char[]> path;
     tie(succ, path, std::ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
     if (!succ) {
-        UniError(EINVAL).ThrowErr(env, "Invalid path");
+        NError(EINVAL).ThrowErr(env, "Invalid path");
         return nullptr;
     }
 
     struct statvfs diskInfo;
     int ret = statvfs(path.get(), &diskInfo);
     if (ret != 0) {
-        UniError(errno).ThrowErr(env, "Failed get info");
+        NError(errno).ThrowErr(env, "Failed get info");
         return nullptr;
     }
     unsigned long long freeSize = static_cast<unsigned long long>(diskInfo.f_bsize) *
@@ -60,7 +54,7 @@ napi_value GetFrSize(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
     if (!funcArg.InitArgs(NARG_CNT::ONE, NARG_CNT::TWO)) {
-        UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
+        NError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
 
@@ -68,23 +62,23 @@ napi_value GetFrSize(napi_env env, napi_callback_info info)
     std::unique_ptr<char []> path;
     tie(succ, path, std::ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
     if (!succ) {
-        UniError(EINVAL).ThrowErr(env, "Invalid path");
+        NError(EINVAL).ThrowErr(env, "Invalid path");
         return nullptr;
     }
 
     auto resultSize = std::make_shared<unsigned long long>();
     std::string pathString(path.get());
-    auto cbExec = [pathString, resultSize](napi_env env) -> UniError {
+    auto cbExec = [pathString, resultSize]() -> NError {
         struct statvfs diskInfo;
         int ret = statvfs(pathString.c_str(), &diskInfo);
         if (ret != 0) {
-            return UniError(errno);
+            return NError(errno);
         }
         *resultSize = static_cast<unsigned long long>(diskInfo.f_bsize) *
                       static_cast<unsigned long long>(diskInfo.f_bavail);
-        return UniError(ERRNO_NOERR);
+        return NError(ERRNO_NOERR);
     };
-    auto cbComplete = [resultSize](napi_env env, UniError err) -> NVal {
+    auto cbComplete = [resultSize](napi_env env, NError err) -> NVal {
         if (err) {
             return { env, err.GetNapiErr(env) };
         }
@@ -106,7 +100,7 @@ napi_value GetBSizeSync(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
     if (!funcArg.InitArgs(NARG_CNT::ONE)) {
-        UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
+        NError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
 
@@ -114,14 +108,14 @@ napi_value GetBSizeSync(napi_env env, napi_callback_info info)
     std::unique_ptr<char[]> path;
     tie(succ, path, std::ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
     if (!succ) {
-        UniError(EINVAL).ThrowErr(env, "Invalid path");
+        NError(EINVAL).ThrowErr(env, "Invalid path");
         return nullptr;
     }
 
     struct statvfs diskInfo;
     int ret = statvfs(path.get(), &diskInfo);
     if (ret != 0) {
-        UniError(errno).ThrowErr(env);
+        NError(errno).ThrowErr(env);
         return nullptr;
     }
     return NVal::CreateInt64(env, diskInfo.f_bsize).val_;
@@ -131,7 +125,7 @@ napi_value GetBSize(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
     if (!funcArg.InitArgs(NARG_CNT::ONE, NARG_CNT::TWO)) {
-        UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
+        NError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
 
@@ -139,22 +133,22 @@ napi_value GetBSize(napi_env env, napi_callback_info info)
     std::unique_ptr<char []> path;
     tie(succ, path, std::ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
     if (!succ) {
-        UniError(EINVAL).ThrowErr(env, "Invalid path");
+        NError(EINVAL).ThrowErr(env, "Invalid path");
         return nullptr;
     }
 
     auto resultSize = std::make_shared<unsigned long long>();
     std::string pathString(path.get());
-    auto cbExec = [pathString, resultSize](napi_env env) -> UniError {
+    auto cbExec = [pathString, resultSize]() -> NError {
         struct statvfs diskInfo;
         int ret = statvfs(pathString.c_str(), &diskInfo);
         if (ret != 0) {
-            return UniError(errno);
+            return NError(errno);
         }
         *resultSize = diskInfo.f_bsize;
-        return UniError(ERRNO_NOERR);
+        return NError(ERRNO_NOERR);
     };
-    auto cbComplete = [resultSize](napi_env env, UniError err) -> NVal {
+    auto cbComplete = [resultSize](napi_env env, NError err) -> NVal {
         if (err) {
             return { env, err.GetNapiErr(env) };
         }
@@ -176,7 +170,7 @@ napi_value GetBAvailSync(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
     if (!funcArg.InitArgs(NARG_CNT::ONE)) {
-        UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
+        NError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
 
@@ -184,14 +178,14 @@ napi_value GetBAvailSync(napi_env env, napi_callback_info info)
     std::unique_ptr<char[]> path;
     tie(succ, path, std::ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
     if (!succ) {
-        UniError(EINVAL).ThrowErr(env, "Invalid path");
+        NError(EINVAL).ThrowErr(env, "Invalid path");
         return nullptr;
     }
 
     struct statvfs diskInfo;
     int ret = statvfs(path.get(), &diskInfo);
     if (ret != 0) {
-        UniError(errno).ThrowErr(env);
+        NError(errno).ThrowErr(env);
         return nullptr;
     }
     return NVal::CreateInt64(env, diskInfo.f_bavail).val_;
@@ -201,7 +195,7 @@ napi_value GetBAvail(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
     if (!funcArg.InitArgs(NARG_CNT::ONE, NARG_CNT::TWO)) {
-        UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
+        NError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
 
@@ -209,22 +203,22 @@ napi_value GetBAvail(napi_env env, napi_callback_info info)
     std::unique_ptr<char []> path;
     tie(succ, path, std::ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
     if (!succ) {
-        UniError(EINVAL).ThrowErr(env, "Invalid path");
+        NError(EINVAL).ThrowErr(env, "Invalid path");
         return nullptr;
     }
 
     auto resultSize = std::make_shared<unsigned long long>();
     std::string pathString(path.get());
-    auto cbExec = [pathString, resultSize](napi_env env) -> UniError {
+    auto cbExec = [pathString, resultSize]() -> NError {
         struct statvfs diskInfo;
         int ret = statvfs(pathString.c_str(), &diskInfo);
         if (ret != 0) {
-            return UniError(errno);
+            return NError(errno);
         }
         *resultSize = diskInfo.f_bavail;
-        return UniError(ERRNO_NOERR);
+        return NError(ERRNO_NOERR);
     };
-    auto cbComplete = [resultSize](napi_env env, UniError err) -> NVal {
+    auto cbComplete = [resultSize](napi_env env, NError err) -> NVal {
         if (err) {
             return { env, err.GetNapiErr(env) };
         }
@@ -246,7 +240,7 @@ napi_value GetBlocksSync(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
     if (!funcArg.InitArgs(NARG_CNT::ONE)) {
-        UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
+        NError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
 
@@ -254,14 +248,14 @@ napi_value GetBlocksSync(napi_env env, napi_callback_info info)
     std::unique_ptr<char[]> path;
     tie(succ, path, std::ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
     if (!succ) {
-        UniError(EINVAL).ThrowErr(env, "Invalid path");
+        NError(EINVAL).ThrowErr(env, "Invalid path");
         return nullptr;
     }
 
     struct statvfs diskInfo;
     int ret = statvfs(path.get(), &diskInfo);
     if (ret != 0) {
-        UniError(errno).ThrowErr(env);
+        NError(errno).ThrowErr(env);
         return nullptr;
     }
     return NVal::CreateInt64(env, diskInfo.f_blocks).val_;
@@ -271,7 +265,7 @@ napi_value GetBlocks(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
     if (!funcArg.InitArgs(NARG_CNT::ONE, NARG_CNT::TWO)) {
-        UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
+        NError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
 
@@ -279,22 +273,22 @@ napi_value GetBlocks(napi_env env, napi_callback_info info)
     std::unique_ptr<char []> path;
     tie(succ, path, std::ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
     if (!succ) {
-        UniError(EINVAL).ThrowErr(env, "Invalid path");
+        NError(EINVAL).ThrowErr(env, "Invalid path");
         return nullptr;
     }
 
     auto resultSize = std::make_shared<unsigned long long>();
     std::string pathString(path.get());
-    auto cbExec = [pathString, resultSize](napi_env env) -> UniError {
+    auto cbExec = [pathString, resultSize]() -> NError {
         struct statvfs diskInfo;
         int ret = statvfs(pathString.c_str(), &diskInfo);
         if (ret != 0) {
-            return UniError(errno);
+            return NError(errno);
         }
         *resultSize = diskInfo.f_blocks;
-        return UniError(ERRNO_NOERR);
+        return NError(ERRNO_NOERR);
     };
-    auto cbComplete = [resultSize](napi_env env, UniError err) -> NVal {
+    auto cbComplete = [resultSize](napi_env env, NError err) -> NVal {
         if (err) {
             return { env, err.GetNapiErr(env) };
         }
@@ -316,7 +310,7 @@ napi_value GetBFreeSync(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
     if (!funcArg.InitArgs(NARG_CNT::ONE)) {
-        UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
+        NError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
 
@@ -324,14 +318,14 @@ napi_value GetBFreeSync(napi_env env, napi_callback_info info)
     std::unique_ptr<char[]> path;
     tie(succ, path, std::ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
     if (!succ) {
-        UniError(EINVAL).ThrowErr(env, "Invalid path");
+        NError(EINVAL).ThrowErr(env, "Invalid path");
         return nullptr;
     }
 
     struct statvfs diskInfo;
     int ret = statvfs(path.get(), &diskInfo);
     if (ret != 0) {
-        UniError(errno).ThrowErr(env);
+        NError(errno).ThrowErr(env);
         return nullptr;
     }
     return NVal::CreateInt64(env, diskInfo.f_bfree).val_;
@@ -341,7 +335,7 @@ napi_value GetBFree(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
     if (!funcArg.InitArgs(NARG_CNT::ONE, NARG_CNT::TWO)) {
-        UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
+        NError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
 
@@ -349,22 +343,22 @@ napi_value GetBFree(napi_env env, napi_callback_info info)
     std::unique_ptr<char []> path;
     tie(succ, path, std::ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
     if (!succ) {
-        UniError(EINVAL).ThrowErr(env, "Invalid path");
+        NError(EINVAL).ThrowErr(env, "Invalid path");
         return nullptr;
     }
 
     auto resultSize = std::make_shared<unsigned long long>();
     std::string pathString(path.get());
-    auto cbExec = [pathString, resultSize](napi_env env) -> UniError {
+    auto cbExec = [pathString, resultSize]() -> NError {
         struct statvfs diskInfo;
         int ret = statvfs(pathString.c_str(), &diskInfo);
         if (ret != 0) {
-            return UniError(errno);
+            return NError(errno);
         }
         *resultSize = diskInfo.f_bfree;
-        return UniError(ERRNO_NOERR);
+        return NError(ERRNO_NOERR);
     };
-    auto cbComplete = [resultSize](napi_env env, UniError err) -> NVal {
+    auto cbComplete = [resultSize](napi_env env, NError err) -> NVal {
         if (err) {
             return { env, err.GetNapiErr(env) };
         }
@@ -386,7 +380,7 @@ napi_value GetFreeBytesSync(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
     if (!funcArg.InitArgs(NARG_CNT::ONE)) {
-        UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
+        NError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
 
@@ -394,14 +388,14 @@ napi_value GetFreeBytesSync(napi_env env, napi_callback_info info)
     std::unique_ptr<char[]> path;
     tie(succ, path, std::ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
     if (!succ) {
-        UniError(EINVAL).ThrowErr(env, "Invalid path");
+        NError(EINVAL).ThrowErr(env, "Invalid path");
         return nullptr;
     }
 
     struct statvfs diskInfo;
     int ret = statvfs(path.get(), &diskInfo);
     if (ret != 0) {
-        UniError(errno).ThrowErr(env);
+        NError(errno).ThrowErr(env);
         return nullptr;
     }
     unsigned long long freeSize = static_cast<unsigned long long>(diskInfo.f_bsize) *
@@ -413,7 +407,7 @@ napi_value GetFreeBytes(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
     if (!funcArg.InitArgs(NARG_CNT::ONE, NARG_CNT::TWO)) {
-        UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
+        NError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
 
@@ -421,23 +415,23 @@ napi_value GetFreeBytes(napi_env env, napi_callback_info info)
     std::unique_ptr<char []> path;
     tie(succ, path, std::ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
     if (!succ) {
-        UniError(EINVAL).ThrowErr(env, "Invalid path");
+        NError(EINVAL).ThrowErr(env, "Invalid path");
         return nullptr;
     }
 
     auto resultSize = std::make_shared<unsigned long long>();
     std::string pathString(path.get());
-    auto cbExec = [pathString, resultSize](napi_env env) -> UniError {
+    auto cbExec = [pathString, resultSize]() -> NError {
         struct statvfs diskInfo;
         int ret = statvfs(pathString.c_str(), &diskInfo);
         if (ret != 0) {
-            return UniError(errno);
+            return NError(errno);
         }
         *resultSize = static_cast<unsigned long long>(diskInfo.f_bsize) *
                       static_cast<unsigned long long>(diskInfo.f_bfree);
-        return UniError(ERRNO_NOERR);
+        return NError(ERRNO_NOERR);
     };
-    auto cbComplete = [resultSize](napi_env env, UniError err) -> NVal {
+    auto cbComplete = [resultSize](napi_env env, NError err) -> NVal {
         if (err) {
             return { env, err.GetNapiErr(env) };
         }
@@ -459,7 +453,7 @@ napi_value GetTotalBytesSync(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
     if (!funcArg.InitArgs(NARG_CNT::ONE)) {
-        UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
+        NError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
 
@@ -467,14 +461,14 @@ napi_value GetTotalBytesSync(napi_env env, napi_callback_info info)
     std::unique_ptr<char[]> path;
     tie(succ, path, std::ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
     if (!succ) {
-        UniError(EINVAL).ThrowErr(env, "Invalid path");
+        NError(EINVAL).ThrowErr(env, "Invalid path");
         return nullptr;
     }
 
     struct statvfs diskInfo;
     int ret = statvfs(path.get(), &diskInfo);
     if (ret != 0) {
-        UniError(errno).ThrowErr(env);
+        NError(errno).ThrowErr(env);
         return nullptr;
     }
     unsigned long long totalSize = static_cast<unsigned long long>(diskInfo.f_bsize) *
@@ -486,7 +480,7 @@ napi_value GetTotalBytes(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
     if (!funcArg.InitArgs(NARG_CNT::ONE, NARG_CNT::TWO)) {
-        UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
+        NError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
 
@@ -494,23 +488,23 @@ napi_value GetTotalBytes(napi_env env, napi_callback_info info)
     std::unique_ptr<char []> path;
     tie(succ, path, std::ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
     if (!succ) {
-        UniError(EINVAL).ThrowErr(env, "Invalid path");
+        NError(EINVAL).ThrowErr(env, "Invalid path");
         return nullptr;
     }
 
     auto resultSize = std::make_shared<unsigned long long>();
     std::string pathString(path.get());
-    auto cbExec = [pathString, resultSize](napi_env env) -> UniError {
+    auto cbExec = [pathString, resultSize]() -> NError {
         struct statvfs diskInfo;
         int ret = statvfs(pathString.c_str(), &diskInfo);
         if (ret != 0) {
-            return UniError(errno);
+            return NError(errno);
         }
         *resultSize = static_cast<unsigned long long>(diskInfo.f_bsize) *
                       static_cast<unsigned long long>(diskInfo.f_blocks);
-        return UniError(ERRNO_NOERR);
+        return NError(ERRNO_NOERR);
     };
-    auto cbComplete = [resultSize](napi_env env, UniError err) -> NVal {
+    auto cbComplete = [resultSize](napi_env env, NError err) -> NVal {
         if (err) {
             return { env, err.GetNapiErr(env) };
         }

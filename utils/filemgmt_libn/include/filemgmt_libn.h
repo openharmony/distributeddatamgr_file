@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,15 +13,13 @@
  * limitations under the License.
  */
 
-#ifndef STATFS_NAPI_H
-#define STATFS_NAPI_H
+#ifndef FILEMGMT_LIBN_FILEMGMT_LIBN_H
+#define FILEMGMT_LIBN_FILEMGMT_LIBN_H
 
-#include "filemgmt_libn.h"
+#include "n_async_work_callback.h"
+#include "n_async_work_promise.h"
+#include "n_error.h"
+#include "n_exporter.h"
+#include "n_func_arg.h"
 
-namespace OHOS {
-namespace DistributedFS {
-namespace ModuleStatfs {
-} // namespace ModuleStatfs
-} // namespace DistributedFS
-} // namespace OHOS
-#endif // STATFS_NAPI_H
+#endif // FILEMGMT_LIBN_FILEMGMT_LIBN_H

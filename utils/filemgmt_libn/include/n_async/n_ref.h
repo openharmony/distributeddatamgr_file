@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,15 +13,29 @@
  * limitations under the License.
  */
 
-#ifndef STATFS_NAPI_H
-#define STATFS_NAPI_H
+#ifndef FILEMGMT_LIBN_N_REF_H
+#define FILEMGMT_LIBN_N_REF_H
 
-#include "filemgmt_libn.h"
+#include "n_val.h"
 
 namespace OHOS {
-namespace DistributedFS {
-namespace ModuleStatfs {
-} // namespace ModuleStatfs
-} // namespace DistributedFS
+namespace FileManagement {
+namespace LibN {
+class NRef {
+public:
+    NRef();
+    NRef(NVal val);
+    ~NRef();
+
+    explicit operator bool() const;
+    NVal Deref(napi_env env);
+
+private:
+    napi_env env_ = nullptr;
+    napi_ref ref_ = nullptr;
+};
+} // namespace LibN
+} // namespace FileManagement
 } // namespace OHOS
-#endif // STATFS_NAPI_H
+
+#endif // FILEMGMT_LIBN_N_REF_H
