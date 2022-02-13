@@ -18,6 +18,7 @@
 #include <fcntl.h>
 #include <sys/sendfile.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 #include <tuple>
 #include <unistd.h>
 
@@ -161,16 +162,25 @@ napi_value CopyFile::Sync(napi_env env, napi_callback_info info)
             return nullptr;
         }
     }
-    int ret = sendfile(destFileInfo.fdg.GetFD(), srcFileInfo.fdg.GetFD(), nullptr, statbf.st_size);
-    if (ret == -1) {
-        UniError(errno).ThrowErr(env);
-        return nullptr;
-    }
-    ret = ftruncate(destFileInfo.fdg.GetFD(), statbf.st_size);
-    if (ret == -1) {
-        UniError(errno).ThrowErr(env);
-        return nullptr;
-    }
+    int block = 4096;
+    auto copyBuf = make_unique<char[]>(block);
+    do {
+        ssize_t readSize = read(srcFileInfo.fdg.GetFD(), copyBuf.get(), block);
+        if(readSize == -1) {
+            UniError(errno).ThrowErr(env);
+            return nullptr;
+        } else if (readSize == 0) {
+            break;
+        }
+        ssize_t writeSize = write(destFileInfo.fdg.GetFD(), copyBuf.get(), readSize);
+        if(writeSize != readSize) {
+            UniError(errno).ThrowErr(env);
+            return nullptr;
+        }
+        if(readSize != block) {
+            break;
+        }
+    } while(true);
     return NVal::CreateUndefined(env).val_;
 }
 
