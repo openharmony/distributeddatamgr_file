@@ -37,7 +37,7 @@ using namespace std;
 napi_value SetSecurityLabel(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs((int)NARG_CNT::TWO, (int)NARG_CNT::THREE)) {
+    if (!funcArg.InitArgs(static_cast<int>(NARG_CNT::TWO), static_cast<int>(NARG_CNT::THREE)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -45,12 +45,12 @@ napi_value SetSecurityLabel(napi_env env, napi_callback_info info)
     bool succ = false;
     std::unique_ptr<char []> path;
     std::unique_ptr<char []> dataLevel;
-    tie(succ, path, std::ignore) = NVal(env, funcArg[(int)NARG_POS::FIRST]).ToUTF8String();
+    tie(succ, path, std::ignore) = NVal(env, funcArg[static_cast<int>(NARG_POS::FIRST)]).ToUTF8String();
     if (!succ) {
         UniError(EINVAL).ThrowErr(env, "Invalid path");
         return nullptr;
     }
-    tie(succ, dataLevel, std::ignore) = NVal(env, funcArg[(int)NARG_POS::SECOND]).ToUTF8String();
+    tie(succ, dataLevel, std::ignore) = NVal(env, funcArg[static_cast<int>(NARG_POS::SECOND)]).ToUTF8String();
     if (!succ) {
         UniError(EINVAL).ThrowErr(env, "Invalid dataLevel");
         return nullptr;
@@ -72,10 +72,10 @@ napi_value SetSecurityLabel(napi_env env, napi_callback_info info)
 
     std::string procedureName = "SetSecurityLabel";
     NVal thisVar(env, funcArg.GetThisVar());
-    if (funcArg.GetArgc() == (int)NARG_CNT::TWO) {
+    if (funcArg.GetArgc() == static_cast<int>(NARG_CNT::TWO)) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
     } else {
-        NVal cb(env, funcArg[(int)NARG_POS::THIRD]);
+        NVal cb(env, funcArg[static_cast<int>(NARG_POS::THRID)]);
         if (cb.TypeIs(napi_function)) {
             return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
         }
@@ -86,14 +86,14 @@ napi_value SetSecurityLabel(napi_env env, napi_callback_info info)
 napi_value GetSecurityLabel(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs((int)NARG_CNT::ONE, (int)NARG_CNT::TWO)) {
+    if (!funcArg.InitArgs(static_cast<int>(NARG_CNT::ONE), static_cast<int>(NARG_CNT::TWO))) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
 
     bool succ = false;
     std::unique_ptr<char []> path;
-    tie(succ, path, std::ignore) = NVal(env, funcArg[(int)NARG_POS::FIRST]).ToUTF8String();
+    tie(succ, path, std::ignore) = NVal(env, funcArg[static_cast<int>(NARG_POS::FIRST)]).ToUTF8String();
     if (!succ) {
         UniError(EINVAL).ThrowErr(env, "Invalid path");
         return nullptr;
@@ -113,10 +113,10 @@ napi_value GetSecurityLabel(napi_env env, napi_callback_info info)
 
     std::string procedureName = "GetSecurityLabel";
     NVal thisVar(env, funcArg.GetThisVar());
-    if (funcArg.GetArgc() == (int)NARG_CNT::ONE) {
+    if (funcArg.GetArgc() == static_cast<int>(NARG_CNT::ONE)) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
     } else {
-        NVal cb(env, funcArg[(int)NARG_POS::SECOND]);
+        NVal cb(env, funcArg[static_cast<int>(NARG_POS::SECOND)]);
         if (cb.TypeIs(napi_function)) {
             return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
         }

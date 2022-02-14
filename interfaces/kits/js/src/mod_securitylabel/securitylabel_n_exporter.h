@@ -21,7 +21,7 @@
 
 namespace OHOS {
 namespace DistributedFS {
-namespace ModuleSecurityLabel{
+namespace ModuleSecurityLabel {
 napi_value SetSecurityLabel(napi_env env, napi_callback_info info);
 napi_value GetSecurityLabel(napi_env env, napi_callback_info info);
 } // namespace ModuleSecurityLabel

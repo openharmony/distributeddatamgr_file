@@ -20,17 +20,15 @@
 #include <set>
 #include <string>
 
-#include <errno.h>
+#include <cerrno.h>
 #include <sys/xattr.h>
 
 namespace OHOS {
 namespace DistributedFS {
-namespace ModuleSecurityLabel{
-namespace {
-    const char xattr_key[] = {"user.security"};
-    const std::string DEFAULT_DATA_LEVEL = "s3";
-    const std::set<std::string> DATA_LEVEL = {"s0", "s1", "s2", "s3", "s4"};
-}
+namespace ModuleSecurityLabel {
+constexpr char xattr_key[] = {"user.security"};
+const std::string DEFAULT_DATA_LEVEL = "s3";
+const std::set<std::string> DATA_LEVEL = {"s0", "s1", "s2", "s3", "s4"};
 class SecurityLabel {
 public:
     static bool SetSecurityLabel(std::string path, std::string dataLevel)
@@ -47,21 +45,21 @@ public:
     static std::string GetSecurityLabel(std::string path)
     {
         auto xattr_value_size = getxattr(path.c_str(), xattr_key, NULL, 0);
-        if (xattr_value_size == -1 || errno == ENOTSUP){
+        if (xattr_value_size == -1 || errno == ENOTSUP) {
             return "";
         }
-        if (xattr_value_size <= 0){
+        if (xattr_value_size <= 0) {
             return DEFAULT_DATA_LEVEL;
         }
         char *xattr_value = new char[xattr_value_size + 1];
-        if (xattr_value == nullptr){
+        if (xattr_value == nullptr) {
             return "";
         } else {
             xattr_value_size = getxattr(path.c_str(), xattr_key, xattr_value, xattr_value_size);
-            if (xattr_value_size == -1 || errno == ENOTSUP){
+            if (xattr_value_size == -1 || errno == ENOTSUP) {
                 return "";
             }
-            if (xattr_value_size <= 0){
+            if (xattr_value_size <= 0) {
                 return DEFAULT_DATA_LEVEL;
             }
             xattr_value[xattr_value_size] = 0;

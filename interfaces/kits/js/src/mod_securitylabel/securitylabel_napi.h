@@ -21,7 +21,7 @@
 namespace OHOS {
 namespace DistributedFS {
 namespace ModuleSecurityLabel {
-} // namespace ModuleSecurityLabel 
+} // namespace ModuleSecurityLabel
 } // namespace DistributedFS
 } // namespace OHOS
 #endif // SECURITYLABEL_NAPI_H
