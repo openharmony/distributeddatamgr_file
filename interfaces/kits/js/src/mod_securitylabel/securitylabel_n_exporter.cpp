@@ -37,7 +37,7 @@ using namespace std;
 napi_value SetSecurityLabel(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(static_cast<int>(NARG_CNT::TWO), static_cast<int>(NARG_CNT::THREE)) {
+    if (!funcArg.InitArgs(static_cast<int>(NARG_CNT::TWO), static_cast<int>(NARG_CNT::THREE))) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }

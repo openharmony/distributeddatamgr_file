@@ -20,7 +20,7 @@
 #include <set>
 #include <string>
 
-#include <cerrno.h>
+#include <errno.h>
 #include <sys/xattr.h>
 
 namespace OHOS {
