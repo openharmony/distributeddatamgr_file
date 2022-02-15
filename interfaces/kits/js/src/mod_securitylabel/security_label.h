@@ -21,52 +21,55 @@
 #include <string>
 
 #include <cerrno>
+#include <memory>
 #include <sys/xattr.h>
 
 namespace OHOS {
 namespace DistributedFS {
 namespace ModuleSecurityLabel {
-constexpr char xattr_key[] = {"user.security"};
+const char XATTR_KEY[] = {"user.security"};
 const std::string DEFAULT_DATA_LEVEL = "s3";
 const std::set<std::string> DATA_LEVEL = {"s0", "s1", "s2", "s3", "s4"};
 class SecurityLabel {
 public:
-    static bool SetSecurityLabel(std::string path, std::string dataLevel)
+    static bool SetSecurityLabel(const std::string &path, const std::string &dataLevel)
     {
         if (DATA_LEVEL.count(dataLevel) != 1) {
             return false;
         }
-        if (setxattr(path.c_str(), xattr_key, dataLevel.c_str(), dataLevel.size(), 0) < 0) {
+        if (setxattr(path.c_str(), XATTR_KEY, dataLevel.c_str(), dataLevel.size(), 0) < 0) {
             return false;
         }
         return true;
     }
 
-    static std::string GetSecurityLabel(std::string path)
+    static std::string GetSecurityLabel(const std::string &path)
     {
-        auto xattr_value_size = getxattr(path.c_str(), xattr_key, NULL, 0);
-        if (xattr_value_size == -1 || errno == ENOTSUP) {
+        auto xattrValueSize = getxattr(path.c_str(), XATTR_KEY, NULL, 0);
+        if (xattrValueSize == -1 || errno == ENOTSUP) {
             return "";
         }
-        if (xattr_value_size <= 0) {
+        if (xattrValueSize <= 0) {
             return DEFAULT_DATA_LEVEL;
         }
-        char *xattr_value = new char[xattr_value_size + 1];
-        if (xattr_value == nullptr) {
+        char *xattrValue = new char[xattrValueSize + 1];
+        if (xattrValue == nullptr) {
             return "";
-        } else {
-            xattr_value_size = getxattr(path.c_str(), xattr_key, xattr_value, xattr_value_size);
-            if (xattr_value_size == -1 || errno == ENOTSUP) {
-                return "";
-            }
-            if (xattr_value_size <= 0) {
-                return DEFAULT_DATA_LEVEL;
-            }
-            xattr_value[xattr_value_size] = 0;
-            std::string result(xattr_value);
-            delete[] xattr_value;
-            return result;
         }
+
+        xattrValueSize = getxattr(path.c_str(), XATTR_KEY, xattrValue, xattrValueSize);
+        if (xattrValueSize == -1 || errno == ENOTSUP) {
+            delete[] xattrValue;
+            return "";
+        }
+        if (xattrValueSize <= 0) {
+            delete[] xattrValue;
+            return DEFAULT_DATA_LEVEL;
+        }
+        xattrValue[xattrValueSize] = 0;
+        std::string result(xattrValue);
+        delete[] xattrValue;
+        return result;
     }
 };
 } // namespace ModuleSecurityLabel

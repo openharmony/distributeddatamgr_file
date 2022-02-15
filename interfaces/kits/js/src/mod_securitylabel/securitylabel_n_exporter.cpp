@@ -60,7 +60,7 @@ napi_value SetSecurityLabel(napi_env env, napi_callback_info info)
     std::string pathString(path.get());
     std::string dataLevelString(dataLevel.get());
     auto cbExec = [pathString, dataLevelString, result](napi_env env) -> UniError {
-        *result =SecurityLabel::SetSecurityLabel(pathString, dataLevelString);
+        *result = SecurityLabel::SetSecurityLabel(pathString, dataLevelString);
         return UniError(ERRNO_NOERR);
     };
     auto cbComplete = [result](napi_env env, UniError err) -> NVal {
