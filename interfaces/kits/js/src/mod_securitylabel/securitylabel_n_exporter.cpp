@@ -75,7 +75,7 @@ napi_value SetSecurityLabel(napi_env env, napi_callback_info info)
     if (funcArg.GetArgc() == static_cast<int>(NARG_CNT::TWO)) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
     } else {
-        NVal cb(env, funcArg[static_cast<int>(NARG_POS::THRID)]);
+        NVal cb(env, funcArg[static_cast<int>(NARG_POS::THIRD)]);
         if (cb.TypeIs(napi_function)) {
             return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
         }
