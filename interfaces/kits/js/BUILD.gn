@@ -186,9 +186,7 @@ ohos_shared_library("securitylabel") {
 
   relative_install_dir = "module"
 
-  cflags = [
-    "-Wno-format"
-  ]
+  cflags = [ "-Wno-format" ]
 
   include_dirs = [
     "//foundation/ace/napi/interfaces/kits",
@@ -208,15 +206,13 @@ ohos_shared_library("securitylabel") {
   ]
 
   deps = [
+    "//foundation/aafwk/standard/frameworks/kits/ability/native:abilitykit_native",
     "//foundation/ace/napi:ace_napi",
     "//third_party/openssl:libcrypto_static",
     "//utils/native/base:utilsecurec",
-    "//foundation/aafwk/standard/frameworks/kits/ability/native:abilitykit_native",
   ]
 
-  external_deps = [ 
-    "hiviewdfx_hilog_native:libhilog",
-  ]
+  external_deps = [ "hiviewdfx_hilog_native:libhilog" ]
 }
 
 group("build_kits_js") {
@@ -224,7 +220,7 @@ group("build_kits_js") {
     ":environment",
     ":file",
     ":fileio",
-    ":statfs",
     ":securitylabel",
+    ":statfs",
   ]
 }
