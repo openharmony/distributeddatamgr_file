@@ -68,7 +68,7 @@ napi_value SetSecurityLabel(napi_env env, napi_callback_info info)
     };
     auto cbComplete = [](napi_env env, UniError err) -> NVal {
         if (err) {
-            return NVal::CreateUTF8String(env, "SetSecurityLabel fail");
+            return { env, err.GetNapiErr(env) };
         } else {
             return NVal::CreateUndefined(env);
         }
