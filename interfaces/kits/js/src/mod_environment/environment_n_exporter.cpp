@@ -14,6 +14,7 @@
  */
 
 #include "environment_n_exporter.h"
+#include "os_account_manager.h"
 
 #include <string>
 
@@ -63,7 +64,12 @@ napi_value GetStorageDataDir(napi_env env, napi_callback_info info)
 
 int GetUserId()
 {
-    return 0;
+    OHOS::AccountSA::OsAccountInfo osAccountInfo;
+    if(OHOS::AccountSA::OsAccountManager::QueryCurrentOsAccount(osAccountInfo)!=ERRNO_NOERR){
+        return 0;
+    } else {
+        return osAccountInfo.GetLocalId();
+    }
 }
 
 napi_value GetUserDataDir(napi_env env, napi_callback_info info)

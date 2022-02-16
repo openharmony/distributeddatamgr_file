@@ -175,9 +175,15 @@ ohos_shared_library("environment") {
     "src/mod_environment/environment_napi.cpp",
   ]
 
-  deps = [ "//foundation/ace/napi:ace_napi" ]
+  deps = [
+    "//foundation/ace/napi:ace_napi",
+    "//foundation/graphic/standard/frameworks/surface:surface"
+ ]
 
-  external_deps = [ "hiviewdfx_hilog_native:libhilog" ]
+  external_deps = [
+    "hiviewdfx_hilog_native:libhilog",
+    "os_account_standard:os_account_innerkits"
+ ]
 }
 
 ohos_shared_library("securitylabel") {
