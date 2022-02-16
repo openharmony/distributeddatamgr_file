@@ -56,20 +56,23 @@ napi_value SetSecurityLabel(napi_env env, napi_callback_info info)
         return nullptr;
     }
 
-    auto result = std::make_shared<bool>();
     std::string pathString(path.get());
     std::string dataLevelString(dataLevel.get());
-    auto cbExec = [pathString, dataLevelString, result](napi_env env) -> UniError {
-        *result = SecurityLabel::SetSecurityLabel(pathString, dataLevelString);
-        return UniError(ERRNO_NOERR);
+    auto cbExec = [pathString, dataLevelString](napi_env env) -> UniError {
+        bool ret = SecurityLabel::SetSecurityLabel(pathString, dataLevelString);
+        if (!ret) {
+            return UniError(-10);
+        } else {
+            return UniError(ERRNO_NOERR);
+        }
     };
-    auto cbComplete = [result](napi_env env, UniError err) -> NVal {
+    auto cbComplete = [](napi_env env, UniError err) -> NVal {
         if (err) {
             return { env, err.GetNapiErr(env) };
+        } else {
+            return NVal::CreateUndefined(env);
         }
-        return { NVal::CreateBool(env, *result) };
     };
-
     std::string procedureName = "SetSecurityLabel";
     NVal thisVar(env, funcArg.GetThisVar());
     if (funcArg.GetArgc() == static_cast<int>(NARG_CNT::TWO)) {

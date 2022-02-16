@@ -52,24 +52,19 @@ public:
         if (xattrValueSize <= 0) {
             return DEFAULT_DATA_LEVEL;
         }
-        char *xattrValue = new char[xattrValueSize + 1];
+        std::unique_ptr<char[]> xattrValue = std::make_unique<char[]>((long)xattrValueSize + 1);
         if (xattrValue == nullptr) {
             return "";
         }
 
-        xattrValueSize = getxattr(path.c_str(), XATTR_KEY, xattrValue, xattrValueSize);
+        xattrValueSize = getxattr(path.c_str(), XATTR_KEY, xattrValue.get(), xattrValueSize);
         if (xattrValueSize == -1 || errno == ENOTSUP) {
-            delete[] xattrValue;
             return "";
         }
         if (xattrValueSize <= 0) {
-            delete[] xattrValue;
             return DEFAULT_DATA_LEVEL;
         }
-        xattrValue[xattrValueSize] = 0;
-        std::string result(xattrValue);
-        delete[] xattrValue;
-        return result;
+        return std::string(xattrValue.get());
     }
 };
 } // namespace ModuleSecurityLabel
