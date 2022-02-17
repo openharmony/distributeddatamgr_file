@@ -504,7 +504,7 @@ napi_value PropNExporter::Read(napi_env env, napi_callback_info info)
             return { env, err.GetNapiErr(env) };
         }
         NVal obj = NVal::CreateObject(env);
-        obj.AddProp({
+        obj.AddProp( {
             NVal::DeclareNapiProperty("bytesRead", NVal::CreateInt64(env, arg->readed).val_),
             NVal::DeclareNapiProperty("buffer", arg->refReadBuf.Deref(env).val_),
             NVal::DeclareNapiProperty("offset", NVal::CreateInt64(env, arg->offset).val_)
@@ -683,7 +683,7 @@ napi_value PropNExporter::WriteSync(napi_env env, napi_callback_info info)
 
 bool PropNExporter::Export()
 {
-    return exports_.AddProp({
+    return exports_.AddProp( {
         NVal::DeclareNapiFunction("access", Access),
         NVal::DeclareNapiFunction("accessSync", AccessSync),
         NVal::DeclareNapiFunction("chmod", Chmod::Async),
