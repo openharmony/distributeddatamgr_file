@@ -258,7 +258,7 @@ napi_value FileShareExporter::FuzzyFileToUri(napi_env env, napi_callback_info in
 
 bool FileShareExporter::Export()
 {
-    return exports_.AddProp( {
+    return exports_.AddProp({
         NVal::DeclareNapiFunction("fuzzyFileToUri", FuzzyFileToUri),
     });
 }

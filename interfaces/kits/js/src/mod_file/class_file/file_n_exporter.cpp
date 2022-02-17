@@ -1292,7 +1292,7 @@ napi_value FileNExporter::ReadArrayBuffer(napi_env env, napi_callback_info info)
 
 bool FileNExporter::Export()
 {
-    return exports_.AddProp( {
+    return exports_.AddProp({
         NVal::DeclareNapiFunction("mkdir", Mkdir),
         NVal::DeclareNapiFunction("rmdir", Rmdir),
         NVal::DeclareNapiFunction("get", Get),
