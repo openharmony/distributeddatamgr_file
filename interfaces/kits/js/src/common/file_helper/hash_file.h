@@ -16,6 +16,7 @@
 #ifndef HASH_FILE_H
 #define HASH_FILE_H
 
+#include <string>
 #include <tuple>
 
 namespace OHOS {
