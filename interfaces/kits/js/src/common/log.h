@@ -13,7 +13,8 @@
  * limitations under the License.
  */
 
-#pragma once
+#ifndef INTERFACES_KITS_NAPI_COMMON_LOG_H
+#define INTERFACES_KITS_NAPI_COMMON_LOG_H
 
 #include <cstdio>
 #include <string>
@@ -88,3 +89,4 @@ static constexpr OHOS::HiviewDFX::HiLogLabel FILEIO_LABEL = { LOG_CORE, FILEIO_D
 #endif
 } // namespace DistributedFS
 } // namespace OHOS
+#endif

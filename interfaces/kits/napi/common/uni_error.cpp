@@ -51,24 +51,24 @@ int UniError::GetErrno(ErrCodeSystem cs)
     }
 
     // Note that this shall be done properly
-    return ELEGACY_INVAL;
+    return ELegacy::ELEGACY_INVAL;
 }
 
 void UniError::SetErrno(ELegacy eLegacy)
 {
     errno_ = eLegacy;
-    codingSystem_ = ERR_CODE_SYSTEM_LEGACY;
+    codingSystem_ = ErrCodeSystem::ERR_CODE_SYSTEM_LEGACY;
 }
 
 void UniError::SetErrno(int ePosix)
 {
     errno_ = ePosix;
-    codingSystem_ = ERR_CODE_SYSTEM_POSIX;
+    codingSystem_ = ErrCodeSystem::ERR_CODE_SYSTEM_POSIX;
 }
 
 std::string UniError::GetDefaultErrstr()
 {
-    if (codingSystem_ != ERR_CODE_SYSTEM_POSIX && codingSystem_ != ERR_CODE_SYSTEM_LEGACY) {
+    if (codingSystem_ != ERR_CODE_SYSTEM_POSIX && codingSystem_ != ErrCodeSystem::ERR_CODE_SYSTEM_LEGACY) {
         return "BUG: Curious coding system";
     }
     return strerror(GetErrno(ERR_CODE_SYSTEM_POSIX));

@@ -26,7 +26,6 @@
 #include <sys/sendfile.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <unistd.h>
 #include <vector>
 
 #include "../common/ability_helper.h"
@@ -42,7 +41,7 @@ using namespace std;
 namespace OHOS {
 namespace DistributedFS {
 namespace ModuleDSMExpoter {
-enum COMMON_NUM {
+enum class COMMON_NUM {
     ZERO = 0,
     ONE = 1,
     TWO = 2,

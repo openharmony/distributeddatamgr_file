@@ -32,21 +32,21 @@ napi_value Fchmod::Sync(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
 
-    if (!funcArg.InitArgs(NARG_CNT::TWO)) {
+    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::TWO))) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
 
     bool succ = false;
     int fd;
-    tie(succ, fd) = NVal(env, funcArg[NARG_POS::FIRST]).ToInt32();
+    tie(succ, fd) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).ToInt32();
     if (!succ) {
         UniError(EINVAL).ThrowErr(env, "Invalid fd");
         return nullptr;
     }
 
     int mode;
-    tie(succ, mode) = NVal(env, funcArg[NARG_POS::SECOND]).ToInt32();
+    tie(succ, mode) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::SECOND)]).ToInt32();
     if (!succ) {
         UniError(EINVAL).ThrowErr(env, "Invalid mode");
         return nullptr;
@@ -65,7 +65,7 @@ napi_value Fchmod::Sync(napi_env env, napi_callback_info info)
 napi_value Fchmod::Async(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::TWO, NARG_CNT::THREE)) {
+    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::TWO), static_cast<size_t>(NARG_CNT::THREE))) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -73,14 +73,14 @@ napi_value Fchmod::Async(napi_env env, napi_callback_info info)
     int argc = funcArg.GetArgc();
     bool succ = false;
     int fd;
-    tie(succ, fd) = NVal(env, funcArg[NARG_POS::FIRST]).ToInt32();
+    tie(succ, fd) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).ToInt32();
     if (!succ) {
         UniError(EINVAL).ThrowErr(env, "Invalid fd");
         return nullptr;
     }
 
     int mode;
-    tie(succ, mode) = NVal(env, funcArg[NARG_POS::SECOND]).ToInt32();
+    tie(succ, mode) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::SECOND)]).ToInt32();
     if (!succ) {
         UniError(EINVAL).ThrowErr(env, "Invalid owner");
     }
@@ -103,10 +103,10 @@ napi_value Fchmod::Async(napi_env env, napi_callback_info info)
 
     string procedureName = "FileIOFchmod";
     NVal thisVar(env, funcArg.GetThisVar());
-    if (argc == NARG_CNT::TWO) {
+    if (argc == static_cast<int>(NARG_CNT::TWO)) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplCallback).val_;
     } else {
-        NVal cb(env, funcArg[NARG_POS::THIRD]);
+        NVal cb(env, funcArg[static_cast<size_t>(NARG_POS::THIRD)]);
         return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplCallback).val_;
     }
 }

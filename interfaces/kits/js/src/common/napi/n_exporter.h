@@ -13,12 +13,8 @@
  * limitations under the License.
  */
 
-#pragma once
-
-#include "uni_header.h"
-
-#include <functional>
-#include <string>
+#ifndef INTERFACES_KITS_NAPI_COMMON_NAPI_N_EXPORTER_H
+#define INTERFACES_KITS_NAPI_COMMON_NAPI_N_EXPORTER_H
 
 #include "n_val.h"
 
@@ -37,3 +33,4 @@ protected:
 };
 } // namespace DistributedFS
 } // namespace OHOS
+#endif

@@ -32,14 +32,14 @@ static tuple<bool, string, string> GetLinkArg(napi_env env, const NFuncArg &func
 {
     bool succ = false;
     unique_ptr<char[]> src;
-    tie(succ, src, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
+    tie(succ, src, ignore) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).ToUTF8String();
     if (!succ) {
         UniError(EINVAL).ThrowErr(env, "Invalid src");
         return { false, "", "" };
     }
 
     unique_ptr<char[]> dest;
-    tie(succ, dest, ignore) = NVal(env, funcArg[NARG_POS::SECOND]).ToUTF8String();
+    tie(succ, dest, ignore) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::SECOND)]).ToUTF8String();
     if (!succ) {
         UniError(EINVAL).ThrowErr(env, "Invalid dest");
         return { false, "", "" };
@@ -50,7 +50,7 @@ static tuple<bool, string, string> GetLinkArg(napi_env env, const NFuncArg &func
 napi_value Link::Sync(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::TWO)) {
+    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::TWO))) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -73,7 +73,7 @@ napi_value Link::Async(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
 
-    if (!funcArg.InitArgs(NARG_CNT::TWO, NARG_CNT::THREE)) {
+    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::TWO), static_cast<size_t>(NARG_CNT::THREE))) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -105,10 +105,10 @@ napi_value Link::Async(napi_env env, napi_callback_info info)
     string procedureName = "FileIOLink";
     NVal thisVar(env, funcArg.GetThisVar());
     int argc = funcArg.GetArgc();
-    if (argc == NARG_CNT::TWO) {
+    if (argc == static_cast<int>(NARG_CNT::TWO)) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplCallback).val_;
     } else {
-        NVal cb(env, funcArg[NARG_POS::THIRD]);
+        NVal cb(env, funcArg[static_cast<size_t>(NARG_POS::THIRD)]);
         return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplCallback).val_;
     }
 }

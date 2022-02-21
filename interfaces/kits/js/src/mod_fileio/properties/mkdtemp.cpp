@@ -15,10 +15,6 @@
 
 #include "mkdtemp.h"
 
-#include <iostream>
-#include <tuple>
-#include <unistd.h>
-
 #include "../../common/napi/n_async/n_async_work_callback.h"
 #include "../../common/napi/n_async/n_async_work_promise.h"
 #include "../../common/napi/n_func_arg.h"
@@ -29,7 +25,7 @@ using namespace std;
 napi_value Mkdtemp::Sync(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::ONE)) {
+    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::ONE))) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -37,7 +33,7 @@ napi_value Mkdtemp::Sync(napi_env env, napi_callback_info info)
     string path;
     unique_ptr<char[]> tmp;
     bool succ = false;
-    tie(succ, tmp, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
+    tie(succ, tmp, ignore) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).ToUTF8String();
     if (!succ) {
         UniError(EINVAL).ThrowErr(env, "Invalid path");
         return nullptr;
@@ -53,13 +49,13 @@ napi_value Mkdtemp::Sync(napi_env env, napi_callback_info info)
 napi_value Mkdtemp::Async(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::ONE, NARG_CNT::TWO)) {
+    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::ONE), static_cast<size_t>(NARG_CNT::TWO))) {
         UniError(EINVAL).ThrowErr(env, "Number of argments unmatched");
         return nullptr;
     }
     unique_ptr<char[]> tmp;
     bool succ = false;
-    tie(succ, tmp, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
+    tie(succ, tmp, ignore) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).ToUTF8String();
     if (!succ) {
         UniError(EINVAL).ThrowErr(env, "Invalid path");
         return nullptr;
@@ -85,10 +81,10 @@ napi_value Mkdtemp::Async(napi_env env, napi_callback_info info)
     string procedureName = "FileIOmkdtemp";
     int argc = funcArg.GetArgc();
     NVal thisVar(env, funcArg.GetThisVar());
-    if (argc == NARG_CNT::ONE) {
+    if (argc == static_cast<int>(NARG_CNT::ONE)) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
     } else {
-        NVal cb(env, funcArg[NARG_POS::SECOND]);
+        NVal cb(env, funcArg[static_cast<size_t>(NARG_POS::SECOND)]);
         return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
     }
 }

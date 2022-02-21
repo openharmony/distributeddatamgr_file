@@ -42,7 +42,7 @@ napi_value StreamNExporter::ReadSync(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
 
-    if (!funcArg.InitArgs(NARG_CNT::ONE, NARG_CNT::TWO)) {
+    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::ONE), static_cast<size_t>(NARG_CNT::TWO))) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -63,7 +63,7 @@ napi_value StreamNExporter::ReadSync(napi_env env, napi_callback_info info)
     bool hasPos = false;
     int64_t pos;
     tie(succ, buf, len, hasPos, pos, ignore) =
-        CommonFunc::GetReadArg(env, funcArg[NARG_POS::FIRST], funcArg[NARG_POS::SECOND]);
+        CommonFunc::GetReadArg(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)], funcArg[static_cast<size_t>(NARG_POS::SECOND)]);
     if (!succ) {
         return nullptr;
     }
@@ -85,7 +85,7 @@ napi_value StreamNExporter::CloseSync(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
 
-    if (!funcArg.InitArgs(NARG_CNT::ZERO)) {
+    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::ZERO))) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -102,7 +102,7 @@ napi_value StreamNExporter::CloseSync(napi_env env, napi_callback_info info)
 napi_value StreamNExporter::WriteSync(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::ONE, NARG_CNT::TWO)) {
+    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::ONE), static_cast<size_t>(NARG_CNT::TWO))) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -123,7 +123,7 @@ napi_value StreamNExporter::WriteSync(napi_env env, napi_callback_info info)
     unique_ptr<char[]> bufGuard;
     bool hasPos = false;
     tie(succ, bufGuard, buf, len, hasPos, position) =
-        CommonFunc::GetWriteArg(env, funcArg[NARG_POS::FIRST], funcArg[NARG_POS::SECOND]);
+        CommonFunc::GetWriteArg(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)], funcArg[static_cast<size_t>(NARG_POS::SECOND)]);
     if (!succ) {
         return nullptr;
     }
@@ -153,7 +153,7 @@ struct AsyncWrtieArg {
 napi_value StreamNExporter::Write(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::ONE, NARG_CNT::THREE)) {
+    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::ONE), static_cast<size_t>(NARG_CNT::THREE))) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -172,7 +172,7 @@ napi_value StreamNExporter::Write(napi_env env, napi_callback_info info)
     void *buf = nullptr;
     size_t len;
     tie(succ, bufGuard, buf, len, ignore, ignore) =
-        CommonFunc::GetWriteArg(env, funcArg[NARG_POS::FIRST], funcArg[NARG_POS::SECOND]);
+        CommonFunc::GetWriteArg(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)], funcArg[static_cast<size_t>(NARG_POS::SECOND)]);
     if (!succ) {
         return nullptr;
     }
@@ -181,7 +181,7 @@ napi_value StreamNExporter::Write(napi_env env, napi_callback_info info)
     if (bufGuard) {
         arg = make_shared<AsyncWrtieArg>(move(bufGuard));
     } else {
-        arg = make_shared<AsyncWrtieArg>(NVal(env, funcArg[NARG_POS::FIRST]));
+        arg = make_shared<AsyncWrtieArg>(NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]));
     }
 
     auto cbExec = [arg, buf, len, filp](napi_env env) -> UniError {
@@ -201,10 +201,10 @@ napi_value StreamNExporter::Write(napi_env env, napi_callback_info info)
     };
 
     NVal thisVar(env, funcArg.GetThisVar());
-    if (funcArg.GetArgc() != NARG_CNT::THREE) {
+    if (funcArg.GetArgc() != static_cast<size_t>(NARG_CNT::THREE)) {
         return NAsyncWorkPromise(env, thisVar).Schedule("FileIOStreamWrite", cbExec, cbCompl).val_;
     } else {
-        NVal cb(env, funcArg[NARG_POS::THIRD]);
+        NVal cb(env, funcArg[static_cast<size_t>(NARG_POS::THIRD)]);
         return NAsyncWorkCallback(env, thisVar, cb).Schedule("FileIOStreamWrite", cbExec, cbCompl).val_;
     }
 
@@ -222,7 +222,7 @@ struct AsyncReadArg {
 napi_value StreamNExporter::Read(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::ONE, NARG_CNT::THREE)) {
+    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::ONE), static_cast<size_t>(NARG_CNT::THREE))) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -243,12 +243,12 @@ napi_value StreamNExporter::Read(napi_env env, napi_callback_info info)
     bool hasPosition = false;
     size_t position;
     tie(succ, buf, len, hasPosition, position, ignore) =
-        CommonFunc::GetReadArg(env, funcArg[NARG_POS::FIRST], funcArg[NARG_POS::SECOND]);
+        CommonFunc::GetReadArg(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)], funcArg[static_cast<size_t>(NARG_POS::SECOND)]);
     if (!succ) {
         return nullptr;
     }
 
-    auto arg = make_shared<AsyncReadArg>(NVal(env, funcArg[NARG_POS::FIRST]));
+    auto arg = make_shared<AsyncReadArg>(NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]));
     auto cbExec = [arg, buf, len, filp](napi_env env) -> UniError {
         size_t actLen = fread(buf, 1, len, filp);
         if (actLen != static_cast<size_t>(len) && ferror(filp)) {
@@ -272,10 +272,10 @@ napi_value StreamNExporter::Read(napi_env env, napi_callback_info info)
     };
 
     NVal thisVar(env, funcArg.GetThisVar());
-    if (funcArg.GetArgc() != NARG_CNT::THREE) {
+    if (funcArg.GetArgc() != static_cast<size_t>(NARG_CNT::THREE)) {
         return NAsyncWorkPromise(env, thisVar).Schedule("FileIOStreamRead", cbExec, cbCompl).val_;
     } else {
-        NVal cb(env, funcArg[NARG_POS::THIRD]);
+        NVal cb(env, funcArg[static_cast<size_t>(NARG_POS::THIRD)]);
         return NAsyncWorkCallback(env, thisVar, cb).Schedule("FileIOStreamRead", cbExec, cbCompl).val_;
     }
 
@@ -285,7 +285,7 @@ napi_value StreamNExporter::Read(napi_env env, napi_callback_info info)
 napi_value StreamNExporter::Close(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::ZERO, NARG_CNT::ONE)) {
+    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::ZERO), static_cast<size_t>(NARG_CNT::ONE))) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -315,10 +315,10 @@ napi_value StreamNExporter::Close(napi_env env, napi_callback_info info)
 
     string procedureName = "FileIOStreamClose";
     NVal thisVar(env, funcArg.GetThisVar());
-    if (funcArg.GetArgc() == NARG_CNT::ZERO) {
+    if (funcArg.GetArgc() == static_cast<size_t>(NARG_CNT::ZERO)) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbCompl).val_;
     } else {
-        NVal cb(env, funcArg[NARG_POS::FIRST]);
+        NVal cb(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]);
         return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbCompl).val_;
     }
 
@@ -329,7 +329,7 @@ napi_value StreamNExporter::Constructor(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
 
-    if (!funcArg.InitArgs(NARG_CNT::ZERO)) {
+    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::ZERO))) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }

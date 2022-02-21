@@ -30,27 +30,27 @@ using namespace std;
 napi_value Fchown::Sync(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::THREE)) {
+    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::THREE))) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
 
     bool succ = false;
     int fd;
-    tie(succ, fd) = NVal(env, funcArg[NARG_POS::FIRST]).ToInt32();
+    tie(succ, fd) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).ToInt32();
     if (!succ) {
         UniError(EINVAL).ThrowErr(env, "Invalid fd");
         return nullptr;
     }
 
     int owner;
-    tie(succ, owner) = NVal(env, funcArg[NARG_POS::SECOND]).ToInt32();
+    tie(succ, owner) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::SECOND)]).ToInt32();
     if (!succ) {
         UniError(EINVAL).ThrowErr(env, "Invalid owner");
     }
 
     int group;
-    tie(succ, group) = NVal(env, funcArg[NARG_POS::THIRD]).ToInt32();
+    tie(succ, group) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::THIRD)]).ToInt32();
     if (!succ) {
         UniError(EINVAL).ThrowErr(env, "Invalid group");
     }
@@ -67,7 +67,7 @@ napi_value Fchown::Sync(napi_env env, napi_callback_info info)
 napi_value Fchown::Async(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::THREE, NARG_CNT::FOUR)) {
+    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::THREE), static_cast<size_t>(NARG_CNT::FOUR))) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -75,20 +75,20 @@ napi_value Fchown::Async(napi_env env, napi_callback_info info)
     int argc = funcArg.GetArgc();
     bool succ = false;
     int fd;
-    tie(succ, fd) = NVal(env, funcArg[NARG_POS::FIRST]).ToInt32();
+    tie(succ, fd) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).ToInt32();
     if (!succ) {
         UniError(EINVAL).ThrowErr(env, "Invalid fd");
         return nullptr;
     }
 
     int owner;
-    tie(succ, owner) = NVal(env, funcArg[NARG_POS::SECOND]).ToInt32();
+    tie(succ, owner) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::SECOND)]).ToInt32();
     if (!succ) {
         UniError(EINVAL).ThrowErr(env, "Invalid owner");
     }
 
     int group;
-    tie(succ, group) = NVal(env, funcArg[NARG_POS::THIRD]).ToInt32();
+    tie(succ, group) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::THIRD)]).ToInt32();
     if (!succ) {
         UniError(EINVAL).ThrowErr(env, "Invalid group");
     }
@@ -111,10 +111,10 @@ napi_value Fchown::Async(napi_env env, napi_callback_info info)
 
     string procedureName = "FileIOFchown";
     NVal thisVar(env, funcArg.GetThisVar());
-    if (argc == NARG_CNT::THREE) {
+    if (argc == static_cast<int>(NARG_CNT::THREE)) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplCallback).val_;
     } else {
-        NVal cb(env, funcArg[NARG_POS::FOURTH]);
+        NVal cb(env, funcArg[static_cast<size_t>(NARG_POS::FOURTH)]);
         return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplCallback).val_;
     }
 }

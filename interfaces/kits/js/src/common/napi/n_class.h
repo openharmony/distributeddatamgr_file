@@ -13,15 +13,13 @@
  * limitations under the License.
  */
 
-#pragma once
+#ifndef INTERFACES_KITS_NAPI_COMMON_NAPI_N_CLASS_H
+#define INTERFACES_KITS_NAPI_COMMON_NAPI_N_CLASS_H
 
 #include "uni_header.h"
 
 #include <map>
-#include <memory>
-#include <mutex>
 #include <string>
-#include <tuple>
 #include <vector>
 
 #include "../log.h"
@@ -80,3 +78,4 @@ private:
 };
 } // namespace DistributedFS
 } // namespace OHOS
+#endif

@@ -30,21 +30,21 @@ napi_value Chmod::Sync(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
 
-    if (!funcArg.InitArgs(NARG_CNT::TWO)) {
+    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::TWO))) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
 
     bool succ = false;
     unique_ptr<char[]> path;
-    tie(succ, path, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
+    tie(succ, path, ignore) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).ToUTF8String();
     if (!succ) {
         UniError(EINVAL).ThrowErr(env, "Invalid path");
         return nullptr;
     }
 
     int mode;
-    tie(succ, mode) = NVal(env, funcArg[NARG_POS::SECOND]).ToInt32();
+    tie(succ, mode) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::SECOND)]).ToInt32();
     if (!succ) {
         UniError(EINVAL).ThrowErr(env, "Invalid mode");
         return nullptr;
@@ -61,7 +61,7 @@ napi_value Chmod::Async(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
 
-    if (!funcArg.InitArgs(NARG_CNT::TWO, NARG_CNT::THREE)) {
+    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::TWO), static_cast<size_t>(NARG_CNT::THREE))) {
         UniError(EINVAL).ThrowErr(env, "Number of argments unmatched");
         return nullptr;
     }
@@ -69,7 +69,7 @@ napi_value Chmod::Async(napi_env env, napi_callback_info info)
     string path;
     unique_ptr<char[]> tmp;
     bool succ = false;
-    tie(succ, tmp, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
+    tie(succ, tmp, ignore) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).ToUTF8String();
     if (!succ) {
         UniError(EINVAL).ThrowErr(env, "Invalid path");
         return nullptr;
@@ -78,7 +78,7 @@ napi_value Chmod::Async(napi_env env, napi_callback_info info)
     path = tmp.get();
     int mode;
     int argc = funcArg.GetArgc();
-    tie(succ, mode) = NVal(env, funcArg[NARG_POS::SECOND]).ToInt32();
+    tie(succ, mode) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::SECOND)]).ToInt32();
     if (!succ) {
         UniError(EINVAL).ThrowErr(env, "Invalid mode");
     }
@@ -99,10 +99,10 @@ napi_value Chmod::Async(napi_env env, napi_callback_info info)
     NVal thisVar(env, funcArg.GetThisVar());
 
     string procedureName = "FileIOChmod";
-    if (argc == NARG_CNT::TWO) {
+    if (argc == static_cast<int>(NARG_CNT::TWO)) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
     } else {
-        NVal cb(env, funcArg[NARG_POS::THIRD]);
+        NVal cb(env, funcArg[static_cast<size_t>(NARG_POS::THIRD)]);
         return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
     }
     return nullptr;

@@ -15,14 +15,12 @@
 
 #pragma once
 
-#include "ability.h"
-
 #include "../../common/napi/n_exporter.h"
 
 namespace OHOS {
 namespace DistributedFS {
 namespace ModuleFile {
-enum COMMON_NUM {
+enum class COMMON_NUM {
     ZERO = 0,
     ONE = 1,
     TWO = 2,

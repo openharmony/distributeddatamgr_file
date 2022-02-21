@@ -38,14 +38,15 @@ static tuple<bool, int, bool> GetCopyFileModeAndProm(napi_env env, const NFuncAr
     bool promise = false;
     bool hasMode = false;
     int mode = 0;
-    if (funcArg.GetArgc() == NARG_CNT::THREE && NVal(env, funcArg[NARG_POS::THIRD]).TypeIs(napi_number)) {
+    if (funcArg.GetArgc() == static_cast<size_t>(NARG_CNT::THREE) &&
+                             NVal(env, funcArg[static_cast<size_t>(NARG_POS::THIRD)]).TypeIs(napi_number)) {
         promise = true;
         hasMode = true;
-    } else if (funcArg.GetArgc() == NARG_CNT::FOUR) {
+    } else if (funcArg.GetArgc() == static_cast<size_t>(NARG_CNT::FOUR)) {
         hasMode = true;
     }
     if (hasMode) {
-        tie(succ, mode) = NVal(env, funcArg[NARG_POS::THIRD]).ToInt32();
+        tie(succ, mode) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::THIRD)]).ToInt32();
         if (!succ) {
             return { false, mode, promise };
         }
@@ -101,22 +102,22 @@ static UniError HandleCopyFile(FileInfo srcFileInfo, FileInfo destFileInfo,
 static bool GetCopyFileInfo(napi_env env, const NFuncArg &funcArg, FileInfo &srcFileInfo, FileInfo &destFileInfo)
 {
     bool succ = false;
-    if (NVal(env, funcArg[NARG_POS::FIRST]).TypeIs(napi_string)) {
-        tie(succ, srcFileInfo.path, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
+    if (NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).TypeIs(napi_string)) {
+        tie(succ, srcFileInfo.path, ignore) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).ToUTF8String();
         srcFileInfo.isPath = true;
     } else {
         srcFileInfo.fdg.SetFD(-1, false);
-        tie(succ, srcFileInfo.fdg) = NVal(env, funcArg[NARG_POS::FIRST]).ToInt32();
+        tie(succ, srcFileInfo.fdg) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).ToInt32();
     }
     if (!succ) {
         return succ;
     }
-    if (NVal(env, funcArg[NARG_POS::SECOND]).TypeIs(napi_string)) {
-        tie(succ, destFileInfo.path, ignore) = NVal(env, funcArg[NARG_POS::SECOND]).ToUTF8String();
+    if (NVal(env, funcArg[static_cast<size_t>(NARG_POS::SECOND)]).TypeIs(napi_string)) {
+        tie(succ, destFileInfo.path, ignore) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::SECOND)]).ToUTF8String();
         destFileInfo.isPath = true;
     } else {
         destFileInfo.fdg.SetFD(-1, false);
-        tie(succ, destFileInfo.fdg) = NVal(env, funcArg[NARG_POS::SECOND]).ToInt32();
+        tie(succ, destFileInfo.fdg) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::SECOND)]).ToInt32();
     }
     return succ;
 }
@@ -124,7 +125,7 @@ static bool GetCopyFileInfo(napi_env env, const NFuncArg &funcArg, FileInfo &src
 napi_value CopyFile::Sync(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::TWO, NARG_CNT::THREE)) {
+    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::TWO), static_cast<size_t>(NARG_CNT::THREE))) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -187,7 +188,7 @@ napi_value CopyFile::Sync(napi_env env, napi_callback_info info)
 napi_value CopyFile::Async(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::TWO, NARG_CNT::FOUR)) {
+    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::TWO), static_cast<size_t>(NARG_CNT::FOUR))) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -217,10 +218,10 @@ napi_value CopyFile::Async(napi_env env, napi_callback_info info)
     };
     string procedureName = "FileIOCopyFile";
     NVal thisVar(env, funcArg.GetThisVar());
-    if (funcArg.GetArgc() == NARG_CNT::TWO || promise) {
+    if (funcArg.GetArgc() == static_cast<size_t>(NARG_CNT::TWO) || promise) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbCompl).val_;
     } else {
-        NVal cb(env, funcArg[((funcArg.GetArgc() == NARG_CNT::THREE) ? NARG_POS::THIRD : NARG_POS::FOURTH)]);
+        NVal cb(env, funcArg[((funcArg.GetArgc() == static_cast<size_t>(NARG_CNT::THREE)) ? static_cast<size_t>(NARG_POS::THIRD) : static_cast<size_t>(NARG_POS::FOURTH))]);
         return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbCompl).val_;
     }
 }

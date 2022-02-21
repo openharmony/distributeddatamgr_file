@@ -53,21 +53,21 @@ void Watcher::RunCommand(uv_fs_event_t *handle, const char *filename, int events
 napi_value Watcher::CreateWatcher(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::THREE)) {
+    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::THREE))) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
 
     bool succGetPath = false;
     unique_ptr<char[]> filename;
-    tie(succGetPath, filename, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
+    tie(succGetPath, filename, ignore) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).ToUTF8String();
     if (!succGetPath) {
         UniError(EINVAL).ThrowErr(env, "Invalid filename");
         return nullptr;
     }
     bool succGetEvent = false;
     int event;
-    tie(succGetEvent, event) = NVal(env, funcArg[NARG_POS::SECOND]).ToInt32();
+    tie(succGetEvent, event) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::SECOND)]).ToInt32();
     if (!succGetEvent) {
         UniError(EINVAL).ThrowErr(env, "Invalid event");
         return nullptr;
@@ -76,7 +76,7 @@ napi_value Watcher::CreateWatcher(napi_env env, napi_callback_info info)
     unique_ptr<WatcherInforArg> data = make_unique<WatcherInforArg>();
     data->events = event;
     data->env = env;
-    NVal val = NVal(env, funcArg[NARG_POS::THIRD]);
+    NVal val = NVal(env, funcArg[static_cast<size_t>(NARG_POS::THIRD)]);
     napi_create_reference(val.env_, val.val_, 1, &(data->ref));
     uv_loop_s *loop = nullptr;
     napi_get_uv_event_loop(env, &loop);

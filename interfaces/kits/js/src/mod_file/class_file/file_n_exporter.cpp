@@ -18,7 +18,6 @@
 #include <cerrno>
 #include <climits>
 #include <cstdio>
-#include <cstdlib>
 #include <cstring>
 #include <dirent.h>
 #include <fcntl.h>
@@ -29,8 +28,6 @@
 #include <stack>
 #include <sys/sendfile.h>
 #include <sys/stat.h>
-#include <sys/types.h>
-#include <unistd.h>
 #include <vector>
 
 #include "../../common/ability_helper.h"
@@ -83,7 +80,7 @@ void CallBackError(napi_env env, napi_ref failFuncRef, string errorProp, int err
     if (failFunc == nullptr) {
         return;
     }
-    napi_call_function(env, global, failFunc, COMMON_NUM::TWO, argvFail, &results);
+    napi_call_function(env, global, failFunc, static_cast<size_t>(COMMON_NUM::TWO), argvFail, &results);
 }
 
 void CallComplete(napi_env env, napi_ref completeFuncRef)
@@ -96,7 +93,7 @@ void CallComplete(napi_env env, napi_ref completeFuncRef)
     if (completeFunc == nullptr) {
         return;
     }
-    napi_call_function(env, global, completeFunc, COMMON_NUM::ZERO, nullptr, &results);
+    napi_call_function(env, global, completeFunc, static_cast<size_t>(COMMON_NUM::ZERO), nullptr, &results);
 }
 
 bool CheckUri(napi_env env, string &path)
@@ -276,14 +273,14 @@ void MkdirComp(napi_env env, napi_status status, void *data)
     auto *asyncCallbackInfo = (AsyncMkdirCallbackInfo *)data;
 
     if (asyncCallbackInfo->result == SUCCESS) {
-        CallBackSuccess(env, asyncCallbackInfo->callback[COMMON_NUM::ZERO], COMMON_NUM::ZERO, nullptr);
+        CallBackSuccess(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ZERO)], static_cast<int32_t>(COMMON_NUM::ZERO), nullptr);
     } else if (asyncCallbackInfo->result == FAILED) {
-        CallBackError(env, asyncCallbackInfo->callback[COMMON_NUM::ONE], "make directory failed", FILE_IO_ERROR);
+        CallBackError(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ONE)], "make directory failed", FILE_IO_ERROR);
     }
-    CallComplete(env, asyncCallbackInfo->callback[COMMON_NUM::TWO]);
-    napi_delete_reference(env, asyncCallbackInfo->callback[COMMON_NUM::ZERO]);
-    napi_delete_reference(env, asyncCallbackInfo->callback[COMMON_NUM::ONE]);
-    napi_delete_reference(env, asyncCallbackInfo->callback[COMMON_NUM::TWO]);
+    CallComplete(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::TWO)]);
+    napi_delete_reference(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ZERO)]);
+    napi_delete_reference(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ONE)]);
+    napi_delete_reference(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::TWO)]);
     napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
     delete asyncCallbackInfo;
 }
@@ -295,7 +292,7 @@ void RmdirExec(napi_env env, void *data)
     asyncCallbackInfo->result = FAILED;
     asyncCallbackInfo->errorType = FILE_IO_ERROR;
     int statPath = GetRealPath(path);
-    if (statPath == COMMON_NUM::ZERO) {
+    if (statPath == static_cast<int>(COMMON_NUM::ZERO)) {
         if (asyncCallbackInfo->recursive && Rmdirs(path)) {
             asyncCallbackInfo->result = SUCCESS;
         } else if (remove((char *)path.c_str()) != FAILED) {
@@ -310,16 +307,16 @@ void RmdirComp(napi_env env, napi_status status, void *data)
 {
     auto *asyncCallbackInfo = (AsyncRmdirCallbackInfo *)data;
     if (asyncCallbackInfo->result == SUCCESS) {
-        CallBackSuccess(env, asyncCallbackInfo->callback[COMMON_NUM::ZERO], COMMON_NUM::ZERO, nullptr);
+        CallBackSuccess(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ZERO)], static_cast<int32_t>(COMMON_NUM::ZERO), nullptr);
     } else if (asyncCallbackInfo->errorType == FILE_IO_ERROR) {
-        CallBackError(env, asyncCallbackInfo->callback[COMMON_NUM::ONE], "remove directory failed", FILE_IO_ERROR);
+        CallBackError(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ONE)], "remove directory failed", FILE_IO_ERROR);
     } else if (asyncCallbackInfo->errorType == FILE_PATH_ERROR) {
-        CallBackError(env, asyncCallbackInfo->callback[COMMON_NUM::ONE], "file not exist", FILE_PATH_ERROR);
+        CallBackError(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ONE)], "file not exist", FILE_PATH_ERROR);
     }
-    CallComplete(env, asyncCallbackInfo->callback[COMMON_NUM::TWO]);
-    napi_delete_reference(env, asyncCallbackInfo->callback[COMMON_NUM::ZERO]);
-    napi_delete_reference(env, asyncCallbackInfo->callback[COMMON_NUM::ONE]);
-    napi_delete_reference(env, asyncCallbackInfo->callback[COMMON_NUM::TWO]);
+    CallComplete(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::TWO)]);
+    napi_delete_reference(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ZERO)]);
+    napi_delete_reference(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ONE)]);
+    napi_delete_reference(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::TWO)]);
     napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
     delete asyncCallbackInfo;
 }
@@ -332,10 +329,10 @@ void GetExec(napi_env env, void *data)
     asyncCallbackInfo->errorType = FILE_IO_ERROR;
     struct stat buf;
     int statPath = GetRealPath(path);
-    if (statPath == COMMON_NUM::ZERO && stat((char *)path.c_str(), &buf) == COMMON_NUM::ZERO) {
+    if (statPath == static_cast<int>(COMMON_NUM::ZERO) && stat((char *)path.c_str(), &buf) == static_cast<int>(COMMON_NUM::ZERO)) {
         asyncCallbackInfo->length = buf.st_size;
-        asyncCallbackInfo->lastMT = buf.st_mtime * COMMON_NUM::THOUSAND +
-            (int64_t)((buf.st_mtim).tv_nsec / COMMON_NUM::MILLION);
+        asyncCallbackInfo->lastMT = buf.st_mtime * static_cast<int64_t>(COMMON_NUM::THOUSAND) +
+            (int64_t)((buf.st_mtim).tv_nsec / static_cast<int64_t>(COMMON_NUM::MILLION));
         asyncCallbackInfo->url = path;
         std::vector<string> subFiles;
         bool rec = asyncCallbackInfo->recursive;
@@ -374,16 +371,16 @@ void GetComp(napi_env env, napi_status status, void *data)
         objn.AddProp("type", NVal::CreateUTF8String(env, asyncCallbackInfo->type).val_);
         objn.AddProp("subFiles", subFilesNapi);
 
-        CallBackSuccess(env, asyncCallbackInfo->callback[COMMON_NUM::ZERO], COMMON_NUM::ONE, objn.val_);
+        CallBackSuccess(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ZERO)], static_cast<int32_t>(COMMON_NUM::ONE), objn.val_);
     } else if (asyncCallbackInfo->errorType == FILE_PATH_ERROR) {
-        CallBackError(env, asyncCallbackInfo->callback[COMMON_NUM::ONE], "file not exist", FILE_PATH_ERROR);
+        CallBackError(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ONE)], "file not exist", FILE_PATH_ERROR);
     } else if (asyncCallbackInfo->errorType == FILE_IO_ERROR) {
-        CallBackError(env, asyncCallbackInfo->callback[COMMON_NUM::ONE], "get file failed", FILE_IO_ERROR);
+        CallBackError(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ONE)], "get file failed", FILE_IO_ERROR);
     }
-    CallComplete(env, asyncCallbackInfo->callback[COMMON_NUM::TWO]);
-    napi_delete_reference(env, asyncCallbackInfo->callback[COMMON_NUM::ZERO]);
-    napi_delete_reference(env, asyncCallbackInfo->callback[COMMON_NUM::ONE]);
-    napi_delete_reference(env, asyncCallbackInfo->callback[COMMON_NUM::TWO]);
+    CallComplete(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::TWO)]);
+    napi_delete_reference(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ZERO)]);
+    napi_delete_reference(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ONE)]);
+    napi_delete_reference(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::TWO)]);
     napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
     delete asyncCallbackInfo;
 }
@@ -398,7 +395,7 @@ void ListExec(napi_env env, void *data)
     int statPath = GetRealPath(path);
     if (statPath == ENOENT) {
         asyncCallbackInfo->errorType = FILE_PATH_ERROR;
-    } else if (statPath != COMMON_NUM::ZERO || stat((char *)path.c_str(), &buf) != COMMON_NUM::ZERO) {
+    } else if (statPath != static_cast<int>(COMMON_NUM::ZERO) || stat((char *)path.c_str(), &buf) != static_cast<int>(COMMON_NUM::ZERO)) {
         asyncCallbackInfo->errorType = FILE_IO_ERROR;
     } else if ((buf.st_mode & S_IFMT) == S_IFREG) {
         asyncCallbackInfo->result = SUCCESS;
@@ -419,8 +416,8 @@ void ListExec(napi_env env, void *data)
                     fi.type = TYPE_FILE;
                 }
                 fi.length = tmp.st_size;
-                fi.lastModifiedTime = tmp.st_mtime * COMMON_NUM::THOUSAND +
-                    (int64_t)((tmp.st_mtim).tv_nsec / COMMON_NUM::MILLION);
+                fi.lastModifiedTime = tmp.st_mtime * static_cast<int64_t>(COMMON_NUM::THOUSAND) +
+                    (int64_t)((tmp.st_mtim).tv_nsec / static_cast<int64_t>(COMMON_NUM::MILLION));
                 fi.uri = ph;
                 fileList.push_back(fi);
             }
@@ -450,16 +447,16 @@ void ListComp(napi_env env, napi_status status, void *data)
         }
         NVal objn = NVal::CreateObject(env);
         objn.AddProp("fileList", fileListNapi);
-        CallBackSuccess(env, asyncCallbackInfo->callback[COMMON_NUM::ZERO], COMMON_NUM::ONE, objn.val_);
+        CallBackSuccess(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ZERO)], static_cast<int32_t>(COMMON_NUM::ONE), objn.val_);
     } else if (asyncCallbackInfo->errorType == FILE_PATH_ERROR) {
-        CallBackError(env, asyncCallbackInfo->callback[COMMON_NUM::ONE], "file not exist", FILE_PATH_ERROR);
+        CallBackError(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ONE)], "file not exist", FILE_PATH_ERROR);
     } else if (asyncCallbackInfo->errorType == FILE_IO_ERROR) {
-        CallBackError(env, asyncCallbackInfo->callback[COMMON_NUM::ONE], "list file failed", FILE_IO_ERROR);
+        CallBackError(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ONE)], "list file failed", FILE_IO_ERROR);
     }
-    CallComplete(env, asyncCallbackInfo->callback[COMMON_NUM::TWO]);
-    napi_delete_reference(env, asyncCallbackInfo->callback[COMMON_NUM::ZERO]);
-    napi_delete_reference(env, asyncCallbackInfo->callback[COMMON_NUM::ONE]);
-    napi_delete_reference(env, asyncCallbackInfo->callback[COMMON_NUM::TWO]);
+    CallComplete(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::TWO)]);
+    napi_delete_reference(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ZERO)]);
+    napi_delete_reference(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ONE)]);
+    napi_delete_reference(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::TWO)]);
     napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
     delete asyncCallbackInfo;
 }
@@ -473,7 +470,7 @@ void CopyExec(napi_env env, void *data)
     asyncCallbackInfo->errorType = FILE_IO_ERROR;
     int statPath = GetRealPath(path);
     int statDst = GetRealPath(pathDst);
-    if (statPath == COMMON_NUM::ZERO && statDst == ENOENT) {
+    if (statPath == static_cast<int>(COMMON_NUM::ZERO) && statDst == ENOENT) {
         pathDst = UriToAbsolute(pathDst);
         struct stat statbf;
         FDGuard sfd;
@@ -497,17 +494,17 @@ void CopyComp(napi_env env, napi_status status, void *data)
 {
     auto *asyncCallbackInfo = (AsyncCopyCallbackInfo *)data;
     if (asyncCallbackInfo->result == SUCCESS) {
-        CallBackSuccess(env, asyncCallbackInfo->callback[COMMON_NUM::ZERO], COMMON_NUM::ONE,
+        CallBackSuccess(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ZERO)], static_cast<int32_t>(COMMON_NUM::ONE),
                         NVal::CreateUTF8String(env, asyncCallbackInfo->originDst).val_);
     } else if (asyncCallbackInfo->errorType == FILE_IO_ERROR) {
-        CallBackError(env, asyncCallbackInfo->callback[COMMON_NUM::ONE], "copy file failed", FILE_IO_ERROR);
+        CallBackError(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ONE)], "copy file failed", FILE_IO_ERROR);
     } else if (asyncCallbackInfo->errorType == FILE_PATH_ERROR) {
-        CallBackError(env, asyncCallbackInfo->callback[COMMON_NUM::ONE], "file not exist", FILE_PATH_ERROR);
+        CallBackError(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ONE)], "file not exist", FILE_PATH_ERROR);
     }
-    CallComplete(env, asyncCallbackInfo->callback[COMMON_NUM::TWO]);
-    napi_delete_reference(env, asyncCallbackInfo->callback[COMMON_NUM::ZERO]);
-    napi_delete_reference(env, asyncCallbackInfo->callback[COMMON_NUM::ONE]);
-    napi_delete_reference(env, asyncCallbackInfo->callback[COMMON_NUM::TWO]);
+    CallComplete(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::TWO)]);
+    napi_delete_reference(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ZERO)]);
+    napi_delete_reference(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ONE)]);
+    napi_delete_reference(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::TWO)]);
     napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
     delete asyncCallbackInfo;
 }
@@ -521,7 +518,7 @@ void MoveExec(napi_env env, void *data)
     asyncCallbackInfo->errorType = FILE_IO_ERROR;
     int statPath = GetRealPath(path);
     int statDst = GetRealPath(pathDst);
-    if (statPath == COMMON_NUM::ZERO && statDst == ENOENT) {
+    if (statPath == static_cast<int>(COMMON_NUM::ZERO) && statDst == ENOENT) {
         pathDst = UriToAbsolute(pathDst);
         struct stat statbf;
         FDGuard sfd;
@@ -547,17 +544,17 @@ void MoveComp(napi_env env, napi_status status, void *data)
 {
     auto *asyncCallbackInfo = (AsyncMoveCallbackInfo *)data;
     if (asyncCallbackInfo->result == SUCCESS) {
-        CallBackSuccess(env, asyncCallbackInfo->callback[COMMON_NUM::ZERO], COMMON_NUM::ONE,
+        CallBackSuccess(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ZERO)], static_cast<int32_t>(COMMON_NUM::ONE),
                         NVal::CreateUTF8String(env, asyncCallbackInfo->originDst).val_);
     } else if (asyncCallbackInfo->errorType == FILE_IO_ERROR) {
-        CallBackError(env, asyncCallbackInfo->callback[COMMON_NUM::ONE], "move file failed", FILE_IO_ERROR);
+        CallBackError(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ONE)], "move file failed", FILE_IO_ERROR);
     } else if (asyncCallbackInfo->errorType == FILE_PATH_ERROR) {
-        CallBackError(env, asyncCallbackInfo->callback[COMMON_NUM::ONE], "file not exist", FILE_PATH_ERROR);
+        CallBackError(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ONE)], "file not exist", FILE_PATH_ERROR);
     }
-    CallComplete(env, asyncCallbackInfo->callback[COMMON_NUM::TWO]);
-    napi_delete_reference(env, asyncCallbackInfo->callback[COMMON_NUM::ZERO]);
-    napi_delete_reference(env, asyncCallbackInfo->callback[COMMON_NUM::ONE]);
-    napi_delete_reference(env, asyncCallbackInfo->callback[COMMON_NUM::TWO]);
+    CallComplete(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::TWO)]);
+    napi_delete_reference(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ZERO)]);
+    napi_delete_reference(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ONE)]);
+    napi_delete_reference(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::TWO)]);
     napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
     delete asyncCallbackInfo;
 }
@@ -570,7 +567,7 @@ void DeleteExec(napi_env env, void *data)
     int statPath = GetRealPath(path);
     if (statPath == ENOENT) {
         asyncCallbackInfo->errorType = FILE_PATH_ERROR;
-    } else if (statPath == COMMON_NUM::ZERO && remove((char *)path.c_str()) != FAILED) {
+    } else if (statPath == static_cast<int>(COMMON_NUM::ZERO) && remove((char *)path.c_str()) != FAILED) {
         asyncCallbackInfo->result = SUCCESS;
     } else {
         asyncCallbackInfo->errorType = FILE_IO_ERROR;
@@ -581,16 +578,16 @@ void DeleteComp(napi_env env, napi_status status, void *data)
 {
     auto *asyncCallbackInfo = (AsyncDeleteCallbackInfo *)data;
     if (asyncCallbackInfo->result == SUCCESS) {
-        CallBackSuccess(env, asyncCallbackInfo->callback[COMMON_NUM::ZERO], COMMON_NUM::ZERO, nullptr);
+        CallBackSuccess(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ZERO)], static_cast<int32_t>(COMMON_NUM::ZERO), nullptr);
     } else if (asyncCallbackInfo->errorType == FILE_IO_ERROR) {
-        CallBackError(env, asyncCallbackInfo->callback[COMMON_NUM::ONE], "delete file failed", FILE_IO_ERROR);
+        CallBackError(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ONE)], "delete file failed", FILE_IO_ERROR);
     } else if (asyncCallbackInfo->errorType == FILE_PATH_ERROR) {
-        CallBackError(env, asyncCallbackInfo->callback[COMMON_NUM::ONE], "file not exist", FILE_PATH_ERROR);
+        CallBackError(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ONE)], "file not exist", FILE_PATH_ERROR);
     }
-    CallComplete(env, asyncCallbackInfo->callback[COMMON_NUM::TWO]);
-    napi_delete_reference(env, asyncCallbackInfo->callback[COMMON_NUM::ZERO]);
-    napi_delete_reference(env, asyncCallbackInfo->callback[COMMON_NUM::ONE]);
-    napi_delete_reference(env, asyncCallbackInfo->callback[COMMON_NUM::TWO]);
+    CallComplete(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::TWO)]);
+    napi_delete_reference(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ZERO)]);
+    napi_delete_reference(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ONE)]);
+    napi_delete_reference(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::TWO)]);
     napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
     delete asyncCallbackInfo;
 }
@@ -603,7 +600,7 @@ void AccessExec(napi_env env, void *data)
     int statPath = GetRealPath(path);
     if (statPath == ENOENT) {
         asyncCallbackInfo->errorType = FILE_PATH_ERROR;
-    } else if (statPath == COMMON_NUM::ZERO) {
+    } else if (statPath == static_cast<int>(COMMON_NUM::ZERO)) {
         asyncCallbackInfo->result = SUCCESS;
     } else {
         asyncCallbackInfo->errorType = FILE_IO_ERROR;
@@ -614,16 +611,16 @@ void AccessComp(napi_env env, napi_status status, void *data)
 {
     auto *asyncCallbackInfo = (AsyncAccessCallbackInfo *)data;
     if (asyncCallbackInfo->result == SUCCESS) {
-        CallBackSuccess(env, asyncCallbackInfo->callback[COMMON_NUM::ZERO], COMMON_NUM::ZERO, nullptr);
+        CallBackSuccess(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ZERO)], static_cast<int32_t>(COMMON_NUM::ZERO), nullptr);
     } else if (asyncCallbackInfo->errorType == FILE_IO_ERROR) {
-        CallBackError(env, asyncCallbackInfo->callback[COMMON_NUM::ONE], "access file failed", FILE_IO_ERROR);
+        CallBackError(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ONE)], "access file failed", FILE_IO_ERROR);
     } else if (asyncCallbackInfo->errorType == FILE_PATH_ERROR) {
-        CallBackError(env, asyncCallbackInfo->callback[COMMON_NUM::ONE], "file not exist", FILE_PATH_ERROR);
+        CallBackError(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ONE)], "file not exist", FILE_PATH_ERROR);
     }
-    CallComplete(env, asyncCallbackInfo->callback[COMMON_NUM::TWO]);
-    napi_delete_reference(env, asyncCallbackInfo->callback[COMMON_NUM::ZERO]);
-    napi_delete_reference(env, asyncCallbackInfo->callback[COMMON_NUM::ONE]);
-    napi_delete_reference(env, asyncCallbackInfo->callback[COMMON_NUM::TWO]);
+    CallComplete(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::TWO)]);
+    napi_delete_reference(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ZERO)]);
+    napi_delete_reference(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ONE)]);
+    napi_delete_reference(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::TWO)]);
     napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
     delete asyncCallbackInfo;
 }
@@ -637,7 +634,7 @@ void WriteTextExec(napi_env env, void *data)
     asyncCallbackInfo->errorType = FILE_IO_ERROR;
     int fd = -1;
     int statPath = GetRealPath(path);
-    if (statPath == COMMON_NUM::ZERO || statPath == ENOENT) {
+    if (statPath == static_cast<int>(COMMON_NUM::ZERO) || statPath == ENOENT) {
         if (asyncCallbackInfo->append) {
             fd = open(path.c_str(), O_WRONLY | O_APPEND | O_CREAT, S_IRUSR | S_IWUSR);
         } else {
@@ -656,14 +653,14 @@ void WriteTextComp(napi_env env, napi_status status, void *data)
 {
     auto *asyncCallbackInfo = (AsyncWriteCallbackInfo *)data;
     if (asyncCallbackInfo->result == SUCCESS) {
-        CallBackSuccess(env, asyncCallbackInfo->callback[COMMON_NUM::ZERO], COMMON_NUM::ZERO, nullptr);
+        CallBackSuccess(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ZERO)], static_cast<int32_t>(COMMON_NUM::ZERO), nullptr);
     } else if (asyncCallbackInfo->errorType == FILE_IO_ERROR) {
-        CallBackError(env, asyncCallbackInfo->callback[COMMON_NUM::ONE], "write file failed", FILE_IO_ERROR);
+        CallBackError(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ONE)], "write file failed", FILE_IO_ERROR);
     }
-    CallComplete(env, asyncCallbackInfo->callback[COMMON_NUM::TWO]);
-    napi_delete_reference(env, asyncCallbackInfo->callback[COMMON_NUM::ZERO]);
-    napi_delete_reference(env, asyncCallbackInfo->callback[COMMON_NUM::ONE]);
-    napi_delete_reference(env, asyncCallbackInfo->callback[COMMON_NUM::TWO]);
+    CallComplete(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::TWO)]);
+    napi_delete_reference(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ZERO)]);
+    napi_delete_reference(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ONE)]);
+    napi_delete_reference(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::TWO)]);
     napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
     delete asyncCallbackInfo;
 }
@@ -676,7 +673,7 @@ void WriteArrayBufferExec(napi_env env, void *data)
     asyncCallbackInfo->errorType = FILE_IO_ERROR;
     int fd = -1;
     int statPath = GetRealPath(path);
-    if (statPath == COMMON_NUM::ZERO || statPath == ENOENT) {
+    if (statPath == static_cast<int>(COMMON_NUM::ZERO) || statPath == ENOENT) {
         if (asyncCallbackInfo->append) {
             fd = open(path.c_str(), O_WRONLY | O_APPEND | O_CREAT, S_IRUSR | S_IWUSR);
             if (fd == FAILED) {
@@ -700,14 +697,14 @@ void WriteArrayBufferComp(napi_env env, napi_status status, void *data)
 {
     auto *asyncCallbackInfo = (AsyncWriteBufferCallbackInfo *)data;
     if (asyncCallbackInfo->result == SUCCESS) {
-        CallBackSuccess(env, asyncCallbackInfo->callback[COMMON_NUM::ZERO], COMMON_NUM::ZERO, nullptr);
+        CallBackSuccess(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ZERO)], static_cast<int32_t>(COMMON_NUM::ZERO), nullptr);
     } else if (asyncCallbackInfo->errorType == FILE_IO_ERROR) {
-        CallBackError(env, asyncCallbackInfo->callback[COMMON_NUM::ONE], "write file failed", FILE_IO_ERROR);
+        CallBackError(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ONE)], "write file failed", FILE_IO_ERROR);
     }
-    CallComplete(env, asyncCallbackInfo->callback[COMMON_NUM::TWO]);
-    napi_delete_reference(env, asyncCallbackInfo->callback[COMMON_NUM::ZERO]);
-    napi_delete_reference(env, asyncCallbackInfo->callback[COMMON_NUM::ONE]);
-    napi_delete_reference(env, asyncCallbackInfo->callback[COMMON_NUM::TWO]);
+    CallComplete(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::TWO)]);
+    napi_delete_reference(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ZERO)]);
+    napi_delete_reference(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ONE)]);
+    napi_delete_reference(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::TWO)]);
     napi_delete_reference(env, asyncCallbackInfo->bufferAddress);
     napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
     delete asyncCallbackInfo;
@@ -720,7 +717,7 @@ void ReadTextExec(napi_env env, void *data)
     asyncCallbackInfo->result = FAILED;
     asyncCallbackInfo->errorType = FILE_IO_ERROR;
     int statPath = GetRealPath(path);
-    if (statPath == COMMON_NUM::ZERO) {
+    if (statPath == static_cast<int>(COMMON_NUM::ZERO)) {
         FDGuard fdg;
         fdg.SetFD(open(path.c_str(), O_RDONLY));
         struct stat buf;
@@ -747,16 +744,16 @@ void ReadTextComp(napi_env env, napi_status status, void *data)
     if (asyncCallbackInfo->result == SUCCESS) {
         NVal objn = NVal::CreateObject(env);
         objn.AddProp("text", NVal::CreateUTF8String(env, asyncCallbackInfo->contents).val_);
-        CallBackSuccess(env, asyncCallbackInfo->callback[COMMON_NUM::ZERO], COMMON_NUM::ONE, objn.val_);
+        CallBackSuccess(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ZERO)], static_cast<int32_t>(COMMON_NUM::ONE), objn.val_);
     } else if (asyncCallbackInfo->errorType == FILE_IO_ERROR) {
-        CallBackError(env, asyncCallbackInfo->callback[COMMON_NUM::ONE], "read file failed", FILE_IO_ERROR);
+        CallBackError(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ONE)], "read file failed", FILE_IO_ERROR);
     } else if (asyncCallbackInfo->errorType == FILE_PATH_ERROR) {
-        CallBackError(env, asyncCallbackInfo->callback[COMMON_NUM::ONE], "file not exist", FILE_PATH_ERROR);
+        CallBackError(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ONE)], "file not exist", FILE_PATH_ERROR);
     }
-    CallComplete(env, asyncCallbackInfo->callback[COMMON_NUM::TWO]);
-    napi_delete_reference(env, asyncCallbackInfo->callback[COMMON_NUM::ZERO]);
-    napi_delete_reference(env, asyncCallbackInfo->callback[COMMON_NUM::ONE]);
-    napi_delete_reference(env, asyncCallbackInfo->callback[COMMON_NUM::TWO]);
+    CallComplete(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::TWO)]);
+    napi_delete_reference(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ZERO)]);
+    napi_delete_reference(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ONE)]);
+    napi_delete_reference(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::TWO)]);
     napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
     delete asyncCallbackInfo;
 }
@@ -768,7 +765,7 @@ void ReadArrayBufferExec(napi_env env, void *data)
     asyncCallbackInfo->result = FAILED;
     asyncCallbackInfo->errorType = FILE_IO_ERROR;
     int statPath = GetRealPath(path);
-    if (statPath == COMMON_NUM::ZERO) {
+    if (statPath == static_cast<int>(COMMON_NUM::ZERO)) {
         FDGuard fdg;
         fdg.SetFD(open(path.c_str(), O_RDONLY));
         struct stat buf;
@@ -776,7 +773,7 @@ void ReadArrayBufferExec(napi_env env, void *data)
         if (fdg.GetFD() != FAILED && result != FAILED) {
             int32_t begin = (buf.st_size < asyncCallbackInfo->position) ? buf.st_size : asyncCallbackInfo->position;
             int32_t len =
-                (asyncCallbackInfo->length == COMMON_NUM::ZERO) ? (buf.st_size - begin) : asyncCallbackInfo->length;
+                (asyncCallbackInfo->length == static_cast<int>(COMMON_NUM::ZERO)) ? (buf.st_size - begin) : asyncCallbackInfo->length;
             auto buffer = std::make_unique<char[]>(len + 1);
             if (buffer == nullptr) {
                 UniError(ENOMEM).ThrowErr(env);
@@ -806,16 +803,16 @@ void ReadArrayBufferComp(napi_env env, napi_status status, void *data)
         }
         NVal objn = NVal::CreateObject(env);
         objn.AddProp("buffer", typeArr);
-        CallBackSuccess(env, asyncCallbackInfo->callback[COMMON_NUM::ZERO], COMMON_NUM::ONE, objn.val_);
+        CallBackSuccess(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ZERO)], static_cast<int32_t>(COMMON_NUM::ONE), objn.val_);
     } else if (asyncCallbackInfo->errorType == FILE_IO_ERROR) {
-        CallBackError(env, asyncCallbackInfo->callback[COMMON_NUM::ONE], "read file failed", FILE_IO_ERROR);
+        CallBackError(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ONE)], "read file failed", FILE_IO_ERROR);
     } else if (asyncCallbackInfo->errorType == FILE_PATH_ERROR) {
-        CallBackError(env, asyncCallbackInfo->callback[COMMON_NUM::ONE], "file not exist", FILE_PATH_ERROR);
+        CallBackError(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ONE)], "file not exist", FILE_PATH_ERROR);
     }
-    CallComplete(env, asyncCallbackInfo->callback[COMMON_NUM::TWO]);
-    napi_delete_reference(env, asyncCallbackInfo->callback[COMMON_NUM::ZERO]);
-    napi_delete_reference(env, asyncCallbackInfo->callback[COMMON_NUM::ONE]);
-    napi_delete_reference(env, asyncCallbackInfo->callback[COMMON_NUM::TWO]);
+    CallComplete(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::TWO)]);
+    napi_delete_reference(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ZERO)]);
+    napi_delete_reference(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ONE)]);
+    napi_delete_reference(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::TWO)]);
     napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
     delete asyncCallbackInfo;
 }
@@ -823,7 +820,7 @@ void ReadArrayBufferComp(napi_env env, napi_status status, void *data)
 napi_value FileNExporter::Mkdir(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::ONE)) {
+    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::ONE))) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -832,19 +829,19 @@ napi_value FileNExporter::Mkdir(napi_env env, napi_callback_info info)
         .env = env,
         .asyncWork = nullptr,
     };
-    tie(succ, asyncCallbackInfo->callback[COMMON_NUM::ZERO], asyncCallbackInfo->callback[COMMON_NUM::ONE],
-        asyncCallbackInfo->callback[COMMON_NUM::TWO]) = CommonFunc::GetCallbackHandles(env, funcArg[NARG_POS::FIRST]);
+    tie(succ, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ZERO)], asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ONE)],
+        asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::TWO)]) = CommonFunc::GetCallbackHandles(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]);
 
     unique_ptr<char[]> uri;
-    tie(succ, uri, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("uri").ToUTF8String();
+    tie(succ, uri, ignore) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).GetProp("uri").ToUTF8String();
 
     bool recursive = false;
-    tie(succ, recursive) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("recursive").ToBool();
+    tie(succ, recursive) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).GetProp("recursive").ToBool();
 
     string path = (uri == nullptr) ? "" : uri.get();
     if (!CheckUri(env, path)) {
-        CallBackError(env, asyncCallbackInfo->callback[COMMON_NUM::ONE], "illegal uri", URI_PARAMER_ERROR);
-        CallComplete(env, asyncCallbackInfo->callback[COMMON_NUM::TWO]);
+        CallBackError(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ONE)], "illegal uri", URI_PARAMER_ERROR);
+        CallComplete(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::TWO)]);
         delete asyncCallbackInfo;
         return nullptr;
     }
@@ -860,7 +857,7 @@ napi_value FileNExporter::Mkdir(napi_env env, napi_callback_info info)
 napi_value FileNExporter::Rmdir(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::ONE)) {
+    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::ONE))) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -869,19 +866,19 @@ napi_value FileNExporter::Rmdir(napi_env env, napi_callback_info info)
         .env = env,
         .asyncWork = nullptr,
     };
-    tie(succ, asyncCallbackInfo->callback[COMMON_NUM::ZERO], asyncCallbackInfo->callback[COMMON_NUM::ONE],
-        asyncCallbackInfo->callback[COMMON_NUM::TWO]) = CommonFunc::GetCallbackHandles(env, funcArg[NARG_POS::FIRST]);
+    tie(succ, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ZERO)], asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ONE)],
+        asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::TWO)]) = CommonFunc::GetCallbackHandles(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]);
 
     unique_ptr<char[]> uri;
-    tie(succ, uri, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("uri").ToUTF8String();
+    tie(succ, uri, ignore) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).GetProp("uri").ToUTF8String();
 
     bool recursive = false;
-    tie(succ, recursive) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("recursive").ToBool();
+    tie(succ, recursive) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).GetProp("recursive").ToBool();
 
     string path = (uri == nullptr) ? "" : uri.get();
     if (!CheckUri(env, path)) {
-        CallBackError(env, asyncCallbackInfo->callback[COMMON_NUM::ONE], "illegal uri", URI_PARAMER_ERROR);
-        CallComplete(env, asyncCallbackInfo->callback[COMMON_NUM::TWO]);
+        CallBackError(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ONE)], "illegal uri", URI_PARAMER_ERROR);
+        CallComplete(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::TWO)]);
         delete asyncCallbackInfo;
         return nullptr;
     }
@@ -898,7 +895,7 @@ napi_value FileNExporter::Rmdir(napi_env env, napi_callback_info info)
 napi_value FileNExporter::Get(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::ONE)) {
+    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::ONE))) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -907,18 +904,18 @@ napi_value FileNExporter::Get(napi_env env, napi_callback_info info)
         .asyncWork = nullptr,
     };
     bool succ = false;
-    tie(succ, asyncCallbackInfo->callback[COMMON_NUM::ZERO], asyncCallbackInfo->callback[COMMON_NUM::ONE],
-        asyncCallbackInfo->callback[COMMON_NUM::TWO]) = CommonFunc::GetCallbackHandles(env, funcArg[NARG_POS::FIRST]);
+    tie(succ, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ZERO)], asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ONE)],
+        asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::TWO)]) = CommonFunc::GetCallbackHandles(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]);
     unique_ptr<char[]> uri = nullptr;
-    tie(succ, uri, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("uri").ToUTF8String();
+    tie(succ, uri, ignore) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).GetProp("uri").ToUTF8String();
 
     bool recursive = false;
-    tie(succ, recursive) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("recursive").ToBool();
+    tie(succ, recursive) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).GetProp("recursive").ToBool();
     string path = (uri == nullptr) ? "" : uri.get();
     asyncCallbackInfo->originUri = path;
     if (!CheckUri(env, path)) {
-        CallBackError(env, asyncCallbackInfo->callback[COMMON_NUM::ONE], "illegal uri", URI_PARAMER_ERROR);
-        CallComplete(env, asyncCallbackInfo->callback[COMMON_NUM::TWO]);
+        CallBackError(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ONE)], "illegal uri", URI_PARAMER_ERROR);
+        CallComplete(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::TWO)]);
         delete asyncCallbackInfo;
         return nullptr;
     }
@@ -935,7 +932,7 @@ napi_value FileNExporter::Get(napi_env env, napi_callback_info info)
 napi_value FileNExporter::List(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::ONE)) {
+    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::ONE))) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -944,17 +941,17 @@ napi_value FileNExporter::List(napi_env env, napi_callback_info info)
         .asyncWork = nullptr,
     };
     bool succ = false;
-    tie(succ, asyncCallbackInfo->callback[COMMON_NUM::ZERO], asyncCallbackInfo->callback[COMMON_NUM::ONE],
-        asyncCallbackInfo->callback[COMMON_NUM::TWO]) = CommonFunc::GetCallbackHandles(env, funcArg[NARG_POS::FIRST]);
+    tie(succ, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ZERO)], asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ONE)],
+        asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::TWO)]) = CommonFunc::GetCallbackHandles(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]);
 
     unique_ptr<char[]> uri = nullptr;
-    tie(succ, uri, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("uri").ToUTF8String();
+    tie(succ, uri, ignore) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).GetProp("uri").ToUTF8String();
 
     string path = (uri == nullptr) ? "" : uri.get();
     asyncCallbackInfo->originUri = path;
     if (!CheckUri(env, path)) {
-        CallBackError(env, asyncCallbackInfo->callback[COMMON_NUM::ONE], "illegal uri", URI_PARAMER_ERROR);
-        CallComplete(env, asyncCallbackInfo->callback[COMMON_NUM::TWO]);
+        CallBackError(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ONE)], "illegal uri", URI_PARAMER_ERROR);
+        CallComplete(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::TWO)]);
         delete asyncCallbackInfo;
         return nullptr;
     }
@@ -970,7 +967,7 @@ napi_value FileNExporter::List(napi_env env, napi_callback_info info)
 napi_value FileNExporter::Copy(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::ONE)) {
+    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::ONE))) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -979,18 +976,18 @@ napi_value FileNExporter::Copy(napi_env env, napi_callback_info info)
         .env = env,
         .asyncWork = nullptr,
     };
-    tie(succ, asyncCallbackInfo->callback[COMMON_NUM::ZERO], asyncCallbackInfo->callback[COMMON_NUM::ONE],
-        asyncCallbackInfo->callback[COMMON_NUM::TWO]) = CommonFunc::GetCallbackHandles(env, funcArg[NARG_POS::FIRST]);
+    tie(succ, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ZERO)], asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ONE)],
+        asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::TWO)]) = CommonFunc::GetCallbackHandles(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]);
 
     unique_ptr<char[]> srcUri, dstUri;
-    tie(succ, srcUri, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("srcUri").ToUTF8String();
-    tie(succ, dstUri, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("dstUri").ToUTF8String();
+    tie(succ, srcUri, ignore) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).GetProp("srcUri").ToUTF8String();
+    tie(succ, dstUri, ignore) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).GetProp("dstUri").ToUTF8String();
     string srcPath = ((srcUri == nullptr) ? "" : (srcUri.get()));
     string dstPath = ((dstUri == nullptr) ? "" : (dstUri.get()));
     asyncCallbackInfo->originDst = dstPath;
     if (!CheckUri(env, srcPath) || !CheckUri(env, dstPath)) {
-        CallBackError(env, asyncCallbackInfo->callback[COMMON_NUM::ONE], "illegal uri", URI_PARAMER_ERROR);
-        CallComplete(env, asyncCallbackInfo->callback[COMMON_NUM::TWO]);
+        CallBackError(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ONE)], "illegal uri", URI_PARAMER_ERROR);
+        CallComplete(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::TWO)]);
         delete asyncCallbackInfo;
         return nullptr;
     }
@@ -1006,7 +1003,7 @@ napi_value FileNExporter::Copy(napi_env env, napi_callback_info info)
 napi_value FileNExporter::Move(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::ONE)) {
+    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::ONE))) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -1015,19 +1012,19 @@ napi_value FileNExporter::Move(napi_env env, napi_callback_info info)
         .env = env,
         .asyncWork = nullptr,
     };
-    tie(succ, asyncCallbackInfo->callback[COMMON_NUM::ZERO], asyncCallbackInfo->callback[COMMON_NUM::ONE],
-        asyncCallbackInfo->callback[COMMON_NUM::TWO]) = CommonFunc::GetCallbackHandles(env, funcArg[NARG_POS::FIRST]);
+    tie(succ, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ZERO)], asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ONE)],
+        asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::TWO)]) = CommonFunc::GetCallbackHandles(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]);
 
     unique_ptr<char[]> srcUri, dstUri;
-    tie(succ, srcUri, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("srcUri").ToUTF8String();
-    tie(succ, dstUri, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("dstUri").ToUTF8String();
+    tie(succ, srcUri, ignore) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).GetProp("srcUri").ToUTF8String();
+    tie(succ, dstUri, ignore) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).GetProp("dstUri").ToUTF8String();
 
     string srcPath = ((srcUri == nullptr) ? "" : (srcUri.get()));
     string dstPath = ((dstUri == nullptr) ? "" : (dstUri.get()));
     asyncCallbackInfo->originDst = dstPath;
     if (!CheckUri(env, srcPath) || !CheckUri(env, dstPath)) {
-        CallBackError(env, asyncCallbackInfo->callback[COMMON_NUM::ONE], "illegal uri", URI_PARAMER_ERROR);
-        CallComplete(env, asyncCallbackInfo->callback[COMMON_NUM::TWO]);
+        CallBackError(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ONE)], "illegal uri", URI_PARAMER_ERROR);
+        CallComplete(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::TWO)]);
         delete asyncCallbackInfo;
         return nullptr;
     }
@@ -1043,7 +1040,7 @@ napi_value FileNExporter::Move(napi_env env, napi_callback_info info)
 napi_value FileNExporter::Delete(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::ONE)) {
+    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::ONE))) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -1052,16 +1049,16 @@ napi_value FileNExporter::Delete(napi_env env, napi_callback_info info)
         .env = env,
         .asyncWork = nullptr,
     };
-    tie(succ, asyncCallbackInfo->callback[COMMON_NUM::ZERO], asyncCallbackInfo->callback[COMMON_NUM::ONE],
-        asyncCallbackInfo->callback[COMMON_NUM::TWO]) = CommonFunc::GetCallbackHandles(env, funcArg[NARG_POS::FIRST]);
+    tie(succ, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ZERO)], asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ONE)],
+        asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::TWO)]) = CommonFunc::GetCallbackHandles(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]);
 
     unique_ptr<char[]> uri;
-    tie(succ, uri, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("uri").ToUTF8String();
+    tie(succ, uri, ignore) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).GetProp("uri").ToUTF8String();
 
     string path = (uri == nullptr) ? "" : uri.get();
     if (!CheckUri(env, path)) {
-        CallBackError(env, asyncCallbackInfo->callback[COMMON_NUM::ONE], "illegal uri", URI_PARAMER_ERROR);
-        CallComplete(env, asyncCallbackInfo->callback[COMMON_NUM::TWO]);
+        CallBackError(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ONE)], "illegal uri", URI_PARAMER_ERROR);
+        CallComplete(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::TWO)]);
         delete asyncCallbackInfo;
         return nullptr;
     }
@@ -1077,7 +1074,7 @@ napi_value FileNExporter::Delete(napi_env env, napi_callback_info info)
 napi_value FileNExporter::Access(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::ONE)) {
+    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::ONE))) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -1086,16 +1083,16 @@ napi_value FileNExporter::Access(napi_env env, napi_callback_info info)
         .env = env,
         .asyncWork = nullptr,
     };
-    tie(succ, asyncCallbackInfo->callback[COMMON_NUM::ZERO], asyncCallbackInfo->callback[COMMON_NUM::ONE],
-        asyncCallbackInfo->callback[COMMON_NUM::TWO]) = CommonFunc::GetCallbackHandles(env, funcArg[NARG_POS::FIRST]);
+    tie(succ, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ZERO)], asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ONE)],
+        asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::TWO)]) = CommonFunc::GetCallbackHandles(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]);
 
     unique_ptr<char[]> uri;
-    tie(succ, uri, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("uri").ToUTF8String();
+    tie(succ, uri, ignore) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).GetProp("uri").ToUTF8String();
 
     string path = (uri == nullptr) ? "" : uri.get();
     if (!CheckUri(env, path)) {
-        CallBackError(env, asyncCallbackInfo->callback[COMMON_NUM::ONE], "illegal uri", URI_PARAMER_ERROR);
-        CallComplete(env, asyncCallbackInfo->callback[COMMON_NUM::TWO]);
+        CallBackError(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ONE)], "illegal uri", URI_PARAMER_ERROR);
+        CallComplete(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::TWO)]);
         delete asyncCallbackInfo;
         return nullptr;
     }
@@ -1110,7 +1107,7 @@ napi_value FileNExporter::Access(napi_env env, napi_callback_info info)
 napi_value FileNExporter::WriteText(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::ONE)) {
+    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::ONE))) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -1119,29 +1116,29 @@ napi_value FileNExporter::WriteText(napi_env env, napi_callback_info info)
         .asyncWork = nullptr,
     };
     bool succ = false;
-    tie(succ, asyncCallbackInfo->callback[COMMON_NUM::ZERO], asyncCallbackInfo->callback[COMMON_NUM::ONE],
-        asyncCallbackInfo->callback[COMMON_NUM::TWO]) = CommonFunc::GetCallbackHandles(env, funcArg[NARG_POS::FIRST]);
+    tie(succ, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ZERO)], asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ONE)],
+        asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::TWO)]) = CommonFunc::GetCallbackHandles(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]);
 
     unique_ptr<char[]> uri, text, encoding;
-    tie(succ, uri, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("uri").ToUTF8String();
-    tie(succ, text, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("text").ToUTF8String();
-    tie(succ, encoding, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("encoding").ToUTF8String();
+    tie(succ, uri, ignore) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).GetProp("uri").ToUTF8String();
+    tie(succ, text, ignore) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).GetProp("text").ToUTF8String();
+    tie(succ, encoding, ignore) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).GetProp("encoding").ToUTF8String();
 
     bool append = false;
-    tie(succ, append) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("append").ToBool();
+    tie(succ, append) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).GetProp("append").ToBool();
 
     string path = (uri == nullptr) ? "" : uri.get();
     string encode = (encoding == nullptr) ? ENCODING_UTF8 : encoding.get();
     transform(encode.begin(), encode.end(), encode.begin(), ::tolower);
     if (!CheckUri(env, path)) {
-        CallBackError(env, asyncCallbackInfo->callback[COMMON_NUM::ONE], "illegal uri", URI_PARAMER_ERROR);
-        CallComplete(env, asyncCallbackInfo->callback[COMMON_NUM::TWO]);
+        CallBackError(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ONE)], "illegal uri", URI_PARAMER_ERROR);
+        CallComplete(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::TWO)]);
         delete asyncCallbackInfo;
         return nullptr;
     }
     if (encode != ENCODING_UTF8) {
-        CallBackError(env, asyncCallbackInfo->callback[COMMON_NUM::ONE], "write file failed", FILE_IO_ERROR);
-        CallComplete(env, asyncCallbackInfo->callback[COMMON_NUM::TWO]);
+        CallBackError(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ONE)], "write file failed", FILE_IO_ERROR);
+        CallComplete(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::TWO)]);
         delete asyncCallbackInfo;
         return nullptr;
     }
@@ -1159,7 +1156,7 @@ napi_value FileNExporter::WriteText(napi_env env, napi_callback_info info)
 napi_value FileNExporter::WriteArrayBuffer(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::ONE)) {
+    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::ONE))) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -1168,29 +1165,29 @@ napi_value FileNExporter::WriteArrayBuffer(napi_env env, napi_callback_info info
         .env = env,
         .asyncWork = nullptr,
     };
-    tie(succ, asyncCallbackInfo->callback[COMMON_NUM::ZERO], asyncCallbackInfo->callback[COMMON_NUM::ONE],
-        asyncCallbackInfo->callback[COMMON_NUM::TWO]) = CommonFunc::GetCallbackHandles(env, funcArg[NARG_POS::FIRST]);
+    tie(succ, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ZERO)], asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ONE)],
+        asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::TWO)]) = CommonFunc::GetCallbackHandles(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]);
 
     unique_ptr<char[]> uri;
-    tie(succ, uri, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("uri").ToUTF8String();
+    tie(succ, uri, ignore) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).GetProp("uri").ToUTF8String();
 
     int32_t position = 0;
-    tie(succ, position) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("position").ToInt32();
+    tie(succ, position) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).GetProp("position").ToInt32();
 
     bool append = false;
-    tie(succ, append) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("append").ToBool();
+    tie(succ, append) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).GetProp("append").ToBool();
 
     void *buffer = nullptr;
     size_t bufLength = 0;
     napi_ref bufferRef = nullptr;
-    NVal bufNapi = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("buffer");
+    NVal bufNapi = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).GetProp("buffer");
     tie(succ, buffer, bufLength) = bufNapi.ToTypedArray();
     napi_create_reference(env, bufNapi.val_, 1, &bufferRef);
 
     string path = (uri == nullptr) ? "" : uri.get();
     if (!CheckUri(env, path)) {
-        CallBackError(env, asyncCallbackInfo->callback[COMMON_NUM::ONE], "illegal uri", URI_PARAMER_ERROR);
-        CallComplete(env, asyncCallbackInfo->callback[COMMON_NUM::TWO]);
+        CallBackError(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ONE)], "illegal uri", URI_PARAMER_ERROR);
+        CallComplete(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::TWO)]);
         delete asyncCallbackInfo;
         return nullptr;
     }
@@ -1210,7 +1207,7 @@ napi_value FileNExporter::WriteArrayBuffer(napi_env env, napi_callback_info info
 napi_value FileNExporter::ReadText(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::ONE)) {
+    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::ONE))) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -1219,25 +1216,25 @@ napi_value FileNExporter::ReadText(napi_env env, napi_callback_info info)
         .env = env,
         .asyncWork = nullptr,
     };
-    tie(succ, asyncCallbackInfo->callback[COMMON_NUM::ZERO], asyncCallbackInfo->callback[COMMON_NUM::ONE],
-        asyncCallbackInfo->callback[COMMON_NUM::TWO]) = CommonFunc::GetCallbackHandles(env, funcArg[NARG_POS::FIRST]);
+    tie(succ, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ZERO)], asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ONE)],
+        asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::TWO)]) = CommonFunc::GetCallbackHandles(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]);
 
     unique_ptr<char[]> uri, encoding;
-    tie(succ, uri, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("uri").ToUTF8String();
-    tie(succ, encoding, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("encoding").ToUTF8String();
+    tie(succ, uri, ignore) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).GetProp("uri").ToUTF8String();
+    tie(succ, encoding, ignore) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).GetProp("encoding").ToUTF8String();
 
     string path = (uri == nullptr) ? "" : uri.get();
     string encode = (encoding == nullptr) ? ENCODING_UTF8 : encoding.get();
     transform(encode.begin(), encode.end(), encode.begin(), ::tolower);
     if (!CheckUri(env, path)) {
-        CallBackError(env, asyncCallbackInfo->callback[COMMON_NUM::ONE], "illegal uri", URI_PARAMER_ERROR);
-        CallComplete(env, asyncCallbackInfo->callback[COMMON_NUM::TWO]);
+        CallBackError(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ONE)], "illegal uri", URI_PARAMER_ERROR);
+        CallComplete(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::TWO)]);
         delete asyncCallbackInfo;
         return nullptr;
     }
     if (encode != ENCODING_UTF8) {
-        CallBackError(env, asyncCallbackInfo->callback[COMMON_NUM::ONE], "read file failed", FILE_IO_ERROR);
-        CallComplete(env, asyncCallbackInfo->callback[COMMON_NUM::TWO]);
+        CallBackError(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ONE)], "read file failed", FILE_IO_ERROR);
+        CallComplete(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::TWO)]);
         delete asyncCallbackInfo;
         return nullptr;
     }
@@ -1252,7 +1249,7 @@ napi_value FileNExporter::ReadText(napi_env env, napi_callback_info info)
 napi_value FileNExporter::ReadArrayBuffer(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::ONE)) {
+    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::ONE))) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -1261,22 +1258,22 @@ napi_value FileNExporter::ReadArrayBuffer(napi_env env, napi_callback_info info)
         .asyncWork = nullptr,
     };
     bool succ = false;
-    tie(succ, asyncCallbackInfo->callback[COMMON_NUM::ZERO], asyncCallbackInfo->callback[COMMON_NUM::ONE],
-        asyncCallbackInfo->callback[COMMON_NUM::TWO]) = CommonFunc::GetCallbackHandles(env, funcArg[NARG_POS::FIRST]);
+    tie(succ, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ZERO)], asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ONE)],
+        asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::TWO)]) = CommonFunc::GetCallbackHandles(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]);
 
     unique_ptr<char[]> uri;
-    tie(succ, uri, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("uri").ToUTF8String();
+    tie(succ, uri, ignore) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).GetProp("uri").ToUTF8String();
 
     int position = 0;
-    tie(succ, position) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("position").ToInt32();
+    tie(succ, position) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).GetProp("position").ToInt32();
 
     int length = 0;
-    tie(succ, length) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("length").ToInt32();
+    tie(succ, length) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).GetProp("length").ToInt32();
 
     string path = (uri == nullptr) ? "" : uri.get();
     if (!CheckUri(env, path)) {
-        CallBackError(env, asyncCallbackInfo->callback[COMMON_NUM::ONE], "illegal uri", URI_PARAMER_ERROR);
-        CallComplete(env, asyncCallbackInfo->callback[COMMON_NUM::TWO]);
+        CallBackError(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::ONE)], "illegal uri", URI_PARAMER_ERROR);
+        CallComplete(env, asyncCallbackInfo->callback[static_cast<int>(COMMON_NUM::TWO)]);
         delete asyncCallbackInfo;
         return nullptr;
     }

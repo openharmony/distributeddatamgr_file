@@ -13,7 +13,8 @@
  * limitations under the License.
  */
 
-#pragma once
+#ifndef INTERFACES_KITS_NAPI_COMMON_ABILITY_HELPER_H
+#define INTERFACES_KITS_NAPI_COMMON_ABILITY_HELPER_H
 
 #include "../common/napi/uni_header.h"
 #include "ability.h"
@@ -25,3 +26,4 @@ struct AbilityHelper {
 };
 } // namespace DistributedFS
 } // namespace OHOS
+#endif

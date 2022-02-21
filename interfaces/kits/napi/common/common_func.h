@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
-#pragma once
+#ifndef INTERFACES_KITS_NAPI_COMMON_COMMON_FUNC_H
+#define INTERFACES_KITS_NAPI_COMMON_COMMON_FUNC_H
 
 #include <string>
 #include <tuple>
-#include "napi/n_val.h"
 #include "napi/uni_header.h"
 
 namespace OHOS {
@@ -32,3 +32,4 @@ struct CommonFunc {
 };
 } // namespace DistributedFS
 } // namespace OHOS
+#endif

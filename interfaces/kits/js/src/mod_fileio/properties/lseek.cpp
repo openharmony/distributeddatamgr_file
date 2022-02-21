@@ -29,21 +29,21 @@ static tuple<bool, int, int, int> GetLseekArg(napi_env env, const NFuncArg &func
 {
     bool succ = false;
     int fd;
-    tie(succ, fd) = NVal(env, funcArg[NARG_POS::FIRST]).ToInt32();
+    tie(succ, fd) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).ToInt32();
     if (!succ) {
         UniError(EINVAL).ThrowErr(env, "Invalid fd");
         return { false, -1, -1, -1 };
     }
 
     int offset;
-    tie(succ, offset) = NVal(env, funcArg[NARG_POS::SECOND]).ToInt32();
+    tie(succ, offset) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::SECOND)]).ToInt32();
     if (!succ) {
         UniError(EINVAL).ThrowErr(env, "Invalid offset");
         return { false, -1, -1, -1 };
     }
 
     int whence;
-    tie(succ, whence) = NVal(env, funcArg[NARG_POS::THIRD]).ToInt32();
+    tie(succ, whence) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::THIRD)]).ToInt32();
     if (!succ) {
         UniError(EINVAL).ThrowErr(env, "Invalid whence");
         return { false, -1, -1, -1 };
@@ -55,7 +55,7 @@ static tuple<bool, int, int, int> GetLseekArg(napi_env env, const NFuncArg &func
 napi_value Lseek::Sync(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::THREE)) {
+    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::THREE))) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -81,7 +81,7 @@ napi_value Lseek::Sync(napi_env env, napi_callback_info info)
 napi_value Lseek::Async(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::THREE, NARG_CNT::FOUR)) {
+    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::THREE), static_cast<size_t>(NARG_CNT::FOUR))) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -116,10 +116,10 @@ napi_value Lseek::Async(napi_env env, napi_callback_info info)
 
     string procedureName = "FileIOLseek";
     NVal thisVar(env, funcArg.GetThisVar());
-    if (argc == NARG_CNT::THREE) {
+    if (argc == static_cast<int>(NARG_CNT::THREE)) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplCallback).val_;
     } else {
-        NVal cb(env, funcArg[NARG_POS::FOURTH]);
+        NVal cb(env, funcArg[static_cast<size_t>(NARG_POS::FOURTH)]);
         return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplCallback).val_;
     }
 }

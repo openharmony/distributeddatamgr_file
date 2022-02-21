@@ -31,7 +31,7 @@ using namespace std;
 napi_value Ftruncate::Sync(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::ONE, NARG_CNT::TWO)) {
+    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::ONE), static_cast<size_t>(NARG_CNT::TWO))) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -39,7 +39,7 @@ napi_value Ftruncate::Sync(napi_env env, napi_callback_info info)
     bool succ = false;
 
     int fd;
-    tie(succ, fd) = NVal(env, funcArg[NARG_POS::FIRST]).ToInt32();
+    tie(succ, fd) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).ToInt32();
     if (!succ) {
         UniError(EINVAL).ThrowErr(env, "Invalid fd");
         return nullptr;
@@ -47,11 +47,11 @@ napi_value Ftruncate::Sync(napi_env env, napi_callback_info info)
 
     int argc = funcArg.GetArgc();
     int ret = -1;
-    if (argc == NARG_CNT::ONE) {
+    if (argc == static_cast<int>(NARG_CNT::ONE)) {
         ret = ftruncate(fd, 0);
     } else {
         int len;
-        tie(succ, len) = NVal(env, funcArg[NARG_POS::SECOND]).ToInt32();
+        tie(succ, len) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::SECOND)]).ToInt32();
         if (!succ) {
             UniError(EINVAL).ThrowErr(env, "Invalid len");
             return nullptr;
@@ -69,21 +69,21 @@ napi_value Ftruncate::Sync(napi_env env, napi_callback_info info)
 napi_value Ftruncate::Async(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::ONE, NARG_CNT::THREE)) {
+    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::ONE), static_cast<size_t>(NARG_CNT::THREE))) {
         UniError(EINVAL).ThrowErr(env, "Number of argments unmatched");
         return nullptr;
     }
     bool succ = false;
     int fd;
     int len = 0;
-    tie(succ, fd) = NVal(env, funcArg[NARG_POS::FIRST]).ToInt32();
+    tie(succ, fd) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).ToInt32();
     if (!succ) {
         UniError(EINVAL).ThrowErr(env, "Invalid fd");
         return nullptr;
     }
     int argc = funcArg.GetArgc();
-    if (argc > NARG_CNT::ONE) {
-        tie(succ, len) = NVal(env, funcArg[NARG_POS::SECOND]).ToInt32();
+    if (argc > static_cast<int>(NARG_CNT::ONE)) {
+        tie(succ, len) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::SECOND)]).ToInt32();
         if (!succ) {
             UniError(EINVAL).ThrowErr(env, "Invalid len");
             return nullptr;
@@ -107,10 +107,11 @@ napi_value Ftruncate::Async(napi_env env, napi_callback_info info)
     };
     string procedureName = "fileIOFtruncate";
     NVal thisVar(env, funcArg.GetThisVar());
-    if (argc == NARG_CNT::ONE || (argc == NARG_CNT::TWO && NVal(env, funcArg[NARG_POS::SECOND]).TypeIs(napi_number))) {
+    if (argc == static_cast<int>(NARG_CNT::ONE) || (argc == static_cast<int>(NARG_CNT::TWO) &&
+        NVal(env, funcArg[static_cast<size_t>(NARG_POS::SECOND)]).TypeIs(napi_number))) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
     } else {
-        NVal cb(env, funcArg[NARG_POS::THIRD]);
+        NVal cb(env, funcArg[static_cast<size_t>(NARG_POS::THIRD)]);
         return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
     }
 }

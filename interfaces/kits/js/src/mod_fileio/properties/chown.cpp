@@ -31,21 +31,21 @@ static tuple<bool, string, int, int> GetChownArg(napi_env env, const NFuncArg &f
 {
     bool succ = false;
     unique_ptr<char[]> path;
-    tie(succ, path, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
+    tie(succ, path, ignore) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).ToUTF8String();
     if (!succ) {
         UniError(EINVAL).ThrowErr(env, "Invalid path");
         return { false, "", -1, -1 };
     }
 
     int owner;
-    tie(succ, owner) = NVal(env, funcArg[NARG_POS::SECOND]).ToInt32();
+    tie(succ, owner) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::SECOND)]).ToInt32();
     if (!succ) {
         UniError(EINVAL).ThrowErr(env, "Invalid owner");
         return { false, "", -1, -1 };
     }
 
     int group;
-    tie(succ, group) = NVal(env, funcArg[NARG_POS::THIRD]).ToInt32();
+    tie(succ, group) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::THIRD)]).ToInt32();
     if (!succ) {
         UniError(EINVAL).ThrowErr(env, "Invalid group");
         return { false, "", -1, -1 };
@@ -57,7 +57,7 @@ napi_value Chown::Sync(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
 
-    if (!funcArg.InitArgs(NARG_CNT::THREE)) {
+    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::THREE))) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -82,7 +82,7 @@ napi_value Chown::Sync(napi_env env, napi_callback_info info)
 napi_value Chown::Async(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::THREE, NARG_CNT::FOUR)) {
+    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::THREE), static_cast<size_t>(NARG_CNT::FOUR))) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -113,10 +113,10 @@ napi_value Chown::Async(napi_env env, napi_callback_info info)
 
     string procedureName = "FileIOChown";
     NVal thisVar(env, funcArg.GetThisVar());
-    if (funcArg.GetArgc() == NARG_CNT::THREE) {
+    if (funcArg.GetArgc() == static_cast<size_t>(NARG_CNT::THREE)) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbCompl).val_;
     } else {
-        int cbIdx = NARG_POS::FOURTH;
+        int cbIdx = static_cast<int>(NARG_POS::FOURTH);
         NVal cb(env, funcArg[cbIdx]);
         return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbCompl).val_;
     }

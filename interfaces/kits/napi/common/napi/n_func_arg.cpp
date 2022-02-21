@@ -15,11 +15,7 @@
 
 #include "n_func_arg.h"
 
-#include <iostream>
-#include <sstream>
-
 #include "../log.h"
-#include "../uni_error.h"
 
 namespace OHOS {
 namespace DistributedFS {

@@ -27,9 +27,9 @@ using namespace std;
 
 UniError::UniError() {}
 
-UniError::UniError(ELegacy eLegacy) : errno_(eLegacy), codingSystem_(ERR_CODE_SYSTEM_LEGACY) {}
+UniError::UniError(ELegacy eLegacy) : errno_(static_cast<int>(eLegacy)), codingSystem_(ErrCodeSystem::ERR_CODE_SYSTEM_LEGACY) {}
 
-UniError::UniError(int ePosix) : errno_(ePosix), codingSystem_(ERR_CODE_SYSTEM_POSIX) {}
+UniError::UniError(int ePosix) : errno_(ePosix), codingSystem_(ErrCodeSystem::ERR_CODE_SYSTEM_POSIX) {}
 
 UniError::operator bool() const
 {
@@ -45,33 +45,33 @@ int UniError::GetErrno(ErrCodeSystem cs)
         return errno_;
     }
 
-    if (cs == ERR_CODE_SYSTEM_POSIX) {
+    if (cs == ErrCodeSystem::ERR_CODE_SYSTEM_POSIX) {
         // Note that we should support more codes here
         return EINVAL;
     }
 
     // Note that this shall be done properly
-    return ELEGACY_INVAL;
+    return static_cast<int>(ELegacy::ELEGACY_INVAL);
 }
 
 void UniError::SetErrno(ELegacy eLegacy)
 {
-    errno_ = eLegacy;
-    codingSystem_ = ERR_CODE_SYSTEM_LEGACY;
+    errno_ = static_cast<int>(eLegacy);
+    codingSystem_ = ErrCodeSystem::ERR_CODE_SYSTEM_LEGACY;
 }
 
 void UniError::SetErrno(int ePosix)
 {
     errno_ = ePosix;
-    codingSystem_ = ERR_CODE_SYSTEM_POSIX;
+    codingSystem_ = ErrCodeSystem::ERR_CODE_SYSTEM_POSIX;
 }
 
 std::string UniError::GetDefaultErrstr()
 {
-    if (codingSystem_ != ERR_CODE_SYSTEM_POSIX && codingSystem_ != ERR_CODE_SYSTEM_LEGACY) {
+    if (codingSystem_ != ErrCodeSystem::ERR_CODE_SYSTEM_POSIX && codingSystem_ != ErrCodeSystem::ERR_CODE_SYSTEM_LEGACY) {
         return "BUG: Curious coding system";
     }
-    return strerror(GetErrno(ERR_CODE_SYSTEM_POSIX));
+    return strerror(GetErrno(ErrCodeSystem::ERR_CODE_SYSTEM_POSIX));
 }
 
 napi_value UniError::GetNapiErr(napi_env env)

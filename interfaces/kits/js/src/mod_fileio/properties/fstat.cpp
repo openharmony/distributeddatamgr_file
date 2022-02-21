@@ -35,7 +35,7 @@ using namespace std;
 napi_value Fstat::Sync(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::ONE)) {
+    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::ONE))) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -43,7 +43,7 @@ napi_value Fstat::Sync(napi_env env, napi_callback_info info)
     bool succ = false;
 
     int fd;
-    tie(succ, fd) = NVal(env, funcArg[NARG_POS::FIRST]).ToInt32();
+    tie(succ, fd) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).ToInt32();
     if (!succ) {
         UniError(EINVAL).ThrowErr(env, "Invalid fd");
         return nullptr;
@@ -78,14 +78,14 @@ struct AsyncStatArg {
 napi_value Fstat::Async(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::ONE, NARG_CNT::TWO)) {
+    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::ONE), static_cast<size_t>(NARG_CNT::TWO))) {
         UniError(EINVAL).ThrowErr(env, "Number of argments unmatched");
         return nullptr;
     }
 
     bool succ = false;
     int fd;
-    tie(succ, fd) = NVal(env, funcArg[NARG_POS::FIRST]).ToInt32();
+    tie(succ, fd) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).ToInt32();
     if (!succ) {
         UniError(EINVAL).ThrowErr(env, "Invalid fd");
         return nullptr;
@@ -116,10 +116,10 @@ napi_value Fstat::Async(napi_env env, napi_callback_info info)
     };
     NVal thisVar(env, funcArg.GetThisVar());
     string procedureName = "fileIOFstat";
-    if (funcArg.GetArgc() == NARG_CNT::ONE) {
+    if (funcArg.GetArgc() == static_cast<size_t>(NARG_CNT::ONE)) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbCompl).val_;
     } else {
-        NVal cb(env, funcArg[NARG_POS::SECOND]);
+        NVal cb(env, funcArg[static_cast<size_t>(NARG_POS::SECOND)]);
         return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbCompl).val_;
     }
 }

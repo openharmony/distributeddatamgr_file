@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-#pragma once
+#ifndef INTERFACES_KITS_NAPI_COMMON_UNI_ERROR_H
+#define INTERFACES_KITS_NAPI_COMMON_UNI_ERROR_H
 
-#include <cerrno>
 #include <string>
 
 #include "napi/uni_header.h"
@@ -24,13 +24,13 @@ namespace OHOS {
 namespace DistributedFS {
 constexpr int ERRNO_NOERR = 0;
 
-enum ELegacy {
+enum class ELegacy {
     ELEGACY_INVAL = 202,
     ELEGACY_IO = 300,
     ELEGACY_NOENT = 301,
 };
 
-enum ErrCodeSystem {
+enum class ErrCodeSystem {
     ERR_CODE_SYSTEM_LEGACY,
     ERR_CODE_SYSTEM_POSIX,
 };
@@ -40,6 +40,7 @@ public:
     UniError();
     explicit UniError(ELegacy eLegacy);
     explicit UniError(int ePosix);
+    UniError(const UniError &) = default;
     ~UniError() = default;
 
     UniError &operator = (const UniError &) = default;
@@ -58,7 +59,8 @@ public:
 
 private:
     int errno_ = ERRNO_NOERR;
-    ErrCodeSystem codingSystem_ = ERR_CODE_SYSTEM_POSIX;
+    ErrCodeSystem codingSystem_ = ErrCodeSystem::ERR_CODE_SYSTEM_LEGACY;
 };
 } // namespace DistributedFS
 } // namespace OHOS
+#endif

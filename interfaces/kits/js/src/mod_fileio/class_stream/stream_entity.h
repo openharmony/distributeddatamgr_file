@@ -16,8 +16,6 @@
 #ifndef INTERFACES_KITS_JS_SRC_MOD_FILEIO_CLASS_STREAM_STREAM_ENTITY_H
 #define INTERFACES_KITS_JS_SRC_MOD_FILEIO_CLASS_STREAM_STREAM_ENTITY_H
 
-#include <memory>
-
 namespace OHOS {
 namespace DistributedFS {
 namespace ModuleFileIO {
