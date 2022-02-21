@@ -221,7 +221,8 @@ napi_value CopyFile::Async(napi_env env, napi_callback_info info)
     if (funcArg.GetArgc() == static_cast<size_t>(NARG_CNT::TWO) || promise) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbCompl).val_;
     } else {
-        NVal cb(env, funcArg[((funcArg.GetArgc() == static_cast<size_t>(NARG_CNT::THREE)) ? static_cast<size_t>(NARG_POS::THIRD) : static_cast<size_t>(NARG_POS::FOURTH))]);
+        NVal cb(env, funcArg[((funcArg.GetArgc() == static_cast<size_t>(NARG_CNT::THREE)) ?
+                               static_cast<size_t>(NARG_POS::THIRD) : static_cast<size_t>(NARG_POS::FOURTH))]);
         return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbCompl).val_;
     }
 }

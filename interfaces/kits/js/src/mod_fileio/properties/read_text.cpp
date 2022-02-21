@@ -83,7 +83,8 @@ napi_value ReadText::Sync(napi_env env, napi_callback_info info)
     ssize_t len = 0;
     unique_ptr<char[]> encoding;
     bool hasLen = false;
-    tie(succ, position, hasLen, len, encoding, ignore) = GetReadTextArg(env, funcArg[static_cast<size_t>(NARG_POS::SECOND)]);
+    tie(succ, position, hasLen, len, encoding, ignore) =
+        GetReadTextArg(env, funcArg[static_cast<size_t>(NARG_POS::SECOND)]);
     if (!succ) {
         UniError(EINVAL).ThrowErr(env, "Invalid option");
         return nullptr;
@@ -184,7 +185,8 @@ napi_value ReadText::Async(napi_env env, napi_callback_info info)
     unique_ptr<char[]> encoding;
     bool hasOp = false;
     bool hasLen = false;
-    tie(succ, position, hasLen, len, encoding, hasOp) = GetReadTextArg(env, funcArg[static_cast<size_t>(NARG_POS::SECOND)]);
+    tie(succ, position, hasLen, len, encoding, hasOp) =
+        GetReadTextArg(env, funcArg[static_cast<size_t>(NARG_POS::SECOND)]);
     if (!succ) {
         UniError(EINVAL).ThrowErr(env, "Invalid option");
         return nullptr;

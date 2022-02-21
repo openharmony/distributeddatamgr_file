@@ -63,7 +63,8 @@ napi_value StreamNExporter::ReadSync(napi_env env, napi_callback_info info)
     bool hasPos = false;
     int64_t pos;
     tie(succ, buf, len, hasPos, pos, ignore) =
-        CommonFunc::GetReadArg(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)], funcArg[static_cast<size_t>(NARG_POS::SECOND)]);
+        CommonFunc::GetReadArg(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)],
+                               funcArg[static_cast<size_t>(NARG_POS::SECOND)]);
     if (!succ) {
         return nullptr;
     }
@@ -123,7 +124,8 @@ napi_value StreamNExporter::WriteSync(napi_env env, napi_callback_info info)
     unique_ptr<char[]> bufGuard;
     bool hasPos = false;
     tie(succ, bufGuard, buf, len, hasPos, position) =
-        CommonFunc::GetWriteArg(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)], funcArg[static_cast<size_t>(NARG_POS::SECOND)]);
+        CommonFunc::GetWriteArg(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)],
+                                funcArg[static_cast<size_t>(NARG_POS::SECOND)]);
     if (!succ) {
         return nullptr;
     }
@@ -172,7 +174,8 @@ napi_value StreamNExporter::Write(napi_env env, napi_callback_info info)
     void *buf = nullptr;
     size_t len;
     tie(succ, bufGuard, buf, len, ignore, ignore) =
-        CommonFunc::GetWriteArg(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)], funcArg[static_cast<size_t>(NARG_POS::SECOND)]);
+        CommonFunc::GetWriteArg(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)],
+                                funcArg[static_cast<size_t>(NARG_POS::SECOND)]);
     if (!succ) {
         return nullptr;
     }
@@ -243,7 +246,8 @@ napi_value StreamNExporter::Read(napi_env env, napi_callback_info info)
     bool hasPosition = false;
     size_t position;
     tie(succ, buf, len, hasPosition, position, ignore) =
-        CommonFunc::GetReadArg(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)], funcArg[static_cast<size_t>(NARG_POS::SECOND)]);
+        CommonFunc::GetReadArg(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)],
+                               funcArg[static_cast<size_t>(NARG_POS::SECOND)]);
     if (!succ) {
         return nullptr;
     }

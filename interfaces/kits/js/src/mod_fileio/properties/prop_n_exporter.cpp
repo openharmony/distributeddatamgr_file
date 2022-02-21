@@ -179,7 +179,8 @@ napi_value PropNExporter::Access(napi_env env, napi_callback_info info)
     if (promise) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
     } else {
-        int cbInd = ((argc == static_cast<int>(NARG_CNT::TWO)) ? static_cast<int>(NARG_POS::SECOND) : static_cast<int>(NARG_POS::THIRD));
+        int cbInd =
+            ((argc == static_cast<int>(NARG_CNT::TWO)) ? static_cast<int>(NARG_POS::SECOND) : static_cast<int>(NARG_POS::THIRD));
         NVal cb(env, funcArg[cbInd]);
         return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
     }
@@ -250,7 +251,8 @@ napi_value PropNExporter::Mkdir(napi_env env, napi_callback_info info)
     path = tmp.get();
     int mode = 0775;
     int argc = funcArg.GetArgc();
-    if ((argc == static_cast<int>(NARG_CNT::TWO) && NVal(env, funcArg[static_cast<size_t>(NARG_POS::SECOND)]).TypeIs(napi_number)) ||
+    if ((argc == static_cast<int>(NARG_CNT::TWO) &&
+        NVal(env, funcArg[static_cast<size_t>(NARG_POS::SECOND)]).TypeIs(napi_number)) ||
         argc == static_cast<int>(NARG_CNT::THREE)) {
         tie(succ, mode) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::SECOND)]).ToInt32();
         if (!succ) {
@@ -274,10 +276,13 @@ napi_value PropNExporter::Mkdir(napi_env env, napi_callback_info info)
     };
     NVal thisVar(env, funcArg.GetThisVar());
     string procedureName = "fileioMkdir";
-    if ((argc == static_cast<int>(NARG_CNT::TWO) && NVal(env, funcArg[static_cast<size_t>(NARG_POS::SECOND)]).TypeIs(napi_number)) || argc == static_cast<int>(NARG_CNT::ONE)) {
+    if ((argc == static_cast<int>(NARG_CNT::TWO) &&
+        NVal(env, funcArg[static_cast<size_t>(NARG_POS::SECOND)]).TypeIs(napi_number)) ||
+        argc == static_cast<int>(NARG_CNT::ONE)) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbCompl).val_;
     } else {
-        int cbIdx = ((argc == static_cast<int>(NARG_CNT::TWO)) ? static_cast<int>(NARG_POS::SECOND) : static_cast<int>(NARG_POS::THIRD));
+        int cbIdx =
+            ((argc == static_cast<int>(NARG_CNT::TWO)) ? static_cast<int>(NARG_POS::SECOND) : static_cast<int>(NARG_POS::THIRD));
         NVal cb(env, funcArg[cbIdx]);
         return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbCompl).val_;
     }
@@ -420,7 +425,8 @@ napi_value PropNExporter::ReadSync(napi_env env, napi_callback_info info)
     bool hasPos = false;
     int64_t pos;
     tie(succ, buf, len, hasPos, pos, ignore) =
-        CommonFunc::GetReadArg(env, funcArg[static_cast<size_t>(NARG_POS::SECOND)], funcArg[static_cast<size_t>(NARG_POS::THIRD)]);
+        CommonFunc::GetReadArg(env, funcArg[static_cast<size_t>(NARG_POS::SECOND)],
+                               funcArg[static_cast<size_t>(NARG_POS::THIRD)]);
     if (!succ) {
         return nullptr;
     }
@@ -470,7 +476,8 @@ napi_value PropNExporter::Read(napi_env env, napi_callback_info info)
     }
 
     tie(succ, buf, len, hasPos, pos, offset) =
-        CommonFunc::GetReadArg(env, funcArg[static_cast<size_t>(NARG_POS::SECOND)], funcArg[static_cast<size_t>(NARG_POS::THIRD)]);
+        CommonFunc::GetReadArg(env, funcArg[static_cast<size_t>(NARG_POS::SECOND)],
+                               funcArg[static_cast<size_t>(NARG_POS::THIRD)]);
     if (!succ) {
         UniError(EINVAL).ThrowErr(env, "Invalid arguments");
         return nullptr;
@@ -518,7 +525,8 @@ napi_value PropNExporter::Read(napi_env env, napi_callback_info info)
     if (argc == static_cast<int>(NARG_CNT::TWO) || (argc == static_cast<int>(NARG_CNT::THREE) && hasOp)) {
         return NAsyncWorkPromise(env, thisVar).Schedule("FileIORead", cbExec, cbCompl).val_;
     } else {
-        int cbIdx = ((argc == static_cast<int>(NARG_CNT::THREE)) ? static_cast<int>(NARG_POS::THIRD) : static_cast<int>(NARG_POS::FOURTH));
+        int cbIdx =
+            ((argc == static_cast<int>(NARG_CNT::THREE)) ? static_cast<int>(NARG_POS::THIRD) : static_cast<int>(NARG_POS::FOURTH));
         NVal cb(env, funcArg[cbIdx]);
         return NAsyncWorkCallback(env, thisVar, cb).Schedule("FileIORead", cbExec, cbCompl).val_;
     }
@@ -563,7 +571,8 @@ napi_value PropNExporter::Write(napi_env env, napi_callback_info info)
     size_t position;
     bool hasPos = false;
     tie(succ, bufGuard, buf, len, hasPos, position) =
-        CommonFunc::GetWriteArg(env, funcArg[static_cast<size_t>(NARG_POS::SECOND)], funcArg[static_cast<size_t>(NARG_POS::THIRD)]);
+        CommonFunc::GetWriteArg(env, funcArg[static_cast<size_t>(NARG_POS::SECOND)],
+                                funcArg[static_cast<size_t>(NARG_POS::THIRD)]);
     if (!succ) {
         UniError(EINVAL).ThrowErr(env, "Invalid arguments");
         return nullptr;
@@ -600,7 +609,8 @@ napi_value PropNExporter::Write(napi_env env, napi_callback_info info)
     if (argc == static_cast<int>(NARG_CNT::TWO) || (argc == static_cast<int>(NARG_CNT::THREE) && hasOp)) {
         return NAsyncWorkPromise(env, thisVar).Schedule("FileIOWrite", cbExec, cbCompl).val_;
     } else {
-        int cbIdx = ((argc == static_cast<int>(NARG_CNT::THREE)) ? static_cast<int>(NARG_POS::THIRD) : static_cast<int>(NARG_POS::FOURTH));
+        int cbIdx =
+            ((argc == static_cast<int>(NARG_CNT::THREE)) ? static_cast<int>(NARG_POS::THIRD) : static_cast<int>(NARG_POS::FOURTH));
         NVal cb(env, funcArg[cbIdx]);
         return NAsyncWorkCallback(env, thisVar, cb).Schedule("FileIOWrite", cbExec, cbCompl).val_;
     }
@@ -655,7 +665,8 @@ napi_value PropNExporter::WriteSync(napi_env env, napi_callback_info info)
     unique_ptr<char[]> bufGuard;
     bool hasPos = false;
     tie(succ, bufGuard, buf, len, hasPos, position) =
-        CommonFunc::GetWriteArg(env, funcArg[static_cast<size_t>(NARG_POS::SECOND)], funcArg[static_cast<size_t>(NARG_POS::THIRD)]);
+        CommonFunc::GetWriteArg(env, funcArg[static_cast<size_t>(NARG_POS::SECOND)],
+                                funcArg[static_cast<size_t>(NARG_POS::THIRD)]);
     if (!succ) {
         return nullptr;
     }

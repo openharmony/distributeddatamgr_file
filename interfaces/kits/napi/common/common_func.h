@@ -17,7 +17,6 @@
 #define INTERFACES_KITS_NAPI_COMMON_COMMON_FUNC_H
 
 #include <string>
-#include <tuple>
 #include "napi/uni_header.h"
 
 namespace OHOS {

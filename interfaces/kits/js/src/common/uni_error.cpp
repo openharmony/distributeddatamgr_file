@@ -27,7 +27,8 @@ using namespace std;
 
 UniError::UniError() {}
 
-UniError::UniError(ELegacy eLegacy) : errno_(static_cast<int>(eLegacy)), codingSystem_(ErrCodeSystem::ERR_CODE_SYSTEM_LEGACY) {}
+UniError::UniError(ELegacy eLegacy) : errno_(static_cast<int>(eLegacy)),
+                   codingSystem_(ErrCodeSystem::ERR_CODE_SYSTEM_LEGACY) {}
 
 UniError::UniError(int ePosix) : errno_(ePosix), codingSystem_(ErrCodeSystem::ERR_CODE_SYSTEM_POSIX) {}
 
@@ -68,7 +69,8 @@ void UniError::SetErrno(int ePosix)
 
 std::string UniError::GetDefaultErrstr()
 {
-    if (codingSystem_ != ErrCodeSystem::ERR_CODE_SYSTEM_POSIX && codingSystem_ != ErrCodeSystem::ERR_CODE_SYSTEM_LEGACY) {
+    if (codingSystem_ != ErrCodeSystem::ERR_CODE_SYSTEM_POSIX &&
+        codingSystem_ != ErrCodeSystem::ERR_CODE_SYSTEM_LEGACY) {
         return "BUG: Curious coding system";
     }
     return strerror(GetErrno(ErrCodeSystem::ERR_CODE_SYSTEM_POSIX));

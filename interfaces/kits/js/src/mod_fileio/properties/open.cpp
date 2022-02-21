@@ -115,7 +115,8 @@ napi_value Open::Async(napi_env env, napi_callback_info info)
     }
     int mode = 0;
     if (argc == static_cast<int>(NARG_CNT::FOUR) ||
-        (argc == static_cast<int>(NARG_CNT::THREE) && NVal(env, funcArg[static_cast<size_t>(NARG_POS::THIRD)]).TypeIs(napi_number))) {
+        (argc == static_cast<int>(NARG_CNT::THREE) &&
+                 NVal(env, funcArg[static_cast<size_t>(NARG_POS::THIRD)]).TypeIs(napi_number))) {
         tie(succ, mode) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::THIRD)]).ToInt32();
         if (!succ) {
             UniError(EINVAL).ThrowErr(env, "Invalid mode");
@@ -135,7 +136,8 @@ napi_value Open::Async(napi_env env, napi_callback_info info)
     NVal thisVar(env, funcArg.GetThisVar());
     if (argc == static_cast<int>(NARG_CNT::ONE) || (argc == static_cast<int>(NARG_CNT::TWO) &&
         NVal(env, funcArg[static_cast<size_t>(NARG_POS::SECOND)]).TypeIs(napi_number)) ||
-        (argc == static_cast<int>(NARG_CNT::THREE) && (NVal(env, funcArg[static_cast<size_t>(NARG_POS::THIRD)]).TypeIs(napi_number)))) {
+        (argc == static_cast<int>(NARG_CNT::THREE) &&
+                 (NVal(env, funcArg[static_cast<size_t>(NARG_POS::THIRD)]).TypeIs(napi_number)))) {
         return NAsyncWorkPromise(env, thisVar).Schedule("FileIOOpen", cbExec, cbComplCallback).val_;
     } else {
         int cbIdx = argc - 1;
