@@ -14,7 +14,6 @@
  */
 
 #include "environment_n_exporter.h"
-#include "os_account_manager.h"
 
 #include <string>
 
