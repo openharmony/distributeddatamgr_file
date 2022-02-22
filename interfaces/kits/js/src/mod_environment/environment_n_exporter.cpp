@@ -64,12 +64,7 @@ napi_value GetStorageDataDir(napi_env env, napi_callback_info info)
 
 int GetUserId()
 {
-    OHOS::AccountSA::OsAccountInfo osAccountInfo;
-    if (OHOS::AccountSA::OsAccountManager::QueryCurrentOsAccount(osAccountInfo)!=ERRNO_NOERR) {
-        return 0;
-    } else {
-        return osAccountInfo.GetLocalId();
-    }
+    return 0;
 }
 
 napi_value GetUserDataDir(napi_env env, napi_callback_info info)
