@@ -20,7 +20,7 @@
 namespace OHOS {
 namespace DistributedFS {
 namespace ModuleFile {
-enum class COMMON_NUM {
+enum COMMON_NUM {
     ZERO = 0,
     ONE = 1,
     TWO = 2,

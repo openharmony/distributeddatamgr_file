@@ -70,7 +70,8 @@ static tuple<bool, unique_ptr<char[]>, HASH_ALGORITHM_TYPE, bool> GetHashArgs(na
         return { false, nullptr, HASH_ALGORITHM_TYPE::HASH_ALGORITHM_TYPE_UNSUPPORTED, isPromise };
     }
 
-    if (funcArg.GetArgc() == static_cast<size_t>(NARG_CNT::THREE) && !NVal(env, funcArg[static_cast<size_t>(NARG_POS::SECOND)]).TypeIs(napi_function)) {
+    if (funcArg.GetArgc() == static_cast<size_t>(NARG_CNT::THREE) &&
+        !NVal(env, funcArg[static_cast<size_t>(NARG_POS::SECOND)]).TypeIs(napi_function)) {
         UniError(EINVAL).ThrowErr(env, "Invalid callback");
         return { false, nullptr, HASH_ALGORITHM_TYPE::HASH_ALGORITHM_TYPE_UNSUPPORTED, isPromise };
     }

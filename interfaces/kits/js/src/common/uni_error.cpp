@@ -28,7 +28,7 @@ using namespace std;
 UniError::UniError() {}
 
 UniError::UniError(ELegacy eLegacy) : errno_(static_cast<int>(eLegacy)),
-                   codingSystem_(ErrCodeSystem::ERR_CODE_SYSTEM_LEGACY) {}
+    codingSystem_(ErrCodeSystem::ERR_CODE_SYSTEM_LEGACY) {}
 
 UniError::UniError(int ePosix) : errno_(ePosix), codingSystem_(ErrCodeSystem::ERR_CODE_SYSTEM_POSIX) {}
 
