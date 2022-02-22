@@ -251,13 +251,12 @@ napi_value PropNExporter::Mkdir(napi_env env, napi_callback_info info)
     path = tmp.get();
     int mode = 0775;
     int argc = funcArg.GetArgc();
-    if ((argc == static_cast<int>(NARG_CNT::TWO) &&
-        NVal(env, funcArg[static_cast<size_t>(NARG_POS::SECOND)]).TypeIs(napi_number)) ||
-             argc == static_cast<int>(NARG_CNT::THREE)) {
+    if ((argc == static_cast<int>(NARG_CNT::TWO) && NVal(env, 
+        funcArg[static_cast<size_t>(NARG_POS::SECOND)]).TypeIs(napi_number)) || argc == static_cast<int>(NARG_CNT::THREE)) {
         tie(succ, mode) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::SECOND)]).ToInt32();
         if (!succ) {
             UniError(EINVAL).ThrowErr(env, "Invalid mode");
-            return nullptr; 
+            return nullptr;
         }
     }
     auto cbExec = [path, mode](napi_env env) -> UniError {

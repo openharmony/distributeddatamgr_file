@@ -173,9 +173,8 @@ napi_value StreamNExporter::Write(napi_env env, napi_callback_info info)
     unique_ptr<char[]> bufGuard;
     void *buf = nullptr;
     size_t len;
-    tie(succ, bufGuard, buf, len, ignore, ignore) =
-        CommonFunc::GetWriteArg(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)],
-            funcArg[static_cast<size_t>(NARG_POS::SECOND)]);
+    tie(succ, bufGuard, buf, len, ignore, ignore) = CommonFunc::GetWriteArg(env,
+        funcArg[static_cast<size_t>(NARG_POS::FIRST)], funcArg[static_cast<size_t>(NARG_POS::SECOND)]);
     if (!succ) {
         return nullptr;
     }
