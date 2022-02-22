@@ -133,9 +133,10 @@ napi_value Open::Async(napi_env env, napi_callback_info info)
         return { NVal::CreateInt64(env, *arg) };
     };
     NVal thisVar(env, funcArg.GetThisVar());
-    if (argc == static_cast<int>(NARG_CNT::ONE) || (argc == static_cast<int>(NARG_CNT::TWO) && NVal(env,
-        funcArg[static_cast<size_t>(NARG_POS::SECOND)]).TypeIs(napi_number)) || (argc == static_cast<int>(NARG_CNT::THREE) &&
-            (NVal(env, funcArg[static_cast<size_t>(NARG_POS::THIRD)]).TypeIs(napi_number)))) {
+    if (argc == static_cast<int>(NARG_CNT::ONE) || (argc == static_cast<int>(NARG_CNT::TWO) &&
+        NVal(env,funcArg[static_cast<size_t>(NARG_POS::SECOND)]).TypeIs(napi_number)) ||
+        (argc == static_cast<int>(NARG_CNT::THREE) &&
+        (NVal(env, funcArg[static_cast<size_t>(NARG_POS::THIRD)]).TypeIs(napi_number)))) {
         return NAsyncWorkPromise(env, thisVar).Schedule("FileIOOpen", cbExec, cbComplCallback).val_;
     } else {
         int cbIdx = argc - 1;
