@@ -67,14 +67,14 @@ static tuple<bool, ssize_t, bool, ssize_t, unique_ptr<char[]>, bool> GetReadText
 napi_value ReadText::Sync(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::ONE), static_cast<size_t>(NARG_CNT::THREE))) {
+    if (!funcArg.InitArgs(NARG_CNT::ONE, NARG_CNT::THREE)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
     unique_ptr<char[]> path;
     bool succ = false;
     FDGuard sfd;
-    tie(succ, path, ignore) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).ToUTF8String();
+    tie(succ, path, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
     if (!succ) {
         UniError(EINVAL).ThrowErr(env, "Invalid path");
         return nullptr;
@@ -83,8 +83,7 @@ napi_value ReadText::Sync(napi_env env, napi_callback_info info)
     ssize_t len = 0;
     unique_ptr<char[]> encoding;
     bool hasLen = false;
-    tie(succ, position, hasLen, len, encoding, ignore) =
-        GetReadTextArg(env, funcArg[static_cast<size_t>(NARG_POS::SECOND)]);
+    tie(succ, position, hasLen, len, encoding, ignore) = GetReadTextArg(env, funcArg[NARG_POS::SECOND]);
     if (!succ) {
         UniError(EINVAL).ThrowErr(env, "Invalid option");
         return nullptr;
@@ -169,13 +168,13 @@ UniError ReadText::AsyncExec(const std::string &path, std::shared_ptr<AsyncReadT
 napi_value ReadText::Async(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::ONE), static_cast<size_t>(NARG_CNT::THREE))) {
+    if (!funcArg.InitArgs(NARG_CNT::ONE, NARG_CNT::THREE)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
     unique_ptr<char[]> path;
     bool succ = false;
-    tie(succ, path, ignore) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).ToUTF8String();
+    tie(succ, path, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
     if (!succ) {
         UniError(EINVAL).ThrowErr(env, "Invalid path");
         return nullptr;
@@ -185,8 +184,7 @@ napi_value ReadText::Async(napi_env env, napi_callback_info info)
     unique_ptr<char[]> encoding;
     bool hasOp = false;
     bool hasLen = false;
-    tie(succ, position, hasLen, len, encoding, hasOp) =
-        GetReadTextArg(env, funcArg[static_cast<size_t>(NARG_POS::SECOND)]);
+    tie(succ, position, hasLen, len, encoding, hasOp) = GetReadTextArg(env, funcArg[NARG_POS::SECOND]);
     if (!succ) {
         UniError(EINVAL).ThrowErr(env, "Invalid option");
         return nullptr;
@@ -207,10 +205,10 @@ napi_value ReadText::Async(napi_env env, napi_callback_info info)
     };
     int argc = funcArg.GetArgc();
     NVal thisVar(env, funcArg.GetThisVar());
-    if (argc == static_cast<int>(NARG_CNT::ONE) || (argc == static_cast<int>(NARG_CNT::TWO) && hasOp)) {
+    if (argc == NARG_CNT::ONE || (argc == NARG_CNT::TWO && hasOp)) {
         return NAsyncWorkPromise(env, thisVar).Schedule("FileIOReadText", cbExec, cbComplete).val_;
     } else {
-        int cbIdx = !hasOp ? static_cast<int>(NARG_POS::SECOND) : static_cast<int>(NARG_POS::THIRD);
+        int cbIdx = !hasOp ? NARG_POS::SECOND : NARG_POS::THIRD;
         NVal cb(env, funcArg[cbIdx]);
         return NAsyncWorkCallback(env, thisVar, cb).Schedule("FileIOReadText", cbExec, cbComplete).val_;
     }

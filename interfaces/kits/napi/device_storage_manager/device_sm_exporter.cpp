@@ -41,7 +41,7 @@ using namespace std;
 namespace OHOS {
 namespace DistributedFS {
 namespace ModuleDSMExpoter {
-enum class COMMON_NUM {
+enum COMMON_NUM {
     ZERO = 0,
     ONE = 1,
     TWO = 2,

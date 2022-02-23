@@ -39,7 +39,7 @@ using namespace std;
 napi_value WatcherNExporter::Constructor(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::ZERO))) {
+    if (!funcArg.InitArgs(NARG_CNT::ZERO)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -57,7 +57,7 @@ napi_value WatcherNExporter::Constructor(napi_env env, napi_callback_info info)
 napi_value WatcherNExporter::StopSync(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::ZERO))) {
+    if (!funcArg.InitArgs(NARG_CNT::ZERO)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -75,7 +75,7 @@ napi_value WatcherNExporter::StopSync(napi_env env, napi_callback_info info)
 napi_value WatcherNExporter::Stop(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::ZERO), static_cast<size_t>(NARG_CNT::ONE))) {
+    if (!funcArg.InitArgs(NARG_CNT::ZERO, NARG_CNT::ONE)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -100,10 +100,10 @@ napi_value WatcherNExporter::Stop(napi_env env, napi_callback_info info)
 
     string procedureName = "FileIOCreaterWatcher";
     NVal thisVar(env, funcArg.GetThisVar());
-    if (funcArg.GetArgc() == static_cast<size_t>(NARG_CNT::ZERO)) {
+    if (funcArg.GetArgc() == NARG_CNT::ZERO) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbCompl).val_;
     } else {
-        NVal cb(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]);
+        NVal cb(env, funcArg[NARG_POS::FIRST]);
         return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbCompl).val_;
     }
 }

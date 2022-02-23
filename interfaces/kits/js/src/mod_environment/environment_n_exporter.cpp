@@ -35,7 +35,7 @@ namespace {
 napi_value GetStorageDataDir(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::ZERO), static_cast<size_t>(NARG_CNT::ONE))) {
+    if (!funcArg.InitArgs(NARG_CNT::ZERO, NARG_CNT::ONE)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -52,10 +52,10 @@ napi_value GetStorageDataDir(napi_env env, napi_callback_info info)
 
     std::string procedureName = "GetStorageDataDir";
     NVal thisVar(env, funcArg.GetThisVar());
-    if (funcArg.GetArgc() == static_cast<size_t>(NARG_CNT::ZERO)) {
+    if (funcArg.GetArgc() == NARG_CNT::ZERO) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
     } else {
-        NVal cb(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]);
+        NVal cb(env, funcArg[NARG_POS::FIRST]);
         return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
     }
     return NVal::CreateUndefined(env).val_;
@@ -69,7 +69,7 @@ int GetUserId()
 napi_value GetUserDataDir(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::ZERO), static_cast<size_t>(NARG_CNT::ONE))) {
+    if (!funcArg.InitArgs(NARG_CNT::ZERO, NARG_CNT::ONE)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -88,10 +88,10 @@ napi_value GetUserDataDir(napi_env env, napi_callback_info info)
 
     std::string procedureName = "GetUserDataDir";
     NVal thisVar(env, funcArg.GetThisVar());
-    if (funcArg.GetArgc() == static_cast<size_t>(NARG_CNT::ZERO)) {
+    if (funcArg.GetArgc() == NARG_CNT::ZERO) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
     } else {
-        NVal cb(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]);
+        NVal cb(env, funcArg[NARG_POS::FIRST]);
         return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
     }
     return NVal::CreateUndefined(env).val_;

@@ -23,7 +23,7 @@
 
 namespace OHOS {
 namespace DistributedFS {
-enum class NARG_CNT {
+enum NARG_CNT {
     ZERO = 0,
     ONE = 1,
     TWO = 2,
@@ -31,7 +31,7 @@ enum class NARG_CNT {
     FOUR = 4,
 };
 
-enum class NARG_POS {
+enum NARG_POS {
     FIRST = 0,
     SECOND = 1,
     THIRD = 2,

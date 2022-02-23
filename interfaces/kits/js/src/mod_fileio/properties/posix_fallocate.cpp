@@ -31,19 +31,19 @@ static tuple<bool, int, int, int> GetPosixFallocateArg(napi_env env, const NFunc
 {
     bool succ = false;
     int fd;
-    tie(succ, fd) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).ToInt32();
+    tie(succ, fd) = NVal(env, funcArg[NARG_POS::FIRST]).ToInt32();
     if (!succ) {
         UniError(EINVAL).ThrowErr(env, "Invalid fd");
         return { false, -1, -1, -1 };
     }
     int offset;
-    tie(succ, offset) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::SECOND)]).ToInt32();
+    tie(succ, offset) = NVal(env, funcArg[NARG_POS::SECOND]).ToInt32();
     if (!succ) {
         UniError(EINVAL).ThrowErr(env, "Invalid offset");
         return { false, -1, -1, -1 };
     }
     int len;
-    tie(succ, len) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::THIRD)]).ToInt32();
+    tie(succ, len) = NVal(env, funcArg[NARG_POS::THIRD]).ToInt32();
     if (!succ) {
         UniError(EINVAL).ThrowErr(env, "Invalid len");
         return { false, -1, -1, -1 };
@@ -54,7 +54,7 @@ static tuple<bool, int, int, int> GetPosixFallocateArg(napi_env env, const NFunc
 napi_value PosixFallocate::Sync(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::THREE))) {
+    if (!funcArg.InitArgs(NARG_CNT::THREE)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -77,7 +77,7 @@ napi_value PosixFallocate::Sync(napi_env env, napi_callback_info info)
 napi_value PosixFallocate::Async(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::THREE), static_cast<size_t>(NARG_CNT::FOUR))) {
+    if (!funcArg.InitArgs(NARG_CNT::THREE, NARG_CNT::FOUR)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -105,10 +105,10 @@ napi_value PosixFallocate::Async(napi_env env, napi_callback_info info)
     NVal thisVar(env, funcArg.GetThisVar());
     string procedureName = "fileioPosixFallocate";
     int argc = funcArg.GetArgc();
-    if (argc == static_cast<int>(NARG_CNT::THREE)) {
+    if (argc == NARG_CNT::THREE) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbCompl).val_;
     } else {
-        NVal cb(env, funcArg[static_cast<size_t>(NARG_POS::FOURTH)]);
+        NVal cb(env, funcArg[NARG_POS::FOURTH]);
         return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbCompl).val_;
     }
     return NVal::CreateUndefined(env).val_;

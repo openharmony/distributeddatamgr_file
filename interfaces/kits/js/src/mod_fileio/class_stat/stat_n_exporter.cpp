@@ -39,7 +39,7 @@ using namespace std;
 static napi_value CheckStatMode(napi_env env, napi_callback_info info, mode_t mode)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::ZERO))) {
+    if (!funcArg.InitArgs(NARG_CNT::ZERO)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -91,7 +91,7 @@ napi_value StatNExporter::IsSymbolicLink(napi_env env, napi_callback_info info)
 napi_value StatNExporter::GetDev(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::ZERO))) {
+    if (!funcArg.InitArgs(NARG_CNT::ZERO)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -107,7 +107,7 @@ napi_value StatNExporter::GetDev(napi_env env, napi_callback_info info)
 napi_value StatNExporter::GetIno(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::ZERO))) {
+    if (!funcArg.InitArgs(NARG_CNT::ZERO)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -123,7 +123,7 @@ napi_value StatNExporter::GetIno(napi_env env, napi_callback_info info)
 napi_value StatNExporter::GetMode(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::ZERO))) {
+    if (!funcArg.InitArgs(NARG_CNT::ZERO)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -139,7 +139,7 @@ napi_value StatNExporter::GetMode(napi_env env, napi_callback_info info)
 napi_value StatNExporter::GetNlink(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::ZERO))) {
+    if (!funcArg.InitArgs(NARG_CNT::ZERO)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -155,7 +155,7 @@ napi_value StatNExporter::GetNlink(napi_env env, napi_callback_info info)
 napi_value StatNExporter::GetUid(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::ZERO))) {
+    if (!funcArg.InitArgs(NARG_CNT::ZERO)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -171,7 +171,7 @@ napi_value StatNExporter::GetUid(napi_env env, napi_callback_info info)
 napi_value StatNExporter::GetGid(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::ZERO))) {
+    if (!funcArg.InitArgs(NARG_CNT::ZERO)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -187,7 +187,7 @@ napi_value StatNExporter::GetGid(napi_env env, napi_callback_info info)
 napi_value StatNExporter::GetRdev(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::ZERO))) {
+    if (!funcArg.InitArgs(NARG_CNT::ZERO)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -203,7 +203,7 @@ napi_value StatNExporter::GetRdev(napi_env env, napi_callback_info info)
 napi_value StatNExporter::GetSize(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::ZERO))) {
+    if (!funcArg.InitArgs(NARG_CNT::ZERO)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -219,7 +219,7 @@ napi_value StatNExporter::GetSize(napi_env env, napi_callback_info info)
 napi_value StatNExporter::GetBlksize(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::ZERO))) {
+    if (!funcArg.InitArgs(NARG_CNT::ZERO)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -235,7 +235,7 @@ napi_value StatNExporter::GetBlksize(napi_env env, napi_callback_info info)
 napi_value StatNExporter::GetBlocks(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::ZERO))) {
+    if (!funcArg.InitArgs(NARG_CNT::ZERO)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -251,7 +251,7 @@ napi_value StatNExporter::GetBlocks(napi_env env, napi_callback_info info)
 napi_value StatNExporter::GetAtime(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::ZERO))) {
+    if (!funcArg.InitArgs(NARG_CNT::ZERO)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -267,7 +267,7 @@ napi_value StatNExporter::GetAtime(napi_env env, napi_callback_info info)
 napi_value StatNExporter::GetMtime(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::ZERO))) {
+    if (!funcArg.InitArgs(NARG_CNT::ZERO)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -283,7 +283,7 @@ napi_value StatNExporter::GetMtime(napi_env env, napi_callback_info info)
 napi_value StatNExporter::GetCtime(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::ZERO))) {
+    if (!funcArg.InitArgs(NARG_CNT::ZERO)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -299,7 +299,7 @@ napi_value StatNExporter::GetCtime(napi_env env, napi_callback_info info)
 napi_value StatNExporter::Constructor(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::ZERO))) {
+    if (!funcArg.InitArgs(NARG_CNT::ZERO)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }

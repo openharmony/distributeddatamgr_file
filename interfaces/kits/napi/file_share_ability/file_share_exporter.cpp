@@ -49,7 +49,7 @@ const int FILE_IO_ERROR = 300;
 const int FILE_PATH_ERROR = 301;
 const int SUCCESS = 0;
 const int FAILED = -1;
-enum class COMMON_NUM {
+enum COMMON_NUM {
     ZERO = 0,
     ONE = 1,
     TWO = 2,

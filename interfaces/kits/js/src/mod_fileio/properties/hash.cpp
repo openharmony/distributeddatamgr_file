@@ -25,7 +25,7 @@ namespace DistributedFS {
 namespace ModuleFileIO {
 using namespace std;
 
-enum class HASH_ALGORITHM_TYPE {
+enum HASH_ALGORITHM_TYPE {
     HASH_ALGORITHM_TYPE_MD5,
     HASH_ALGORITHM_TYPE_SHA1,
     HASH_ALGORITHM_TYPE_SHA256,
@@ -35,13 +35,13 @@ enum class HASH_ALGORITHM_TYPE {
 static HASH_ALGORITHM_TYPE GetHashAlgorithm(const unique_ptr<char[]> &alg, const size_t algLen)
 {
     if (algLen == ((sizeof("md5") - 1)) && !strncmp(alg.get(), "md5", algLen)) {
-        return HASH_ALGORITHM_TYPE::HASH_ALGORITHM_TYPE_MD5;
+        return HASH_ALGORITHM_TYPE_MD5;
     } else if (algLen == ((sizeof("sha1") - 1)) && !strncmp(alg.get(), "sha1", algLen)) {
-        return HASH_ALGORITHM_TYPE::HASH_ALGORITHM_TYPE_SHA1;
+        return HASH_ALGORITHM_TYPE_SHA1;
     } else if (algLen == ((sizeof("sha256") - 1)) && !strncmp(alg.get(), "sha256", algLen)) {
-        return HASH_ALGORITHM_TYPE::HASH_ALGORITHM_TYPE_SHA256;
+        return HASH_ALGORITHM_TYPE_SHA256;
     } else {
-        return HASH_ALGORITHM_TYPE::HASH_ALGORITHM_TYPE_UNSUPPORTED;
+        return HASH_ALGORITHM_TYPE_UNSUPPORTED;
     }
 }
 
@@ -50,40 +50,39 @@ static tuple<bool, unique_ptr<char[]>, HASH_ALGORITHM_TYPE, bool> GetHashArgs(na
     bool isPromise = false;
     bool succ = false;
     unique_ptr<char[]> path;
-    tie(succ, path, ignore) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).ToUTF8String();
+    tie(succ, path, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
     if (!succ) {
         UniError(EINVAL).ThrowErr(env, "Invalid path");
-        return { false, nullptr, HASH_ALGORITHM_TYPE::HASH_ALGORITHM_TYPE_UNSUPPORTED, isPromise };
+        return { false, nullptr, HASH_ALGORITHM_TYPE_UNSUPPORTED, isPromise };
     }
 
     unique_ptr<char[]> alg;
     size_t algLen;
-    tie(succ, alg, algLen) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::SECOND)]).ToUTF8String();
+    tie(succ, alg, algLen) = NVal(env, funcArg[NARG_POS::SECOND]).ToUTF8String();
     if (!succ) {
         UniError(EINVAL).ThrowErr(env, "Invalid algorithm");
-        return { false, nullptr, HASH_ALGORITHM_TYPE::HASH_ALGORITHM_TYPE_UNSUPPORTED, isPromise };
+        return { false, nullptr, HASH_ALGORITHM_TYPE_UNSUPPORTED, isPromise };
     }
 
     HASH_ALGORITHM_TYPE algType = GetHashAlgorithm(alg, algLen);
-    if (algType == HASH_ALGORITHM_TYPE::HASH_ALGORITHM_TYPE_UNSUPPORTED) {
+    if (algType == HASH_ALGORITHM_TYPE_UNSUPPORTED) {
         UniError(EINVAL).ThrowErr(env, "Invalid algorithm");
-        return { false, nullptr, HASH_ALGORITHM_TYPE::HASH_ALGORITHM_TYPE_UNSUPPORTED, isPromise };
+        return { false, nullptr, HASH_ALGORITHM_TYPE_UNSUPPORTED, isPromise };
     }
 
-    if (funcArg.GetArgc() == static_cast<size_t>(NARG_CNT::THREE) &&
-        !NVal(env, funcArg[static_cast<size_t>(NARG_POS::SECOND)]).TypeIs(napi_function)) {
+    if (funcArg.GetArgc() == NARG_CNT::THREE && !NVal(env, funcArg[NARG_POS::SECOND]).TypeIs(napi_function)) {
         UniError(EINVAL).ThrowErr(env, "Invalid callback");
-        return { false, nullptr, HASH_ALGORITHM_TYPE::HASH_ALGORITHM_TYPE_UNSUPPORTED, isPromise };
+        return { false, nullptr, HASH_ALGORITHM_TYPE_UNSUPPORTED, isPromise };
     }
 
-    isPromise = funcArg.GetArgc() == static_cast<size_t>(NARG_CNT::TWO);
+    isPromise = funcArg.GetArgc() == NARG_CNT::TWO;
     return { true, move(path), algType, isPromise };
 }
 
 napi_value Hash::Async(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::TWO), static_cast<size_t>(NARG_CNT::THREE))) {
+    if (!funcArg.InitArgs(NARG_CNT::TWO, NARG_CNT::THREE)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -101,11 +100,11 @@ napi_value Hash::Async(napi_env env, napi_callback_info info)
     auto cbExec = [fpath = string(fpath.release()), arg, algType](napi_env env) -> UniError {
         int ret = EIO;
         string &res = *arg;
-        if (algType == HASH_ALGORITHM_TYPE::HASH_ALGORITHM_TYPE_MD5) {
+        if (algType == HASH_ALGORITHM_TYPE_MD5) {
             tie(ret, res) = HashFile::HashWithMD5(fpath);
-        } else if (algType == HASH_ALGORITHM_TYPE::HASH_ALGORITHM_TYPE_SHA1) {
+        } else if (algType == HASH_ALGORITHM_TYPE_SHA1) {
             tie(ret, res) = HashFile::HashWithSHA1(fpath);
-        } else if (algType == HASH_ALGORITHM_TYPE::HASH_ALGORITHM_TYPE_SHA256) {
+        } else if (algType == HASH_ALGORITHM_TYPE_SHA256) {
             tie(ret, res) = HashFile::HashWithSHA256(fpath);
         }
         return UniError(ret);
@@ -123,7 +122,7 @@ napi_value Hash::Async(napi_env env, napi_callback_info info)
     if (isPromise) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
     } else {
-        NVal cb(env, funcArg[static_cast<size_t>(NARG_POS::THIRD)]);
+        NVal cb(env, funcArg[NARG_POS::THIRD]);
         return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
     }
 }

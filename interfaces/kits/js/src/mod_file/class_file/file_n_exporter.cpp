@@ -820,7 +820,7 @@ void ReadArrayBufferComp(napi_env env, napi_status status, void *data)
 napi_value FileNExporter::Mkdir(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::ONE))) {
+    if (!funcArg.InitArgs(NARG_CNT::ONE)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -830,14 +830,13 @@ napi_value FileNExporter::Mkdir(napi_env env, napi_callback_info info)
         .asyncWork = nullptr,
     };
     tie(succ, asyncCallbackInfo->callback[COMMON_NUM::ZERO], asyncCallbackInfo->callback[COMMON_NUM::ONE],
-        asyncCallbackInfo->callback[COMMON_NUM::TWO]) =
-            CommonFunc::GetCallbackHandles(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]);
+        asyncCallbackInfo->callback[COMMON_NUM::TWO]) = CommonFunc::GetCallbackHandles(env, funcArg[NARG_POS::FIRST]);
 
     unique_ptr<char[]> uri;
-    tie(succ, uri, ignore) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).GetProp("uri").ToUTF8String();
+    tie(succ, uri, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("uri").ToUTF8String();
 
     bool recursive = false;
-    tie(succ, recursive) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).GetProp("recursive").ToBool();
+    tie(succ, recursive) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("recursive").ToBool();
 
     string path = (uri == nullptr) ? "" : uri.get();
     if (!CheckUri(env, path)) {
@@ -858,7 +857,7 @@ napi_value FileNExporter::Mkdir(napi_env env, napi_callback_info info)
 napi_value FileNExporter::Rmdir(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::ONE))) {
+    if (!funcArg.InitArgs(NARG_CNT::ONE)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -868,14 +867,13 @@ napi_value FileNExporter::Rmdir(napi_env env, napi_callback_info info)
         .asyncWork = nullptr,
     };
     tie(succ, asyncCallbackInfo->callback[COMMON_NUM::ZERO], asyncCallbackInfo->callback[COMMON_NUM::ONE],
-        asyncCallbackInfo->callback[COMMON_NUM::TWO]) =
-            CommonFunc::GetCallbackHandles(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]);
+        asyncCallbackInfo->callback[COMMON_NUM::TWO]) = CommonFunc::GetCallbackHandles(env, funcArg[NARG_POS::FIRST]);
 
     unique_ptr<char[]> uri;
-    tie(succ, uri, ignore) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).GetProp("uri").ToUTF8String();
+    tie(succ, uri, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("uri").ToUTF8String();
 
     bool recursive = false;
-    tie(succ, recursive) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).GetProp("recursive").ToBool();
+    tie(succ, recursive) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("recursive").ToBool();
 
     string path = (uri == nullptr) ? "" : uri.get();
     if (!CheckUri(env, path)) {
@@ -897,7 +895,7 @@ napi_value FileNExporter::Rmdir(napi_env env, napi_callback_info info)
 napi_value FileNExporter::Get(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::ONE))) {
+    if (!funcArg.InitArgs(NARG_CNT::ONE)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -907,13 +905,12 @@ napi_value FileNExporter::Get(napi_env env, napi_callback_info info)
     };
     bool succ = false;
     tie(succ, asyncCallbackInfo->callback[COMMON_NUM::ZERO], asyncCallbackInfo->callback[COMMON_NUM::ONE],
-        asyncCallbackInfo->callback[COMMON_NUM::TWO]) =
-            CommonFunc::GetCallbackHandles(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]);
+        asyncCallbackInfo->callback[COMMON_NUM::TWO]) = CommonFunc::GetCallbackHandles(env, funcArg[NARG_POS::FIRST]);
     unique_ptr<char[]> uri = nullptr;
-    tie(succ, uri, ignore) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).GetProp("uri").ToUTF8String();
+    tie(succ, uri, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("uri").ToUTF8String();
 
     bool recursive = false;
-    tie(succ, recursive) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).GetProp("recursive").ToBool();
+    tie(succ, recursive) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("recursive").ToBool();
     string path = (uri == nullptr) ? "" : uri.get();
     asyncCallbackInfo->originUri = path;
     if (!CheckUri(env, path)) {
@@ -935,7 +932,7 @@ napi_value FileNExporter::Get(napi_env env, napi_callback_info info)
 napi_value FileNExporter::List(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::ONE))) {
+    if (!funcArg.InitArgs(NARG_CNT::ONE)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -945,11 +942,10 @@ napi_value FileNExporter::List(napi_env env, napi_callback_info info)
     };
     bool succ = false;
     tie(succ, asyncCallbackInfo->callback[COMMON_NUM::ZERO], asyncCallbackInfo->callback[COMMON_NUM::ONE],
-        asyncCallbackInfo->callback[COMMON_NUM::TWO]) =
-            CommonFunc::GetCallbackHandles(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]);
+        asyncCallbackInfo->callback[COMMON_NUM::TWO]) = CommonFunc::GetCallbackHandles(env, funcArg[NARG_POS::FIRST]);
 
     unique_ptr<char[]> uri = nullptr;
-    tie(succ, uri, ignore) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).GetProp("uri").ToUTF8String();
+    tie(succ, uri, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("uri").ToUTF8String();
 
     string path = (uri == nullptr) ? "" : uri.get();
     asyncCallbackInfo->originUri = path;
@@ -971,7 +967,7 @@ napi_value FileNExporter::List(napi_env env, napi_callback_info info)
 napi_value FileNExporter::Copy(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::ONE))) {
+    if (!funcArg.InitArgs(NARG_CNT::ONE)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -981,14 +977,11 @@ napi_value FileNExporter::Copy(napi_env env, napi_callback_info info)
         .asyncWork = nullptr,
     };
     tie(succ, asyncCallbackInfo->callback[COMMON_NUM::ZERO], asyncCallbackInfo->callback[COMMON_NUM::ONE],
-        asyncCallbackInfo->callback[COMMON_NUM::TWO]) =
-            CommonFunc::GetCallbackHandles(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]);
+        asyncCallbackInfo->callback[COMMON_NUM::TWO]) = CommonFunc::GetCallbackHandles(env, funcArg[NARG_POS::FIRST]);
 
     unique_ptr<char[]> srcUri, dstUri;
-    tie(succ, srcUri, ignore) =
-        NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).GetProp("srcUri").ToUTF8String();
-    tie(succ, dstUri, ignore) =
-        NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).GetProp("dstUri").ToUTF8String();
+    tie(succ, srcUri, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("srcUri").ToUTF8String();
+    tie(succ, dstUri, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("dstUri").ToUTF8String();
     string srcPath = ((srcUri == nullptr) ? "" : (srcUri.get()));
     string dstPath = ((dstUri == nullptr) ? "" : (dstUri.get()));
     asyncCallbackInfo->originDst = dstPath;
@@ -1010,7 +1003,7 @@ napi_value FileNExporter::Copy(napi_env env, napi_callback_info info)
 napi_value FileNExporter::Move(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::ONE))) {
+    if (!funcArg.InitArgs(NARG_CNT::ONE)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -1020,14 +1013,11 @@ napi_value FileNExporter::Move(napi_env env, napi_callback_info info)
         .asyncWork = nullptr,
     };
     tie(succ, asyncCallbackInfo->callback[COMMON_NUM::ZERO], asyncCallbackInfo->callback[COMMON_NUM::ONE],
-        asyncCallbackInfo->callback[COMMON_NUM::TWO]) =
-            CommonFunc::GetCallbackHandles(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]);
+        asyncCallbackInfo->callback[COMMON_NUM::TWO]) = CommonFunc::GetCallbackHandles(env, funcArg[NARG_POS::FIRST]);
 
     unique_ptr<char[]> srcUri, dstUri;
-    tie(succ, srcUri, ignore) =
-        NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).GetProp("srcUri").ToUTF8String();
-    tie(succ, dstUri, ignore) =
-        NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).GetProp("dstUri").ToUTF8String();
+    tie(succ, srcUri, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("srcUri").ToUTF8String();
+    tie(succ, dstUri, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("dstUri").ToUTF8String();
 
     string srcPath = ((srcUri == nullptr) ? "" : (srcUri.get()));
     string dstPath = ((dstUri == nullptr) ? "" : (dstUri.get()));
@@ -1050,7 +1040,7 @@ napi_value FileNExporter::Move(napi_env env, napi_callback_info info)
 napi_value FileNExporter::Delete(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::ONE))) {
+    if (!funcArg.InitArgs(NARG_CNT::ONE)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -1060,11 +1050,10 @@ napi_value FileNExporter::Delete(napi_env env, napi_callback_info info)
         .asyncWork = nullptr,
     };
     tie(succ, asyncCallbackInfo->callback[COMMON_NUM::ZERO], asyncCallbackInfo->callback[COMMON_NUM::ONE],
-        asyncCallbackInfo->callback[COMMON_NUM::TWO]) =
-            CommonFunc::GetCallbackHandles(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]);
+        asyncCallbackInfo->callback[COMMON_NUM::TWO]) = CommonFunc::GetCallbackHandles(env, funcArg[NARG_POS::FIRST]);
 
     unique_ptr<char[]> uri;
-    tie(succ, uri, ignore) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).GetProp("uri").ToUTF8String();
+    tie(succ, uri, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("uri").ToUTF8String();
 
     string path = (uri == nullptr) ? "" : uri.get();
     if (!CheckUri(env, path)) {
@@ -1085,7 +1074,7 @@ napi_value FileNExporter::Delete(napi_env env, napi_callback_info info)
 napi_value FileNExporter::Access(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::ONE))) {
+    if (!funcArg.InitArgs(NARG_CNT::ONE)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -1095,11 +1084,10 @@ napi_value FileNExporter::Access(napi_env env, napi_callback_info info)
         .asyncWork = nullptr,
     };
     tie(succ, asyncCallbackInfo->callback[COMMON_NUM::ZERO], asyncCallbackInfo->callback[COMMON_NUM::ONE],
-        asyncCallbackInfo->callback[COMMON_NUM::TWO]) =
-            CommonFunc::GetCallbackHandles(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]);
+        asyncCallbackInfo->callback[COMMON_NUM::TWO]) = CommonFunc::GetCallbackHandles(env, funcArg[NARG_POS::FIRST]);
 
     unique_ptr<char[]> uri;
-    tie(succ, uri, ignore) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).GetProp("uri").ToUTF8String();
+    tie(succ, uri, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("uri").ToUTF8String();
 
     string path = (uri == nullptr) ? "" : uri.get();
     if (!CheckUri(env, path)) {
@@ -1119,7 +1107,7 @@ napi_value FileNExporter::Access(napi_env env, napi_callback_info info)
 napi_value FileNExporter::WriteText(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::ONE))) {
+    if (!funcArg.InitArgs(NARG_CNT::ONE)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -1129,17 +1117,15 @@ napi_value FileNExporter::WriteText(napi_env env, napi_callback_info info)
     };
     bool succ = false;
     tie(succ, asyncCallbackInfo->callback[COMMON_NUM::ZERO], asyncCallbackInfo->callback[COMMON_NUM::ONE],
-        asyncCallbackInfo->callback[COMMON_NUM::TWO]) =
-            CommonFunc::GetCallbackHandles(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]);
+        asyncCallbackInfo->callback[COMMON_NUM::TWO]) = CommonFunc::GetCallbackHandles(env, funcArg[NARG_POS::FIRST]);
 
     unique_ptr<char[]> uri, text, encoding;
-    tie(succ, uri, ignore) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).GetProp("uri").ToUTF8String();
-    tie(succ, text, ignore) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).GetProp("text").ToUTF8String();
-    tie(succ, encoding, ignore) =
-        NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).GetProp("encoding").ToUTF8String();
+    tie(succ, uri, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("uri").ToUTF8String();
+    tie(succ, text, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("text").ToUTF8String();
+    tie(succ, encoding, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("encoding").ToUTF8String();
 
     bool append = false;
-    tie(succ, append) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).GetProp("append").ToBool();
+    tie(succ, append) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("append").ToBool();
 
     string path = (uri == nullptr) ? "" : uri.get();
     string encode = (encoding == nullptr) ? ENCODING_UTF8 : encoding.get();
@@ -1170,7 +1156,7 @@ napi_value FileNExporter::WriteText(napi_env env, napi_callback_info info)
 napi_value FileNExporter::WriteArrayBuffer(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::ONE))) {
+    if (!funcArg.InitArgs(NARG_CNT::ONE)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -1180,22 +1166,21 @@ napi_value FileNExporter::WriteArrayBuffer(napi_env env, napi_callback_info info
         .asyncWork = nullptr,
     };
     tie(succ, asyncCallbackInfo->callback[COMMON_NUM::ZERO], asyncCallbackInfo->callback[COMMON_NUM::ONE],
-        asyncCallbackInfo->callback[COMMON_NUM::TWO]) =
-            CommonFunc::GetCallbackHandles(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]);
+        asyncCallbackInfo->callback[COMMON_NUM::TWO]) = CommonFunc::GetCallbackHandles(env, funcArg[NARG_POS::FIRST]);
 
     unique_ptr<char[]> uri;
-    tie(succ, uri, ignore) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).GetProp("uri").ToUTF8String();
+    tie(succ, uri, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("uri").ToUTF8String();
 
     int32_t position = 0;
-    tie(succ, position) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).GetProp("position").ToInt32();
+    tie(succ, position) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("position").ToInt32();
 
     bool append = false;
-    tie(succ, append) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).GetProp("append").ToBool();
+    tie(succ, append) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("append").ToBool();
 
     void *buffer = nullptr;
     size_t bufLength = 0;
     napi_ref bufferRef = nullptr;
-    NVal bufNapi = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).GetProp("buffer");
+    NVal bufNapi = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("buffer");
     tie(succ, buffer, bufLength) = bufNapi.ToTypedArray();
     napi_create_reference(env, bufNapi.val_, 1, &bufferRef);
 
@@ -1222,7 +1207,7 @@ napi_value FileNExporter::WriteArrayBuffer(napi_env env, napi_callback_info info
 napi_value FileNExporter::ReadText(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::ONE))) {
+    if (!funcArg.InitArgs(NARG_CNT::ONE)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -1232,13 +1217,11 @@ napi_value FileNExporter::ReadText(napi_env env, napi_callback_info info)
         .asyncWork = nullptr,
     };
     tie(succ, asyncCallbackInfo->callback[COMMON_NUM::ZERO], asyncCallbackInfo->callback[COMMON_NUM::ONE],
-        asyncCallbackInfo->callback[COMMON_NUM::TWO]) =
-            CommonFunc::GetCallbackHandles(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]);
+        asyncCallbackInfo->callback[COMMON_NUM::TWO]) = CommonFunc::GetCallbackHandles(env, funcArg[NARG_POS::FIRST]);
 
     unique_ptr<char[]> uri, encoding;
-    tie(succ, uri, ignore) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).GetProp("uri").ToUTF8String();
-    tie(succ, encoding, ignore) =
-        NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).GetProp("encoding").ToUTF8String();
+    tie(succ, uri, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("uri").ToUTF8String();
+    tie(succ, encoding, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("encoding").ToUTF8String();
 
     string path = (uri == nullptr) ? "" : uri.get();
     string encode = (encoding == nullptr) ? ENCODING_UTF8 : encoding.get();
@@ -1266,7 +1249,7 @@ napi_value FileNExporter::ReadText(napi_env env, napi_callback_info info)
 napi_value FileNExporter::ReadArrayBuffer(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::ONE))) {
+    if (!funcArg.InitArgs(NARG_CNT::ONE)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -1276,17 +1259,16 @@ napi_value FileNExporter::ReadArrayBuffer(napi_env env, napi_callback_info info)
     };
     bool succ = false;
     tie(succ, asyncCallbackInfo->callback[COMMON_NUM::ZERO], asyncCallbackInfo->callback[COMMON_NUM::ONE],
-        asyncCallbackInfo->callback[COMMON_NUM::TWO]) =
-            CommonFunc::GetCallbackHandles(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]);
+        asyncCallbackInfo->callback[COMMON_NUM::TWO]) = CommonFunc::GetCallbackHandles(env, funcArg[NARG_POS::FIRST]);
 
     unique_ptr<char[]> uri;
-    tie(succ, uri, ignore) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).GetProp("uri").ToUTF8String();
+    tie(succ, uri, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("uri").ToUTF8String();
 
     int position = 0;
-    tie(succ, position) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).GetProp("position").ToInt32();
+    tie(succ, position) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("position").ToInt32();
 
     int length = 0;
-    tie(succ, length) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).GetProp("length").ToInt32();
+    tie(succ, length) = NVal(env, funcArg[NARG_POS::FIRST]).GetProp("length").ToInt32();
 
     string path = (uri == nullptr) ? "" : uri.get();
     if (!CheckUri(env, path)) {

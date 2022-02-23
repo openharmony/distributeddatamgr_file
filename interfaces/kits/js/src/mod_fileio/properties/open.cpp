@@ -31,22 +31,22 @@ napi_value Open::Sync(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
 
-    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::ONE), static_cast<size_t>(NARG_CNT::THREE))) {
+    if (!funcArg.InitArgs(NARG_CNT::ONE, NARG_CNT::THREE)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
 
     bool succ = false;
     unique_ptr<char[]> path;
-    tie(succ, path, ignore) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).ToUTF8String();
+    tie(succ, path, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
     if (!succ) {
         UniError(EINVAL).ThrowErr(env, "Invalid path");
         return nullptr;
     }
 
     int flags = O_RDONLY;
-    if (funcArg.GetArgc() >= static_cast<size_t>(NARG_CNT::TWO)) {
-        tie(succ, flags) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::SECOND)]).ToInt32();
+    if (funcArg.GetArgc() >= NARG_CNT::TWO) {
+        tie(succ, flags) = NVal(env, funcArg[NARG_POS::SECOND]).ToInt32();
         if (!succ) {
             UniError(EINVAL).ThrowErr(env, "Invalid flags");
             return nullptr;
@@ -55,7 +55,7 @@ napi_value Open::Sync(napi_env env, napi_callback_info info)
 
     int fd = -1;
     int argc = funcArg.GetArgc();
-    if (argc != static_cast<size_t>(NARG_CNT::THREE)) {
+    if (argc != NARG_CNT::THREE) {
         if ((flags & O_CREAT) || (flags & O_TMPFILE)) {
             UniError(EINVAL).ThrowErr(env, "called with O_CREAT/O_TMPFILE but no mode");
             return nullptr;
@@ -63,7 +63,7 @@ napi_value Open::Sync(napi_env env, napi_callback_info info)
         fd = open(path.get(), flags);
     } else {
         int mode;
-        tie(succ, mode) = NVal(env, funcArg.GetArg(static_cast<size_t>(NARG_POS::THIRD))).ToInt32();
+        tie(succ, mode) = NVal(env, funcArg.GetArg(NARG_POS::THIRD)).ToInt32();
         if (!succ) {
             UniError(EINVAL).ThrowErr(env, "Invalid mode");
             return nullptr;
@@ -93,30 +93,30 @@ static UniError DoOpenExec(const std::string& path, int mode, shared_ptr<int32_t
 napi_value Open::Async(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(static_cast<size_t>(NARG_CNT::ONE), static_cast<size_t>(NARG_CNT::FOUR))) {
+    if (!funcArg.InitArgs(NARG_CNT::ONE, NARG_CNT::FOUR)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
     bool succ = false;
     int argc = funcArg.GetArgc();
     unique_ptr<char[]> path;
-    tie(succ, path, ignore) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::FIRST)]).ToUTF8String();
+    tie(succ, path, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
     if (!succ) {
         UniError(EINVAL).ThrowErr(env, "Invalid path");
         return nullptr;
     }
     int flags = O_RDONLY;
-    if (funcArg.GetArgc() > static_cast<size_t>(NARG_CNT::TWO)) {
-        tie(succ, flags) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::SECOND)]).ToInt32();
+    if (funcArg.GetArgc() > NARG_CNT::TWO) {
+        tie(succ, flags) = NVal(env, funcArg[NARG_POS::SECOND]).ToInt32();
         if (!succ) {
             UniError(EINVAL).ThrowErr(env, "Invalid flags");
             return nullptr;
         }
     }
     int mode = 0;
-    if (argc == static_cast<int>(NARG_CNT::FOUR) || (argc == static_cast<int>(NARG_CNT::THREE) &&
-        NVal(env, funcArg[static_cast<size_t>(NARG_POS::THIRD)]).TypeIs(napi_number))) {
-        tie(succ, mode) = NVal(env, funcArg[static_cast<size_t>(NARG_POS::THIRD)]).ToInt32();
+    if (argc == NARG_CNT::FOUR ||
+        (argc == NARG_CNT::THREE && NVal(env, funcArg[NARG_POS::THIRD]).TypeIs(napi_number))) {
+        tie(succ, mode) = NVal(env, funcArg[NARG_POS::THIRD]).ToInt32();
         if (!succ) {
             UniError(EINVAL).ThrowErr(env, "Invalid mode");
             return nullptr;
@@ -133,10 +133,8 @@ napi_value Open::Async(napi_env env, napi_callback_info info)
         return { NVal::CreateInt64(env, *arg) };
     };
     NVal thisVar(env, funcArg.GetThisVar());
-    if (argc == static_cast<int>(NARG_CNT::ONE) || (argc == static_cast<int>(NARG_CNT::TWO) &&
-        NVal(env, funcArg[static_cast<size_t>(NARG_POS::SECOND)]).TypeIs(napi_number)) ||
-        (argc == static_cast<int>(NARG_CNT::THREE) &&
-        (NVal(env, funcArg[static_cast<size_t>(NARG_POS::THIRD)]).TypeIs(napi_number)))) {
+    if (argc == NARG_CNT::ONE || (argc == NARG_CNT::TWO && NVal(env, funcArg[NARG_POS::SECOND]).TypeIs(napi_number)) ||
+        (argc == NARG_CNT::THREE && (NVal(env, funcArg[NARG_POS::THIRD]).TypeIs(napi_number)))) {
         return NAsyncWorkPromise(env, thisVar).Schedule("FileIOOpen", cbExec, cbComplCallback).val_;
     } else {
         int cbIdx = argc - 1;

@@ -24,13 +24,13 @@ namespace OHOS {
 namespace DistributedFS {
 constexpr int ERRNO_NOERR = 0;
 
-enum class ELegacy {
+enum ELegacy {
     ELEGACY_INVAL = 202,
     ELEGACY_IO = 300,
     ELEGACY_NOENT = 301,
 };
 
-enum class ErrCodeSystem {
+enum ErrCodeSystem {
     ERR_CODE_SYSTEM_LEGACY,
     ERR_CODE_SYSTEM_POSIX,
 };
@@ -40,7 +40,6 @@ public:
     UniError();
     explicit UniError(ELegacy eLegacy);
     explicit UniError(int ePosix);
-    UniError(const UniError &) = default;
     ~UniError() = default;
 
     UniError &operator = (const UniError &) = default;
@@ -59,7 +58,7 @@ public:
 
 private:
     int errno_ = ERRNO_NOERR;
-    ErrCodeSystem codingSystem_ = ErrCodeSystem::ERR_CODE_SYSTEM_LEGACY;
+    ErrCodeSystem codingSystem_ = ERR_CODE_SYSTEM_POSIX;
 };
 } // namespace DistributedFS
 } // namespace OHOS
