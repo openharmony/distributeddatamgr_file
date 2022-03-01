@@ -26,7 +26,6 @@
 #include <sys/sendfile.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <unistd.h>
 #include <vector>
 
 #include "../common/ability_helper.h"

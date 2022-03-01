@@ -18,7 +18,6 @@
 #include <cerrno>
 #include <climits>
 #include <cstdio>
-#include <cstdlib>
 #include <cstring>
 #include <dirent.h>
 #include <fcntl.h>
@@ -29,8 +28,6 @@
 #include <stack>
 #include <sys/sendfile.h>
 #include <sys/stat.h>
-#include <sys/types.h>
-#include <unistd.h>
 #include <vector>
 
 #include "../../common/ability_helper.h"

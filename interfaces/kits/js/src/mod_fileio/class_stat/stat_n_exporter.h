@@ -16,9 +16,6 @@
 #ifndef INTERFACES_KITS_JS_SRC_MOD_FILEIO_CLASS_STAT_N_EXPORTER_H
 #define INTERFACES_KITS_JS_SRC_MOD_FILEIO_CLASS_STAT_N_EXPORTER_H
 
-#include <memory>
-#include <string>
-
 #include "../../common/napi/n_exporter.h"
 
 namespace OHOS {

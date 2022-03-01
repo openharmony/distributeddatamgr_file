@@ -15,8 +15,6 @@
 
 #pragma once
 
-#include "ability.h"
-
 #include "../../common/napi/n_exporter.h"
 
 namespace OHOS {

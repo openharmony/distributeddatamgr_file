@@ -24,6 +24,7 @@
 #include "../common/log.h"
 #include "../common/napi/n_class.h"
 #include "../common/napi/n_func_arg.h"
+#include "../common/napi/n_val.h"
 #include "../common/uni_error.h"
 
 namespace OHOS {

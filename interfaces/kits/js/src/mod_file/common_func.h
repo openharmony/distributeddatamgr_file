@@ -15,10 +15,7 @@
 
 #pragma once
 
-#include <string>
-#include <tuple>
 #include "../common/napi/n_val.h"
-#include "../common/napi/uni_header.h"
 
 namespace OHOS {
 namespace DistributedFS {

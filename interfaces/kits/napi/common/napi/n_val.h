@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-#pragma once
+#ifndef INTERFACES_KITS_NAPI_COMMON_NAPI_N_VAL_H
+#define INTERFACES_KITS_NAPI_COMMON_NAPI_N_VAL_H
 
-#include <memory>
 #include <tuple>
 #include <vector>
 
@@ -27,6 +27,7 @@ class NVal final {
 public:
     NVal() = default;
     NVal(napi_env nEnv, napi_value nVal);
+    NVal(const NVal &) = default;
     NVal &operator = (const NVal &) = default;
     virtual ~NVal() = default;
 
@@ -75,3 +76,4 @@ public:
 };
 } // namespace DistributedFS
 } // namespace OHOS
+#endif

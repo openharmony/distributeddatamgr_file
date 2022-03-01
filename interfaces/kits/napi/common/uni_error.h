@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-#pragma once
+#ifndef INTERFACES_KITS_NAPI_COMMON_UNI_ERROR_H
+#define INTERFACES_KITS_NAPI_COMMON_UNI_ERROR_H
 
-#include <cerrno>
 #include <string>
 
 #include "napi/uni_header.h"
@@ -62,3 +62,4 @@ private:
 };
 } // namespace DistributedFS
 } // namespace OHOS
+#endif

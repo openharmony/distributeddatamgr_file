@@ -16,17 +16,11 @@
 #include "prop_n_exporter.h"
 
 #include <cstring>
-#include <dirent.h>
-#include <fcntl.h>
 #include <iostream>
 #include <memory>
 #include <sstream>
-#include <sys/sendfile.h>
-#include <sys/stat.h>
-#include <sys/types.h>
 #include <unistd.h>
 
-#include "../../common/file_helper/fd_guard.h"
 #include "../common_func.h"
 #include "chmod.h"
 #include "chown.h"

@@ -17,8 +17,6 @@
 #define INTERFACES_KITS_JS_SRC_MOD_FILEIO_CLASS_DIR_DIR_ENTITY_H
 
 #include <dirent.h>
-#include <functional>
-#include <memory>
 #include <mutex>
 
 namespace OHOS {

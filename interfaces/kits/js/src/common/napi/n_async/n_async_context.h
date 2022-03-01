@@ -16,8 +16,6 @@
 #ifndef N_ASYNC_CONTEXT_H
 #define N_ASYNC_CONTEXT_H
 
-#include <functional>
-
 #include "../../uni_error.h"
 #include "../n_val.h"
 #include "n_ref.h"

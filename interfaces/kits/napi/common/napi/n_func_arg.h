@@ -13,14 +13,12 @@
  * limitations under the License.
  */
 
-#pragma once
+#ifndef INTERFACES_KITS_NAPI_COMMON_NAPI_N_FUNC_ARG_H
+#define INTERFACES_KITS_NAPI_COMMON_NAPI_N_FUNC_ARG_H
 
 #include <functional>
-#include <map>
 #include <memory>
-#include <vector>
 
-#include "n_val.h"
 #include "uni_header.h"
 
 namespace OHOS {
@@ -69,3 +67,4 @@ private:
 };
 } // namespace DistributedFS
 } // namespace OHOS
+#endif

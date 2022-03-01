@@ -13,10 +13,8 @@
  * limitations under the License.
  */
 
-#pragma once
-
-#include <cerrno>
-#include <string>
+#ifndef INTERFACES_KITS_NAPI_COMMON_UNI_ERROR_H
+#define INTERFACES_KITS_NAPI_COMMON_UNI_ERROR_H
 
 #include "napi/uni_header.h"
 
@@ -40,6 +38,7 @@ public:
     UniError();
     explicit UniError(ELegacy eLegacy);
     explicit UniError(int ePosix);
+    UniError(const UniError &) = default;
     ~UniError() = default;
 
     UniError &operator = (const UniError &) = default;
@@ -62,3 +61,4 @@ private:
 };
 } // namespace DistributedFS
 } // namespace OHOS
+#endif
