@@ -14,7 +14,11 @@
  */
 
 #include "fd_guard.h"
+
 #include <unistd.h>
+
+#include "../log.h"
+
 namespace OHOS {
 namespace DistributedFS {
 FDGuard::FDGuard(int fd) : fd_(fd) {}
@@ -35,7 +39,10 @@ FDGuard& FDGuard::operator=(const FDGuard& fdg)
 
 FDGuard::~FDGuard()
 {
-    if (fd_ > 0 && autoDestruct_) {
+    if (fd_ >= 0 && fd_ <= STDERR_FILENO) {
+        HILOGI("~FDGuard, fd_ = %{public}d", fd_);
+    }
+    if (fd_ >= 0 && autoDestruct_) {
         close(fd_);
     }
 }
