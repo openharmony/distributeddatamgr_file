@@ -17,7 +17,6 @@
 #define INTERFACES_KITS_NAPI_COMMON_NAPI_N_FUNC_ARG_H
 
 #include <functional>
-#include <memory>
 
 #include "uni_header.h"
 
