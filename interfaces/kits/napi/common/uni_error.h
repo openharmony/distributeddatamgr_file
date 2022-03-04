@@ -18,7 +18,6 @@
 
 namespace OHOS {
 namespace DistributedFS {
-
 enum ELegacy {
     ELEGACY_INVAL = 202,
     ELEGACY_IO = 300,
