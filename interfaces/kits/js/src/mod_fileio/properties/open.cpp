@@ -79,9 +79,14 @@ napi_value Open::Sync(napi_env env, napi_callback_info info)
     return NVal::CreateInt64(env, fd).val_;
 }
 
-static UniError DoOpenExec(const std::string& path, int mode, shared_ptr<int32_t> arg)
+static UniError DoOpenExec(const std::string& path, const int flags, const int mode, shared_ptr<int32_t> arg)
 {
-    int ret = open(path.c_str(), mode);
+    int ret = -1;
+    if (mode == 0) {
+        ret = open(path.c_str(), flags);
+    } else {
+        ret = open(path.c_str(), flags, mode);
+    }
     *arg = ret;
     if (ret == -1) {
         return UniError(errno);
@@ -106,7 +111,7 @@ napi_value Open::Async(napi_env env, napi_callback_info info)
         return nullptr;
     }
     int flags = O_RDONLY;
-    if (funcArg.GetArgc() > NARG_CNT::TWO) {
+    if (funcArg.GetArgc() >= NARG_CNT::TWO) {
         tie(succ, flags) = NVal(env, funcArg[NARG_POS::SECOND]).ToInt32();
         if (!succ) {
             UniError(EINVAL).ThrowErr(env, "Invalid flags");
@@ -123,8 +128,8 @@ napi_value Open::Async(napi_env env, napi_callback_info info)
         }
     }
     auto arg = make_shared<int32_t>();
-    auto cbExec = [path = string(path.get()), mode, arg](napi_env env) -> UniError {
-        return DoOpenExec(path, mode, arg);
+    auto cbExec = [path = string(path.get()), flags, mode, arg](napi_env env) -> UniError {
+        return DoOpenExec(path, flags, mode, arg);
     };
     auto cbComplCallback = [arg](napi_env env, UniError err) -> NVal {
         if (err) {
