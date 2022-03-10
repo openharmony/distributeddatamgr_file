@@ -18,23 +18,29 @@
 
 namespace OHOS {
 namespace DistributedFS {
-class FDGuard {
+class FDGuard final {
 public:
     FDGuard() = default;
-    FDGuard(int fd, bool autoDestruct);
-    FDGuard(const FDGuard& fdg);
-    FDGuard& operator=(const FDGuard& fdg);
     explicit FDGuard(int fd);
+    FDGuard(int fd, bool autoClose);
+
+    FDGuard(const FDGuard &fdg) = delete;
+    FDGuard &operator=(const FDGuard &fdg) = delete;
+
+    FDGuard(FDGuard &&fdg);
+    FDGuard &operator=(FDGuard &&fdg);
+
+    operator bool() const;
+
     ~FDGuard();
 
     int GetFD() const;
-    void SetFD(int fd, bool autoDestruct = true);
+    void SetFD(int fd, bool autoClose = true);
     void ClearFD();
-    void operator=(int fd);
 
 private:
     int fd_ = -1;
-    bool autoDestruct_ = true;
+    bool autoClose_ = true;
 };
 } // namespace DistributedFS
 } // namespace OHOS
