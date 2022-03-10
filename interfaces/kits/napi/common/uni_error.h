@@ -16,13 +16,8 @@
 #ifndef INTERFACES_KITS_NAPI_COMMON_UNI_ERROR_H
 #define INTERFACES_KITS_NAPI_COMMON_UNI_ERROR_H
 
-#include <string>
-
-#include "napi/uni_header.h"
-
 namespace OHOS {
 namespace DistributedFS {
-constexpr int ERRNO_NOERR = 0;
 
 enum ELegacy {
     ELEGACY_INVAL = 202,
@@ -40,6 +35,7 @@ public:
     UniError();
     explicit UniError(ELegacy eLegacy);
     explicit UniError(int ePosix);
+    UniError(const UniError &) = default;
     ~UniError() = default;
 
     UniError &operator = (const UniError &) = default;
