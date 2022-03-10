@@ -23,17 +23,21 @@ namespace OHOS {
 namespace DistributedFS {
 FDGuard::FDGuard(int fd) : fd_(fd) {}
 
-FDGuard::FDGuard(int fd, bool autoDestruct) : fd_(fd), autoDestruct_(autoDestruct) {}
+FDGuard::FDGuard(int fd, bool autoClose) : fd_(fd), autoClose_(autoClose) {}
 
-FDGuard::FDGuard(const FDGuard& fdg) : fd_(fdg.fd_), autoDestruct_(fdg.autoDestruct_) {}
+FDGuard::FDGuard(FDGuard &&fdg) : fd_(fdg.fd_), autoClose_(fdg.autoClose_)
+{
+    fdg.fd_ = -1;
+}
 
-FDGuard& FDGuard::operator=(const FDGuard& fdg)
+FDGuard &FDGuard::operator=(FDGuard &&fdg)
 {
     if (this == &fdg) {
         return *this;
     }
     this->fd_ = fdg.fd_;
-    this->autoDestruct_ = fdg.autoDestruct_;
+    this->autoClose_ = fdg.autoClose_;
+    fdg.fd_ = -1;
     return *this;
 }
 
@@ -42,9 +46,14 @@ FDGuard::~FDGuard()
     if (fd_ >= 0 && fd_ <= STDERR_FILENO) {
         HILOGI("~FDGuard, fd_ = %{public}d", fd_);
     }
-    if (fd_ >= 0 && autoDestruct_) {
+    if (fd_ >= 0 && autoClose_) {
         close(fd_);
     }
+}
+
+FDGuard::operator bool() const
+{
+    return fd_ >= 0;
 }
 
 int FDGuard::GetFD() const
@@ -52,15 +61,10 @@ int FDGuard::GetFD() const
     return fd_;
 }
 
-void FDGuard::SetFD(int fd, bool autoDestruct)
+void FDGuard::SetFD(int fd, bool autoClose)
 {
     fd_ = fd;
-    autoDestruct_ = autoDestruct;
-}
-
-void FDGuard::operator=(int fd)
-{
-    fd_ = fd;
+    autoClose_ = autoClose;
 }
 
 void FDGuard::ClearFD()

@@ -14,6 +14,7 @@
  */
 
 #include "copy_file.h"
+
 #include <cstring>
 #include <fcntl.h>
 #include <sys/sendfile.h>
@@ -32,7 +33,59 @@ namespace DistributedFS {
 namespace ModuleFileIO {
 using namespace std;
 
-static tuple<bool, int, bool> GetCopyFileModeAndProm(napi_env env, const NFuncArg &funcArg)
+struct FileInfo {
+    bool isPath_ = false;
+    unique_ptr<char[]> path_;
+    FDGuard fdg_;
+};
+
+static UniError CopyFileCore(FileInfo &srcFile, FileInfo &destFile)
+{
+    FDGuard src;
+    int res = EINVAL;
+    if (srcFile.isPath_) {
+        src.SetFD(open(srcFile.path_.get(), O_RDONLY), true);
+        res = errno;
+    }
+    if (!src) {
+        return UniError(res);
+    }
+    struct stat statbf;
+    if (fstat(src.GetFD(), &statbf) == -1) {
+        return UniError(errno);
+    }
+
+    FDGuard dest;
+    if (destFile.isPath_) {
+        dest.SetFD(open(destFile.path_.get(), O_WRONLY | O_CREAT, statbf.st_mode), true);
+        res = errno;
+    }
+    if (!dest) {
+        return UniError(res);
+    }
+
+    int block = 4096;
+    auto copyBuf = make_unique<char[]>(block);
+    do {
+        ssize_t readSize = read(src.GetFD(), copyBuf.get(), block);
+        if (readSize == -1) {
+            return UniError(errno);
+        } else if (readSize == 0) {
+            break;
+        }
+        ssize_t writeSize = write(dest.GetFD(), copyBuf.get(), readSize);
+        if (writeSize != readSize) {
+            return UniError(errno);
+        }
+        if (readSize != block) {
+            break;
+        }
+    } while (true);
+
+    return UniError(ERRNO_NOERR);
+}
+
+static tuple<bool, int, bool> ParseJsModeAndProm(napi_env env, const NFuncArg &funcArg)
 {
     bool succ = false;
     bool promise = false;
@@ -47,79 +100,26 @@ static tuple<bool, int, bool> GetCopyFileModeAndProm(napi_env env, const NFuncAr
     if (hasMode) {
         tie(succ, mode) = NVal(env, funcArg[NARG_POS::THIRD]).ToInt32();
         if (!succ) {
-            return { false, mode, promise };
+            return {false, mode, promise};
         }
     }
-    return { true, mode, promise };
+    return {true, mode, promise};
 }
 
-struct FileInfo {
-    bool isPath = false;
-    unique_ptr<char[]> path;
-    FDGuard fdg;
-    FileInfo(const FileInfo &fileInfo) : isPath(fileInfo.isPath), fdg(fileInfo.fdg) {};
-    FileInfo() = default;
-    FileInfo &operator = (const FileInfo &fileInfo);
+static tuple<bool, FileInfo> ParseJsOperand(napi_env env, NVal pathOrFdFromJsArg)
+{
+    auto [isPath, path, ignore] = pathOrFdFromJsArg.ToUTF8String();
+    if (isPath) {
+        return {true, FileInfo{true, move(path), {}}};
+    }
+
+    auto [isFd, fd] = pathOrFdFromJsArg.ToInt32();
+    if (isFd) {
+        return {true, FileInfo{false, {}, {fd, false}}};
+    }
+
+    return {false, FileInfo{false, {}, {}}};
 };
-
-static FDGuard SetFDGuard(FileInfo fileInfo, const string &path, function<int(const char *)> executor)
-{
-    FDGuard fdg;
-    if (fileInfo.isPath) {
-        fdg.SetFD(executor(path.c_str()));
-    } else {
-        fdg.SetFD(fileInfo.fdg.GetFD(), false);
-    }
-    return fdg;
-}
-
-static UniError HandleCopyFile(FileInfo srcFileInfo, FileInfo destFileInfo,
-                               const string &srcPath, const string &destPath)
-{
-    FDGuard sfd = SetFDGuard(srcFileInfo, srcPath, [](const char *buf) -> int { return open(buf, O_RDONLY, 0); });
-    struct stat statbf;
-    if (sfd.GetFD() == -1) {
-        return UniError(errno);
-    }
-    if (fstat(sfd.GetFD(), &statbf) == -1) {
-        return UniError(errno);
-    }
-    FDGuard ofd = SetFDGuard(destFileInfo, destPath,
-        [statbf](const char *buf) -> int { return open(buf, O_WRONLY | O_CREAT, statbf.st_mode); });
-    if (ofd.GetFD() == -1) {
-        return UniError(errno);
-    }
-    if (sendfile(ofd.GetFD(), sfd.GetFD(), nullptr, statbf.st_size) == -1) {
-        return UniError(errno);
-    }
-    if (ftruncate(ofd.GetFD(), statbf.st_size) == -1) {
-        return UniError(errno);
-    }
-    return UniError(ERRNO_NOERR);
-}
-
-static bool GetCopyFileInfo(napi_env env, const NFuncArg &funcArg, FileInfo &srcFileInfo, FileInfo &destFileInfo)
-{
-    bool succ = false;
-    if (NVal(env, funcArg[NARG_POS::FIRST]).TypeIs(napi_string)) {
-        tie(succ, srcFileInfo.path, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
-        srcFileInfo.isPath = true;
-    } else {
-        srcFileInfo.fdg.SetFD(-1, false);
-        tie(succ, srcFileInfo.fdg) = NVal(env, funcArg[NARG_POS::FIRST]).ToInt32();
-    }
-    if (!succ) {
-        return succ;
-    }
-    if (NVal(env, funcArg[NARG_POS::SECOND]).TypeIs(napi_string)) {
-        tie(succ, destFileInfo.path, ignore) = NVal(env, funcArg[NARG_POS::SECOND]).ToUTF8String();
-        destFileInfo.isPath = true;
-    } else {
-        destFileInfo.fdg.SetFD(-1, false);
-        tie(succ, destFileInfo.fdg) = NVal(env, funcArg[NARG_POS::SECOND]).ToInt32();
-    }
-    return succ;
-}
 
 napi_value CopyFile::Sync(napi_env env, napi_callback_info info)
 {
@@ -128,61 +128,36 @@ napi_value CopyFile::Sync(napi_env env, napi_callback_info info)
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
-    bool succ = false;
-    FileInfo srcFileInfo;
-    FileInfo destFileInfo;
-    succ = GetCopyFileInfo(env, funcArg, srcFileInfo, destFileInfo);
-    if (!succ) {
-        UniError(EINVAL).ThrowErr(env, "Invalid file path/fd");
+
+    auto [succSrc, src] = ParseJsOperand(env, {env, funcArg[NARG_POS::FIRST]});
+    auto [succDest, dest] = ParseJsOperand(env, {env, funcArg[NARG_POS::SECOND]});
+    if (!succSrc || !succDest) {
+        UniError(EINVAL).ThrowErr(env, "The first/second argument requires filepath/fd");
         return nullptr;
     }
-    int mode = 0;
-    struct stat statbf;
-    tie(succ, mode, ignore) = GetCopyFileModeAndProm(env, funcArg);
-    if (!succ) {
+
+    auto [succMode, mode, ignore] = ParseJsModeAndProm(env, funcArg);
+    if (!succMode) {
         UniError(EINVAL).ThrowErr(env, "Invalid mode");
         return nullptr;
     }
-    if (srcFileInfo.isPath) {
-        srcFileInfo.fdg.SetFD(open(srcFileInfo.path.get(), O_RDONLY), true);
-        if (srcFileInfo.fdg.GetFD() == -1) {
-            UniError(errno).ThrowErr(env);
-            return nullptr;
-        }
-    }
-    int res = fstat(srcFileInfo.fdg.GetFD(), &statbf);
-    if (res == -1) {
-        UniError(errno).ThrowErr(env);
+
+    auto err = CopyFileCore(src, dest);
+    if (err) {
+        err.ThrowErr(env);
         return nullptr;
     }
-    if (destFileInfo.isPath) {
-        destFileInfo.fdg.SetFD(open(destFileInfo.path.get(), O_WRONLY | O_CREAT, statbf.st_mode), true);
-        if (destFileInfo.fdg.GetFD() == -1) {
-            UniError(errno).ThrowErr(env);
-            return nullptr;
-        }
-    }
-    int block = 4096;
-    auto copyBuf = make_unique<char[]>(block);
-    do {
-        ssize_t readSize = read(srcFileInfo.fdg.GetFD(), copyBuf.get(), block);
-        if (readSize == -1) {
-            UniError(errno).ThrowErr(env);
-            return nullptr;
-        } else if (readSize == 0) {
-            break;
-        }
-        ssize_t writeSize = write(destFileInfo.fdg.GetFD(), copyBuf.get(), readSize);
-        if (writeSize != readSize) {
-            UniError(errno).ThrowErr(env);
-            return nullptr;
-        }
-        if (readSize != block) {
-            break;
-        }
-    } while (true);
+
     return NVal::CreateUndefined(env).val_;
 }
+
+class Para {
+public:
+    FileInfo src_;
+    FileInfo dest_;
+
+    Para(FileInfo src, FileInfo dest) : src_(move(src)), dest_(move(dest)) {};
+};
 
 napi_value CopyFile::Async(napi_env env, napi_callback_info info)
 {
@@ -191,30 +166,31 @@ napi_value CopyFile::Async(napi_env env, napi_callback_info info)
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
-    bool succ = false;
-    int mode = 0;
-    bool promise = false;
-    tie(succ, mode, promise) = GetCopyFileModeAndProm(env, funcArg);
-    if (!succ) {
-        UniError(EINVAL).ThrowErr(env, "Invalid arg");
+
+    auto [succSrc, src] = ParseJsOperand(env, {env, funcArg[NARG_POS::FIRST]});
+    auto [succDest, dest] = ParseJsOperand(env, {env, funcArg[NARG_POS::SECOND]});
+    if (!succSrc || !succDest) {
+        UniError(EINVAL).ThrowErr(env, "The first/second argument requires filepath/fd");
         return nullptr;
     }
-    FileInfo srcFileInfo, destFileInfo;
-    if (!GetCopyFileInfo(env, funcArg, srcFileInfo, destFileInfo)) {
-        UniError(EINVAL).ThrowErr(env, "Invalid file path/fd");
+
+    auto [succMode, mode, promise] = ParseJsModeAndProm(env, funcArg);
+    if (!succMode) {
+        UniError(EINVAL).ThrowErr(env, "Invalid mode");
         return nullptr;
     }
-    string srcPath = (!srcFileInfo.isPath) ? "" : srcFileInfo.path.get();
-    string destPath = (!destFileInfo.isPath) ? "" : destFileInfo.path.get();
-    auto cbExec = [srcFileInfo, destFileInfo, srcPath, destPath, mode](napi_env env) -> UniError {
-        return HandleCopyFile(srcFileInfo, destFileInfo, srcPath, destPath);
+
+    auto cbExec = [para = make_shared<Para>(move(src), move(dest))](napi_env env) -> UniError {
+        return CopyFileCore(para->src_, para->dest_);
     };
+
     auto cbCompl = [](napi_env env, UniError err) -> NVal {
         if (err) {
-            return { env, err.GetNapiErr(env) };
+            return {env, err.GetNapiErr(env)};
         }
-        return { NVal::CreateUndefined(env) };
+        return {NVal::CreateUndefined(env)};
     };
+    
     string procedureName = "FileIOCopyFile";
     NVal thisVar(env, funcArg.GetThisVar());
     if (funcArg.GetArgc() == NARG_CNT::TWO || promise) {
