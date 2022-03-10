@@ -15,7 +15,6 @@
 
 #ifndef INTERFACES_KITS_NAPI_COMMON_UNI_ERROR_H
 #define INTERFACES_KITS_NAPI_COMMON_UNI_ERROR_H
-
 namespace OHOS {
 namespace DistributedFS {
 
