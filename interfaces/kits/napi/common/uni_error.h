@@ -15,9 +15,9 @@
 
 #ifndef INTERFACES_KITS_NAPI_COMMON_UNI_ERROR_H
 #define INTERFACES_KITS_NAPI_COMMON_UNI_ERROR_H
+
 namespace OHOS {
 namespace DistributedFS {
-
 enum ELegacy {
     ELEGACY_INVAL = 202,
     ELEGACY_IO = 300,
