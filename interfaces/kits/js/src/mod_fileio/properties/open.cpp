@@ -81,12 +81,7 @@ napi_value Open::Sync(napi_env env, napi_callback_info info)
 
 static UniError DoOpenExec(const std::string& path, const int flags, const int mode, shared_ptr<int32_t> arg)
 {
-    int ret = -1;
-    if (mode == 0) {
-        ret = open(path.c_str(), flags);
-    } else {
-        ret = open(path.c_str(), flags, mode);
-    }
+    int ret = open(path.c_str(), flags, mode);
     *arg = ret;
     if (ret == -1) {
         return UniError(errno);
