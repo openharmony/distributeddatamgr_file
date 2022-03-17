@@ -56,8 +56,8 @@ napi_value Open::Sync(napi_env env, napi_callback_info info)
     int fd = -1;
     size_t argc = funcArg.GetArgc();
     if (argc != NARG_CNT::THREE) {
-        size_t flags1 { flags };
-        if ((flags1 & O_CREAT) || (flags1 & O_TMPFILE)) {
+        size_t flagsFirst { flags };
+        if ((flagsFirst & O_CREAT) || (flagsFirst & O_TMPFILE)) {
             UniError(EINVAL).ThrowErr(env, "called with O_CREAT/O_TMPFILE but no mode");
             return nullptr;
         }

@@ -36,9 +36,9 @@ using namespace std;
 void Watcher::RunCommand(uv_fs_event_t *handle, const char *filename, int events, int status)
 {
     WatcherInforArg *information = (WatcherInforArg *)handle->data;
-    uint32_t events1 { events };
-    uint32_t events2 { information->events };
-    if (events1 & events2) {
+    uint32_t eventsFirst { events };
+    uint32_t eventsSecond { information->events };
+    if (eventsFirst & eventsSecond) {
         napi_handle_scope scope = nullptr;
         napi_open_handle_scope(information->env, &scope);
         napi_value callback = nullptr;

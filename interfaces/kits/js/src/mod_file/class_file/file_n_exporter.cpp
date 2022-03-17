@@ -1191,11 +1191,12 @@ napi_value FileNExporter::WriteArrayBuffer(napi_env env, napi_callback_info info
         delete asyncCallbackInfo;
         return nullptr;
     }
+    int32_t buflength { bufLength };
     asyncCallbackInfo->url = path;
     asyncCallbackInfo->position = position;
     asyncCallbackInfo->append = append;
     asyncCallbackInfo->buf = buffer;
-    asyncCallbackInfo->length = static_cast<int32_t>(bufLength);
+    asyncCallbackInfo->length = buflength;
     asyncCallbackInfo->bufferAddress = bufferRef;
 
     napi_create_async_work(env, nullptr, NVal::CreateUTF8String(env, "ResourceName").val_, WriteArrayBufferExec,
