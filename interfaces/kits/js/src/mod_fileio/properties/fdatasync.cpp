@@ -63,7 +63,7 @@ napi_value Fdatasync::Async(napi_env env, napi_callback_info info)
         return nullptr;
     }
 
-    int argc = funcArg.GetArgc();
+    size_t argc = funcArg.GetArgc();
     bool succ = false;
     int fd;
     tie(succ, fd) = NVal(env, funcArg[NARG_POS::FIRST]).ToInt32();

@@ -45,7 +45,7 @@ napi_value Ftruncate::Sync(napi_env env, napi_callback_info info)
         return nullptr;
     }
 
-    int argc = funcArg.GetArgc();
+    size_t argc = funcArg.GetArgc();
     int ret = -1;
     if (argc == NARG_CNT::ONE) {
         ret = ftruncate(fd, 0);
@@ -81,7 +81,7 @@ napi_value Ftruncate::Async(napi_env env, napi_callback_info info)
         UniError(EINVAL).ThrowErr(env, "Invalid fd");
         return nullptr;
     }
-    int argc = funcArg.GetArgc();
+    size_t argc = funcArg.GetArgc();
     if (argc > NARG_CNT::ONE) {
         tie(succ, len) = NVal(env, funcArg[NARG_POS::SECOND]).ToInt32();
         if (!succ) {

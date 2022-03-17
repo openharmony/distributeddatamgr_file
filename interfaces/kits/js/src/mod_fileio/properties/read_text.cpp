@@ -203,7 +203,7 @@ napi_value ReadText::Async(napi_env env, napi_callback_info info)
             return NVal::CreateUTF8String(env, arg->buf.get(), arg->len);
         }
     };
-    int argc = funcArg.GetArgc();
+    size_t argc = funcArg.GetArgc();
     NVal thisVar(env, funcArg.GetThisVar());
     if (argc == NARG_CNT::ONE || (argc == NARG_CNT::TWO && hasOp)) {
         return NAsyncWorkPromise(env, thisVar).Schedule("FileIOReadText", cbExec, cbComplete).val_;

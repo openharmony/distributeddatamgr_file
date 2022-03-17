@@ -73,7 +73,7 @@ napi_value PropNExporter::AccessSync(napi_env env, napi_callback_info info)
         return nullptr;
     }
 
-    int argc = funcArg.GetArgc();
+    size_t argc = funcArg.GetArgc();
     int ret = -1;
     if (argc == NARG_CNT::ONE) {
         ret = access(path.get(), 0);
@@ -104,7 +104,7 @@ static tuple<bool, string, int, bool> GetAccessArgs(napi_env env, const NFuncArg
         return { false, nullptr, 0, false };
     }
 
-    int argc = funcArg.GetArgc();
+    size_t argc = funcArg.GetArgc();
     bool promise = true;
     bool hasMode = false;
     if (argc == NARG_CNT::ONE) {
@@ -156,7 +156,7 @@ napi_value PropNExporter::Access(napi_env env, napi_callback_info info)
         UniError(EINVAL).ThrowErr(env, "Invalid path");
         return nullptr;
     }
-    int argc = funcArg.GetArgc();
+    size_t argc = funcArg.GetArgc();
 
     auto cbExec = [path = move(path), mode](napi_env env) -> UniError {
         int ret = access(path.c_str(), mode);
@@ -249,7 +249,7 @@ napi_value PropNExporter::Mkdir(napi_env env, napi_callback_info info)
     }
     path = tmp.get();
     int mode = 0775;
-    int argc = funcArg.GetArgc();
+    size_t argc = funcArg.GetArgc();
     if ((argc == NARG_CNT::TWO && NVal(env, funcArg[NARG_POS::SECOND]).TypeIs(napi_number)) ||
         argc == NARG_CNT::THREE) {
         tie(succ, mode) = NVal(env, funcArg[NARG_POS::SECOND]).ToInt32();
@@ -303,7 +303,7 @@ napi_value PropNExporter::MkdirSync(napi_env env, napi_callback_info info)
     }
 
     int ret = -1;
-    int argc = funcArg.GetArgc();
+    size_t argc = funcArg.GetArgc();
     if (argc == NARG_CNT::ONE) {
         ret = mkdir(path.get(), 0775);
     } else {
@@ -507,7 +507,7 @@ napi_value PropNExporter::Read(napi_env env, napi_callback_info info)
     };
 
     NVal thisVar(env, funcArg.GetThisVar());
-    int argc = funcArg.GetArgc();
+    size_t argc = funcArg.GetArgc();
     bool hasOp = false;
     if (argc == NARG_CNT::THREE) {
         NVal op = NVal(env, funcArg[NARG_POS::THIRD]);
@@ -589,7 +589,7 @@ napi_value PropNExporter::Write(napi_env env, napi_callback_info info)
 
     NVal thisVar(env, funcArg.GetThisVar());
     bool hasOp = false;
-    int argc = funcArg.GetArgc();
+    size_t argc = funcArg.GetArgc();
     if (argc == NARG_CNT::THREE) {
         NVal op = NVal(env, funcArg[NARG_POS::THIRD]);
         if (op.HasProp("offset") || op.HasProp("position") || op.HasProp("length") || op.HasProp("encoding")) {

@@ -1195,7 +1195,7 @@ napi_value FileNExporter::WriteArrayBuffer(napi_env env, napi_callback_info info
     asyncCallbackInfo->position = position;
     asyncCallbackInfo->append = append;
     asyncCallbackInfo->buf = buffer;
-    asyncCallbackInfo->length = bufLength;
+    asyncCallbackInfo->length = static_cast<int32_t>(bufLength);
     asyncCallbackInfo->bufferAddress = bufferRef;
 
     napi_create_async_work(env, nullptr, NVal::CreateUTF8String(env, "ResourceName").val_, WriteArrayBufferExec,
