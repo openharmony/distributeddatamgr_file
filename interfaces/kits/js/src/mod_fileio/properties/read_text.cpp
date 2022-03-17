@@ -91,11 +91,7 @@ napi_value ReadText::Sync(napi_env env, napi_callback_info info)
     struct stat statbf;
     int ret;
     sfd.SetFD(open(path.get(), O_RDONLY));
-    if (sfd.GetFD() == -1) {
-        UniError(errno).ThrowErr(env);
-        return nullptr;
-    }
-    if (fstat(sfd.GetFD(), &statbf) == -1) {
+    if ((sfd.GetFD() == -1) || (fstat(sfd.GetFD(), &statbf) == -1)) {
         UniError(errno).ThrowErr(env);
         return nullptr;
     }
@@ -114,11 +110,7 @@ napi_value ReadText::Sync(napi_env env, napi_callback_info info)
     }
     size_t lenght { len + 1 };
     memset_s(readbuf.get(), lenght, 0, lenght);
-    if (position > 0) {
-        ret = pread(sfd.GetFD(), readbuf.get(), len, position);
-    } else {
-        ret = read(sfd.GetFD(), readbuf.get(), len);
-    }
+    ret = position > 0 ? pread(sfd.GetFD(), readbuf.get(), len, position) : read(sfd.GetFD(), readbuf.get(), len);
     if (ret == -1) {
         UniError(EINVAL).ThrowErr(env, "Invalid read file");
         return nullptr;
