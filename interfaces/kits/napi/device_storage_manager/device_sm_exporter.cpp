@@ -53,7 +53,8 @@ const int NULL_ERROR = 202;
 static void ForeachVomInfos(std::vector<std::shared_ptr<OHOS::DS::VolumeInfo>> &infos,
                             napi_env &env,
                             napi_value &getvolumenapi,
-                            int32_t &userId) {
+                            int32_t &userId)
+{
     int32_t i = 0;
     
     for (auto vomInfo : infos) {
@@ -82,7 +83,10 @@ static void ForeachVomInfos(std::vector<std::shared_ptr<OHOS::DS::VolumeInfo>> &
     }
 }
 
-static void ForeachDsmInfos(std::vector<std::shared_ptr<OHOS::DS::DiskInfo>> &infos, napi_env &env, napi_value &diaknapi) {
+static void ForeachDsmInfos(std::vector<std::shared_ptr<OHOS::DS::DiskInfo>> &infos,
+                            napi_env &env,
+                            napi_value &diaknapi)
+{
     int32_t i = 0;
     
     for (auto dsmInfo : infos) {
