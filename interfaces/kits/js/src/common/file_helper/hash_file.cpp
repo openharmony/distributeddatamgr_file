@@ -51,9 +51,7 @@ static int ForEachFileSegment(const string &fpath, function<void(char *, size_t)
         return errno;
     }
 
-    int getpageSize = getpagesize();
-    size_t getPageSize { getpageSize };
-    const size_t pageSize = getPageSize;
+    int pageSize = getpagesize();
     auto buf = make_unique<char[]>(pageSize);
     size_t actLen;
     do {

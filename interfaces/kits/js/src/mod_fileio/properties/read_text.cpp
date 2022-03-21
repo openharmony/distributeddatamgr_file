@@ -108,8 +108,8 @@ napi_value ReadText::Sync(napi_env env, napi_callback_info info)
         UniError(EINVAL).ThrowErr(env, "file is too large");
         return nullptr;
     }
-    size_t lenght { len + 1 };
-    memset_s(readbuf.get(), lenght, 0, lenght);
+    size_t length { len + 1 };
+    memset_s(readbuf.get(), length, 0, length);
     ret = position > 0 ? pread(sfd.GetFD(), readbuf.get(), len, position) : read(sfd.GetFD(), readbuf.get(), len);
     if (ret == -1) {
         UniError(EINVAL).ThrowErr(env, "Invalid read file");
