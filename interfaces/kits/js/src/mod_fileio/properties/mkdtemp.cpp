@@ -66,8 +66,7 @@ napi_value Mkdtemp::Async(napi_env env, napi_callback_info info)
         if (mkdtemp(const_cast<char *>(path.c_str())) == nullptr) {
             return UniError(errno);
         } else {
-            string &res = *arg;
-            res = path;
+            *arg = path;
             return UniError(ERRNO_NOERR);
         }
     };
