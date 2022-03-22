@@ -41,7 +41,7 @@ public:
 
 class NAsyncContextPromise : public NAsyncContext {
 public:
-    napi_deferred deferred_;
+    napi_deferred deferred_ = nullptr;
     explicit NAsyncContextPromise(NVal thisPtr) : NAsyncContext(thisPtr) {}
     ~NAsyncContextPromise() = default;
 };

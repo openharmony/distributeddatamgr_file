@@ -138,7 +138,7 @@ napi_value Open::Async(napi_env env, napi_callback_info info)
         (argc == NARG_CNT::THREE && (NVal(env, funcArg[NARG_POS::THIRD]).TypeIs(napi_number)))) {
         return NAsyncWorkPromise(env, thisVar).Schedule("FileIOOpen", cbExec, cbComplCallback).val_;
     } else {
-        int cbIdx = argc - 1;
+        size_t cbIdx = argc - 1;
         NVal cb(env, funcArg[cbIdx]);
         return NAsyncWorkCallback(env, thisVar, cb).Schedule("FileIOOpen", cbExec, cbComplCallback).val_;
     }
