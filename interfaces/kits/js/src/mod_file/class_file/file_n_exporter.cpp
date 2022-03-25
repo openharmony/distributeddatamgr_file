@@ -123,9 +123,9 @@ bool CheckUri(napi_env env, string &path)
         return false;
     }
     if (uriSplit[spilteTwo] == "app") {
-        path = ability->GetDataDir();
+        path = "/data/storage/el2/base/haps/entry/files";
     } else if (uriSplit[spilteTwo] == "cache") {
-        path = ability->GetCacheDir();
+        path = "/data/storage/el2/base/haps/entry/cache";
     } else {
         return false;
     }
