@@ -29,7 +29,7 @@ Ability* AbilityHelper::GetJsAbility(napi_env env)
 {
     napi_value global = nullptr;
     napi_value abilityContext = nullptr;
-    
+
     napi_status status = napi_get_global(env, &global);
     if (status != napi_ok || global == nullptr) {
         HILOGE("Cannot get global instance for %{public}d", status);
