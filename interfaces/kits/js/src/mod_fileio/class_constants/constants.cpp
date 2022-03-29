@@ -162,19 +162,19 @@ bool Constants::Export()
 
     string className = GetClassName();
     bool succ = false;
-    napi_value clas = nullptr;
-    tie(succ, clas) = NClass::DefineClass(exports_.env_, className, Constants::Constructor, std::move(props));
+    napi_value classValue = nullptr;
+    tie(succ, classValue) = NClass::DefineClass(exports_.env_, className, Constants::Constructor, std::move(props));
     if (!succ) {
         UniError(EIO).ThrowErr(exports_.env_, "INNER BUG. Failed to define class");
         return false;
     }
-    succ = NClass::SaveClass(exports_.env_, className, clas);
+    succ = NClass::SaveClass(exports_.env_, className, classValue);
     if (!succ) {
         UniError(EIO).ThrowErr(exports_.env_, "INNER BUG. Failed to save class");
         return false;
     }
 
-    return exports_.AddProp(className, clas);
+    return exports_.AddProp(className, classValue);
 }
 
 string Constants::GetClassName()

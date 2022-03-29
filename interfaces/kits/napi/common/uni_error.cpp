@@ -97,7 +97,7 @@ void UniError::ThrowErr(napi_env env)
     string msg = GetDefaultErrstr();
     napi_value tmp = nullptr;
     napi_get_and_clear_last_exception(env, &tmp);
-    // Note that ace engine cannot thow errors created by napi_create_error so far
+    // Note that ace engine cannot throw errors created by napi_create_error so far
     napi_status throwStatus = napi_throw_error(env, nullptr, msg.c_str());
     if (throwStatus != napi_ok) {
         HILOGE("Failed to throw an exception, %{public}d, code = %{public}s", throwStatus, msg.c_str());
@@ -108,7 +108,7 @@ void UniError::ThrowErr(napi_env env, string errMsg)
 {
     napi_value tmp = nullptr;
     napi_get_and_clear_last_exception(env, &tmp);
-    // Note that ace engine cannot thow errors created by napi_create_error so far
+    // Note that ace engine cannot throw errors created by napi_create_error so far
     napi_status throwStatus = napi_throw_error(env, nullptr, errMsg.c_str());
     if (throwStatus != napi_ok) {
         HILOGE("Failed to throw an exception, %{public}d, code = %{public}s", throwStatus, errMsg.c_str());

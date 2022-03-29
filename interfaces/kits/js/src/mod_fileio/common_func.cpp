@@ -167,7 +167,7 @@ static tuple<bool, unique_ptr<char[]>, int64_t> DecodeString(napi_env env, NVal 
     }
 }
 
-// Is everthing ok? Do we need to free memory? What's the three args required by fwrite? Where to start writing?
+// Is everything ok? Do we need to free memory? What's the three args required by fwrite? Where to start writing?
 tuple<bool, unique_ptr<char[]>, void *, int64_t, bool, int64_t> CommonFunc::GetWriteArg(napi_env env,
                                                                                         napi_value argWBuf,
                                                                                         napi_value argOption)
