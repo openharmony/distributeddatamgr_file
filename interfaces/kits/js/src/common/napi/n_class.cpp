@@ -69,7 +69,7 @@ bool NClass::SaveClass(napi_env env, string className, napi_value exClass)
     return res == napi_ok;
 }
 
-napi_value NClass::InstantiateClass(napi_env env, string& className, vector<napi_value>& args)
+napi_value NClass::InstantiateClass(napi_env env, const string& className, const vector<napi_value>& args)
 {
     NClass &nClass = NClass::GetInstance();
     lock_guard(nClass.exClassMapLock);

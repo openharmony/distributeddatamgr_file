@@ -35,7 +35,7 @@ public:
                                                     napi_callback constructor,
                                                     std::vector<napi_property_descriptor> &&properties);
     static bool SaveClass(napi_env env, std::string className, napi_value exClass);
-    static napi_value InstantiateClass(napi_env env, std::string& className, std::vector<napi_value>& args);
+    static napi_value InstantiateClass(napi_env env, const std::string& className, const std::vector<napi_value>& args);
 
     template <class T> static T *GetEntityOf(napi_env env, napi_value objStat)
     {
