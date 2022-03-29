@@ -85,7 +85,7 @@ NVal NAsyncWorkPromise::Schedule(string procedureName, NContextCBExec cbExec, NC
         return NVal();
     }
 
-    ctx_ = nullptr; // The ownership of ctx_ has been transfered
+    ctx_ = nullptr; // The ownership of ctx_ has been transferred
     return {env_, result};
 }
 } // namespace LibN

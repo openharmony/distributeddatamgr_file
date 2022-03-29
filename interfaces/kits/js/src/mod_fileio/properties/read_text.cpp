@@ -112,7 +112,10 @@ napi_value ReadText::Sync(napi_env env, napi_callback_info info)
         UniError(EINVAL).ThrowErr(env, "file is too large");
         return nullptr;
     }
-    memset_s(readbuf.get(), len + 1, 0, len + 1);
+    if (memset_s(readbuf.get(), len + 1, 0, len + 1) != EOK) {
+        UniError(errno).ThrowErr(env, "dfs mem error");
+        return nullptr;
+    }
     if (position > 0) {
         ret = pread(sfd.GetFD(), readbuf.get(), len, position);
     } else {

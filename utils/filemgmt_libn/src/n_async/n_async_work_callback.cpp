@@ -92,7 +92,7 @@ NVal NAsyncWorkCallback::Schedule(string procedureName, NContextCBExec cbExec, N
         return NVal();
     }
 
-    ctx_ = nullptr; // The ownership of ctx_ has been transfered
+    ctx_ = nullptr; // The ownership of ctx_ has been transferred
     return NVal::CreateUndefined(env_);
 }
 } // namespace LibN

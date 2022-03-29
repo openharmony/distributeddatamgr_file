@@ -29,6 +29,7 @@ void NFuncArg::SetArgc(size_t argc)
 {
     argc_ = argc;
 }
+
 void NFuncArg::SetThisVar(napi_value thisVar)
 {
     thisVar_ = thisVar;
