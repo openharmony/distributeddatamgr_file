@@ -141,7 +141,10 @@ bool DirentNExporter::Export()
 
     bool succ = false;
     napi_value classValue = nullptr;
-    tie(succ, classValue) = NClass::DefineClass(exports_.env_, className, DirentNExporter::Constructor, std::move(props));
+    tie(succ, classValue) = NClass::DefineClass(exports_.env_,
+                                                className,
+                                                DirentNExporter::Constructor,
+                                                std::move(props));
     if (!succ) {
         UniError(EIO).ThrowErr(exports_.env_, "INNER BUG. Failed to define class Dirent");
         return false;
