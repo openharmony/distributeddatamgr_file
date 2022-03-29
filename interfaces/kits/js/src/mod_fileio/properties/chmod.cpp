@@ -62,7 +62,7 @@ napi_value Chmod::Async(napi_env env, napi_callback_info info)
     NFuncArg funcArg(env, info);
 
     if (!funcArg.InitArgs(NARG_CNT::TWO, NARG_CNT::THREE)) {
-        UniError(EINVAL).ThrowErr(env, "Number of argments unmatched");
+        UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
 
