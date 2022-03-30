@@ -440,7 +440,7 @@ napi_value PropNExporter::ReadSync(napi_env env, napi_callback_info info)
 }
 
 struct AsyncIOReadArg {
-    ssize_t readded = 0;
+    ssize_t lenRead = 0;
     int offset = 0;
     NRef refReadBuf;
 
@@ -487,7 +487,7 @@ napi_value PropNExporter::Read(napi_env env, napi_callback_info info)
         if (actLen == -1) {
             return UniError(errno);
         } else {
-            arg->readded = actLen;
+            arg->lenRead = actLen;
             arg->offset = offset;
             return UniError(ERRNO_NOERR);
         }
@@ -499,7 +499,7 @@ napi_value PropNExporter::Read(napi_env env, napi_callback_info info)
         }
         NVal obj = NVal::CreateObject(env);
         obj.AddProp({
-            NVal::DeclareNapiProperty("bytesRead", NVal::CreateInt64(env, arg->readded).val_),
+            NVal::DeclareNapiProperty("bytesRead", NVal::CreateInt64(env, arg->lenRead).val_),
             NVal::DeclareNapiProperty("buffer", arg->refReadBuf.Deref(env).val_),
             NVal::DeclareNapiProperty("offset", NVal::CreateInt64(env, arg->offset).val_)
             });
