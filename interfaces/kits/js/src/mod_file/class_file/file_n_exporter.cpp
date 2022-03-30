@@ -122,10 +122,11 @@ bool CheckUri(napi_env env, string &path)
     if (!ability) {
         return false;
     }
-    if (uriSplit[spilteTwo] == "app") {
-        path = "/data/storage/el2/base/haps/entry/files";
-    } else if (uriSplit[spilteTwo] == "cache") {
-        path = "/data/storage/el2/base/haps/entry/cache";
+    auto abilityContext = ability->GetAbilityContext();
+    if (abilityContext && uriSplit[spilteTwo] == "app") {
+        path = abilityContext->GetFilesDir();
+    } else if (abilityContext && uriSplit[spilteTwo] == "cache") {
+        path = abilityContext->GetCacheDir();
     } else {
         return false;
     }
