@@ -91,7 +91,7 @@ napi_value ReadText::Sync(napi_env env, napi_callback_info info)
     struct stat statbf;
     int ret;
     sfd.SetFD(open(path.get(), O_RDONLY));
-    if ((sfd.GetFD() == -1) || (fstat(sfd.GetFD(), &statbf) == -1)) {
+    if ((!sfd) || (fstat(sfd.GetFD(), &statbf) == -1)) {
         UniError(errno).ThrowErr(env);
         return nullptr;
     }
