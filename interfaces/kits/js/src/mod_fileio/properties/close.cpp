@@ -55,7 +55,7 @@ napi_value Close::Async(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
     if (!funcArg.InitArgs(NARG_CNT::ONE, NARG_CNT::TWO)) {
-        UniError(EINVAL).ThrowErr(env, "Number of argments unmatched");
+        UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
     bool succ = false;

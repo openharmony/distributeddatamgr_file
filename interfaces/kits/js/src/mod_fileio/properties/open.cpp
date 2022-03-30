@@ -107,7 +107,7 @@ napi_value Open::Async(napi_env env, napi_callback_info info)
         return nullptr;
     }
     int flags = O_RDONLY;
-    if (funcArg.GetArgc() >= NARG_CNT::TWO) {
+    if (funcArg.GetArgc() >= NARG_CNT::TWO && !NVal(env, funcArg[NARG_POS::SECOND]).TypeIs(napi_function)) {
         tie(succ, flags) = NVal(env, funcArg[NARG_POS::SECOND]).ToInt32();
         if (!succ) {
             UniError(EINVAL).ThrowErr(env, "Invalid flags");

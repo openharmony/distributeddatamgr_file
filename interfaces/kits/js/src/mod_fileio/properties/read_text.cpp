@@ -99,17 +99,17 @@ napi_value ReadText::Sync(napi_env env, napi_callback_info info)
         UniError(EINVAL).ThrowErr(env, "Invalid position");
         return nullptr;
     }
-    if (!hasLen) {
-        len = statbf.st_size;
-    }
+    len = !hasLen ? statbf.st_size : len;
     len = ((len  < statbf.st_size) ? len : statbf.st_size);
     std::unique_ptr<char[]> readbuf = std::make_unique<char[]>(len + 1);
     if (readbuf == nullptr) {
         UniError(EINVAL).ThrowErr(env, "file is too large");
         return nullptr;
     }
-    size_t length { len + 1 };
-    memset_s(readbuf.get(), length, 0, length);
+    if (memset_s(readbuf.get(), len + 1, 0, len + 1) != EOK) {
+        UniError(errno).ThrowErr(env, "dfs mem error");
+        return nullptr;
+    }
     ret = position > 0 ? pread(sfd.GetFD(), readbuf.get(), len, position) : read(sfd.GetFD(), readbuf.get(), len);
     if (ret == -1) {
         UniError(EINVAL).ThrowErr(env, "Invalid read file");
