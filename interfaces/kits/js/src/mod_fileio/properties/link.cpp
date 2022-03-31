@@ -104,7 +104,7 @@ napi_value Link::Async(napi_env env, napi_callback_info info)
 
     string procedureName = "FileIOLink";
     NVal thisVar(env, funcArg.GetThisVar());
-    int argc = funcArg.GetArgc();
+    size_t argc = funcArg.GetArgc();
     if (argc == NARG_CNT::TWO) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplCallback).val_;
     } else {

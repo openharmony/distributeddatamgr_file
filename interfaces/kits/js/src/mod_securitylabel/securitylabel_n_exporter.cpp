@@ -75,7 +75,7 @@ napi_value SetSecurityLabel(napi_env env, napi_callback_info info)
     };
     std::string procedureName = "SetSecurityLabel";
     NVal thisVar(env, funcArg.GetThisVar());
-    if (funcArg.GetArgc() == static_cast<int>(NARG_CNT::TWO)) {
+    if (funcArg.GetArgc() == static_cast<size_t>(NARG_CNT::TWO)) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
     } else {
         NVal cb(env, funcArg[static_cast<int>(NARG_POS::THIRD)]);
@@ -116,7 +116,7 @@ napi_value GetSecurityLabel(napi_env env, napi_callback_info info)
 
     std::string procedureName = "GetSecurityLabel";
     NVal thisVar(env, funcArg.GetThisVar());
-    if (funcArg.GetArgc() == static_cast<int>(NARG_CNT::ONE)) {
+    if (funcArg.GetArgc() == static_cast<size_t>(NARG_CNT::ONE)) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
     } else {
         NVal cb(env, funcArg[static_cast<int>(NARG_POS::SECOND)]);

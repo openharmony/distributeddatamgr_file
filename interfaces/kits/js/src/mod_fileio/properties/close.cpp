@@ -82,7 +82,7 @@ napi_value Close::Async(napi_env env, napi_callback_info info)
         }
     };
     string procedureName = "FileIOClose";
-    int argc = funcArg.GetArgc();
+    size_t argc = funcArg.GetArgc();
     NVal thisVar(env, funcArg.GetThisVar());
     if (argc == NARG_CNT::ONE) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;

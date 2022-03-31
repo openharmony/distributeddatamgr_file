@@ -77,7 +77,7 @@ napi_value Chmod::Async(napi_env env, napi_callback_info info)
 
     path = tmp.get();
     int mode;
-    int argc = funcArg.GetArgc();
+    size_t argc = funcArg.GetArgc();
     tie(succ, mode) = NVal(env, funcArg[NARG_POS::SECOND]).ToInt32();
     if (!succ) {
         UniError(EINVAL).ThrowErr(env, "Invalid mode");

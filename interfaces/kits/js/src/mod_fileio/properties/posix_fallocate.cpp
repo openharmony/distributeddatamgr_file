@@ -104,7 +104,7 @@ napi_value PosixFallocate::Async(napi_env env, napi_callback_info info)
     };
     NVal thisVar(env, funcArg.GetThisVar());
     string procedureName = "fileioPosixFallocate";
-    int argc = funcArg.GetArgc();
+    size_t argc = funcArg.GetArgc();
     if (argc == NARG_CNT::THREE) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbCompl).val_;
     } else {

@@ -73,7 +73,7 @@ napi_value PropNExporter::AccessSync(napi_env env, napi_callback_info info)
         return nullptr;
     }
 
-    int argc = funcArg.GetArgc();
+    size_t argc = funcArg.GetArgc();
     int ret = -1;
     if (argc == NARG_CNT::ONE) {
         ret = access(path.get(), 0);
@@ -104,7 +104,7 @@ static tuple<bool, string, int, bool> GetAccessArgs(napi_env env, const NFuncArg
         return { false, nullptr, 0, false };
     }
 
-    int argc = funcArg.GetArgc();
+    size_t argc = funcArg.GetArgc();
     bool promise = true;
     bool hasMode = false;
     if (argc == NARG_CNT::ONE) {
@@ -156,7 +156,7 @@ napi_value PropNExporter::Access(napi_env env, napi_callback_info info)
         UniError(EINVAL).ThrowErr(env, "Invalid path");
         return nullptr;
     }
-    int argc = funcArg.GetArgc();
+    size_t argc = funcArg.GetArgc();
 
     auto cbExec = [path = move(path), mode](napi_env env) -> UniError {
         int ret = access(path.c_str(), mode);
@@ -249,7 +249,7 @@ napi_value PropNExporter::Mkdir(napi_env env, napi_callback_info info)
     }
     path = tmp.get();
     int mode = 0775;
-    int argc = funcArg.GetArgc();
+    size_t argc = funcArg.GetArgc();
     if ((argc == NARG_CNT::TWO && NVal(env, funcArg[NARG_POS::SECOND]).TypeIs(napi_number)) ||
         argc == NARG_CNT::THREE) {
         tie(succ, mode) = NVal(env, funcArg[NARG_POS::SECOND]).ToInt32();
@@ -303,7 +303,7 @@ napi_value PropNExporter::MkdirSync(napi_env env, napi_callback_info info)
     }
 
     int ret = -1;
-    int argc = funcArg.GetArgc();
+    size_t argc = funcArg.GetArgc();
     if (argc == NARG_CNT::ONE) {
         ret = mkdir(path.get(), 0775);
     } else {
@@ -440,7 +440,7 @@ napi_value PropNExporter::ReadSync(napi_env env, napi_callback_info info)
 }
 
 struct AsyncIOReadArg {
-    ssize_t readded = 0;
+    ssize_t lenRead = 0;
     int offset = 0;
     NRef refReadBuf;
 
@@ -487,7 +487,7 @@ napi_value PropNExporter::Read(napi_env env, napi_callback_info info)
         if (actLen == -1) {
             return UniError(errno);
         } else {
-            arg->readded = actLen;
+            arg->lenRead = actLen;
             arg->offset = offset;
             return UniError(ERRNO_NOERR);
         }
@@ -499,7 +499,7 @@ napi_value PropNExporter::Read(napi_env env, napi_callback_info info)
         }
         NVal obj = NVal::CreateObject(env);
         obj.AddProp({
-            NVal::DeclareNapiProperty("bytesRead", NVal::CreateInt64(env, arg->readded).val_),
+            NVal::DeclareNapiProperty("bytesRead", NVal::CreateInt64(env, arg->lenRead).val_),
             NVal::DeclareNapiProperty("buffer", arg->refReadBuf.Deref(env).val_),
             NVal::DeclareNapiProperty("offset", NVal::CreateInt64(env, arg->offset).val_)
             });
@@ -507,7 +507,7 @@ napi_value PropNExporter::Read(napi_env env, napi_callback_info info)
     };
 
     NVal thisVar(env, funcArg.GetThisVar());
-    int argc = funcArg.GetArgc();
+    size_t argc = funcArg.GetArgc();
     bool hasOp = false;
     if (argc == NARG_CNT::THREE) {
         NVal op = NVal(env, funcArg[NARG_POS::THIRD]);
@@ -589,7 +589,7 @@ napi_value PropNExporter::Write(napi_env env, napi_callback_info info)
 
     NVal thisVar(env, funcArg.GetThisVar());
     bool hasOp = false;
-    int argc = funcArg.GetArgc();
+    size_t argc = funcArg.GetArgc();
     if (argc == NARG_CNT::THREE) {
         NVal op = NVal(env, funcArg[NARG_POS::THIRD]);
         if (op.HasProp("offset") || op.HasProp("position") || op.HasProp("length") || op.HasProp("encoding")) {

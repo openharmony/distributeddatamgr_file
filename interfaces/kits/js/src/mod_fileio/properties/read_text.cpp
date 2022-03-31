@@ -91,11 +91,7 @@ napi_value ReadText::Sync(napi_env env, napi_callback_info info)
     struct stat statbf;
     int ret;
     sfd.SetFD(open(path.get(), O_RDONLY));
-    if (sfd.GetFD() == -1) {
-        UniError(errno).ThrowErr(env);
-        return nullptr;
-    }
-    if (fstat(sfd.GetFD(), &statbf) == -1) {
+    if ((!sfd) || (fstat(sfd.GetFD(), &statbf) == -1)) {
         UniError(errno).ThrowErr(env);
         return nullptr;
     }
@@ -103,9 +99,7 @@ napi_value ReadText::Sync(napi_env env, napi_callback_info info)
         UniError(EINVAL).ThrowErr(env, "Invalid position");
         return nullptr;
     }
-    if (!hasLen) {
-        len = statbf.st_size;
-    }
+    len = !hasLen ? statbf.st_size : len;
     len = ((len  < statbf.st_size) ? len : statbf.st_size);
     std::unique_ptr<char[]> readbuf = std::make_unique<char[]>(len + 1);
     if (readbuf == nullptr) {
@@ -116,11 +110,7 @@ napi_value ReadText::Sync(napi_env env, napi_callback_info info)
         UniError(errno).ThrowErr(env, "dfs mem error");
         return nullptr;
     }
-    if (position > 0) {
-        ret = pread(sfd.GetFD(), readbuf.get(), len, position);
-    } else {
-        ret = read(sfd.GetFD(), readbuf.get(), len);
-    }
+    ret = position > 0 ? pread(sfd.GetFD(), readbuf.get(), len, position) : read(sfd.GetFD(), readbuf.get(), len);
     if (ret == -1) {
         UniError(EINVAL).ThrowErr(env, "Invalid read file");
         return nullptr;
@@ -206,7 +196,7 @@ napi_value ReadText::Async(napi_env env, napi_callback_info info)
             return NVal::CreateUTF8String(env, arg->buf.get(), arg->len);
         }
     };
-    int argc = funcArg.GetArgc();
+    size_t argc = funcArg.GetArgc();
     NVal thisVar(env, funcArg.GetThisVar());
     if (argc == NARG_CNT::ONE || (argc == NARG_CNT::TWO && hasOp)) {
         return NAsyncWorkPromise(env, thisVar).Schedule("FileIOReadText", cbExec, cbComplete).val_;

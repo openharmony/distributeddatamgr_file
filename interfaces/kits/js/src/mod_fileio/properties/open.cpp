@@ -54,9 +54,10 @@ napi_value Open::Sync(napi_env env, napi_callback_info info)
     }
 
     int fd = -1;
-    int argc = funcArg.GetArgc();
+    size_t argc = funcArg.GetArgc();
     if (argc != NARG_CNT::THREE) {
-        if ((flags & O_CREAT) || (flags & O_TMPFILE)) {
+        size_t flagsFirst { flags };
+        if ((flagsFirst & O_CREAT) || (flagsFirst & O_TMPFILE)) {
             UniError(EINVAL).ThrowErr(env, "called with O_CREAT/O_TMPFILE but no mode");
             return nullptr;
         }
@@ -98,7 +99,7 @@ napi_value Open::Async(napi_env env, napi_callback_info info)
         return nullptr;
     }
     bool succ = false;
-    int argc = funcArg.GetArgc();
+    size_t argc = funcArg.GetArgc();
     unique_ptr<char[]> path;
     tie(succ, path, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
     if (!succ) {
@@ -137,7 +138,7 @@ napi_value Open::Async(napi_env env, napi_callback_info info)
         (argc == NARG_CNT::THREE && (NVal(env, funcArg[NARG_POS::THIRD]).TypeIs(napi_number)))) {
         return NAsyncWorkPromise(env, thisVar).Schedule("FileIOOpen", cbExec, cbComplCallback).val_;
     } else {
-        int cbIdx = argc - 1;
+        size_t cbIdx = argc - 1;
         NVal cb(env, funcArg[cbIdx]);
         return NAsyncWorkCallback(env, thisVar, cb).Schedule("FileIOOpen", cbExec, cbComplCallback).val_;
     }

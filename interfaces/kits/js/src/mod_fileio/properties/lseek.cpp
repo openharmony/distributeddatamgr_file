@@ -86,7 +86,7 @@ napi_value Lseek::Async(napi_env env, napi_callback_info info)
         return nullptr;
     }
 
-    int argc = funcArg.GetArgc();
+    size_t argc = funcArg.GetArgc();
     bool succ = false;
     int fd;
     int offset;

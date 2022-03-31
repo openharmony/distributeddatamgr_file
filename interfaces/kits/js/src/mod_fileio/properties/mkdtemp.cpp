@@ -66,8 +66,7 @@ napi_value Mkdtemp::Async(napi_env env, napi_callback_info info)
         if (mkdtemp(const_cast<char *>(path.c_str())) == nullptr) {
             return UniError(errno);
         } else {
-            string &res = *arg;
-            res = path;
+            *arg = path;
             return UniError(ERRNO_NOERR);
         }
     };
@@ -79,7 +78,7 @@ napi_value Mkdtemp::Async(napi_env env, napi_callback_info info)
         }
     };
     string procedureName = "FileIOmkdtemp";
-    int argc = funcArg.GetArgc();
+    size_t argc = funcArg.GetArgc();
     NVal thisVar(env, funcArg.GetThisVar());
     if (argc == NARG_CNT::ONE) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;

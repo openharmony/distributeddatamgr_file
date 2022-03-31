@@ -75,7 +75,7 @@ napi_value Truncate::Async(napi_env env, napi_callback_info info)
         UniError(EINVAL).ThrowErr(env, "Invalid path");
         return nullptr;
     }
-    int argc = funcArg.GetArgc();
+    size_t argc = funcArg.GetArgc();
     if (argc > NARG_CNT::ONE) {
         tie(succ, len) = NVal(env, funcArg[NARG_POS::SECOND]).ToInt32();
         if (!succ) {

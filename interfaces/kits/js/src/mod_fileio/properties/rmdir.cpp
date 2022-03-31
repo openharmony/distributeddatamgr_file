@@ -84,7 +84,7 @@ napi_value Rmdir::Async(napi_env env, napi_callback_info info)
     };
     string procedureName = "FileIORmdir";
     NVal thisVar(env, funcArg.GetThisVar());
-    int argc = funcArg.GetArgc();
+    size_t argc = funcArg.GetArgc();
     if (argc == NARG_CNT::ONE) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbCompl).val_;
     } else {
