@@ -187,8 +187,7 @@ bool GetFileNames(string path, vector<string> &filenames, bool rec, bool isList)
         if (strcmp(ptr->d_name, ".") != 0 && strcmp(ptr->d_name, "..") != 0) {
             if (isList) {
                 filenames.push_back(path + "/" + ptr->d_name);
-            } else if (ptr->d_type == DT_DIR &&
-                       rec &&
+            } else if (ptr->d_type == DT_DIR && rec &&
                        GetFileNames(path + "/" + ptr->d_name, filenames, rec, isList) == false) {
                 break;
             } else if (ptr->d_type == DT_REG) {
