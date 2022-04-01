@@ -144,6 +144,7 @@ napi_value StreamNExporter::WriteSync(napi_env env, napi_callback_info info)
 struct AsyncWrtieArg {
     NRef refWriteArrayBuf_;
     unique_ptr<char[]> guardWriteStr_;
+    size_t actLen = 0;
 
     explicit AsyncWrtieArg(NVal refWriteArrayBuf) : refWriteArrayBuf_(refWriteArrayBuf) {}
     explicit AsyncWrtieArg(unique_ptr<char[]> &&guardWriteStr) : guardWriteStr_(move(guardWriteStr)) {}
@@ -185,19 +186,19 @@ napi_value StreamNExporter::Write(napi_env env, napi_callback_info info)
     }
 
     auto cbExec = [arg, buf, len, filp](napi_env env) -> UniError {
-        size_t actLen = fwrite(buf, 1, len, filp);
-        if (actLen != static_cast<size_t>(len) && ferror(filp)) {
+        arg->actLen = fwrite(buf, 1, len, filp);
+        if (arg->actLen != static_cast<size_t>(len) && ferror(filp)) {
             return UniError(errno);
         } else {
             return UniError(ERRNO_NOERR);
         }
     };
 
-    auto cbCompl = [](napi_env env, UniError err) -> NVal {
+    auto cbCompl = [arg](napi_env env, UniError err) -> NVal {
         if (err) {
             return { env, err.GetNapiErr(env) };
         }
-        return { NVal::CreateUndefined(env) };
+        return { NVal::CreateInt64(env, arg->actLen) };
     };
 
     NVal thisVar(env, funcArg.GetThisVar());
