@@ -133,7 +133,7 @@ napi_value StreamNExporter::WriteSync(napi_env env, napi_callback_info info)
     }
 
     size_t writeLen = fwrite(buf, 1, len, filp);
-    if (writeLen == -1) {
+    if (writeLen != len) {
         UniError(errno).ThrowErr(env);
         return nullptr;
     }
