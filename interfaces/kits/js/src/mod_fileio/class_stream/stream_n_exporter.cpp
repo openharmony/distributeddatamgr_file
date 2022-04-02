@@ -144,7 +144,7 @@ napi_value StreamNExporter::WriteSync(napi_env env, napi_callback_info info)
 struct AsyncWrtieArg {
     NRef refWriteArrayBuf_;
     unique_ptr<char[]> guardWriteStr_;
-    size_t actLen = 0;
+    size_t actLen { 0 };
 
     explicit AsyncWrtieArg(NVal refWriteArrayBuf) : refWriteArrayBuf_(refWriteArrayBuf) {}
     explicit AsyncWrtieArg(unique_ptr<char[]> &&guardWriteStr) : guardWriteStr_(move(guardWriteStr)) {}
@@ -213,7 +213,7 @@ napi_value StreamNExporter::Write(napi_env env, napi_callback_info info)
 }
 
 struct AsyncReadArg {
-    size_t lenRead = 0;
+    size_t lenRead { 0 };
     NRef refReadBuf;
 
     explicit AsyncReadArg(NVal jsReadBuf) : refReadBuf(jsReadBuf) {}
