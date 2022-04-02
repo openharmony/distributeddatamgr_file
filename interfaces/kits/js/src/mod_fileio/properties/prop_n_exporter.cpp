@@ -440,8 +440,8 @@ napi_value PropNExporter::ReadSync(napi_env env, napi_callback_info info)
 }
 
 struct AsyncIOReadArg {
-    ssize_t lenRead = 0;
-    int offset = 0;
+    ssize_t lenRead { 0 };
+    int offset { 0 };
     NRef refReadBuf;
 
     explicit AsyncIOReadArg(NVal jsReadBuf) : refReadBuf(jsReadBuf) {}
