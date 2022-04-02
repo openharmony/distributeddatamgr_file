@@ -133,7 +133,7 @@ napi_value StreamNExporter::WriteSync(napi_env env, napi_callback_info info)
     }
 
     size_t writeLen = fwrite(buf, 1, len, filp);
-    if (writeLen == -1) {
+    if (writeLen != len) {
         UniError(errno).ThrowErr(env);
         return nullptr;
     }
@@ -245,6 +245,7 @@ napi_value StreamNExporter::Read(napi_env env, napi_callback_info info)
     tie(succ, buf, len, hasPosition, position, ignore) =
         CommonFunc::GetReadArg(env, funcArg[NARG_POS::FIRST], funcArg[NARG_POS::SECOND]);
     if (!succ) {
+        UniError(EINVAL).ThrowErr(env, "Failed GetReadArg");
         return nullptr;
     }
 

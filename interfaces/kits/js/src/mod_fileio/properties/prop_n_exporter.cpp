@@ -472,7 +472,7 @@ napi_value PropNExporter::Read(napi_env env, napi_callback_info info)
     tie(succ, buf, len, hasPos, pos, offset) =
         CommonFunc::GetReadArg(env, funcArg[NARG_POS::SECOND], funcArg[NARG_POS::THIRD]);
     if (!succ) {
-        UniError(EINVAL).ThrowErr(env, "Invalid arguments");
+        UniError(EINVAL).ThrowErr(env, "Failed GetReadArg");
         return nullptr;
     }
 
@@ -565,7 +565,7 @@ napi_value PropNExporter::Write(napi_env env, napi_callback_info info)
     tie(succ, bufGuard, buf, len, hasPos, position) =
         CommonFunc::GetWriteArg(env, funcArg[NARG_POS::SECOND], funcArg[NARG_POS::THIRD]);
     if (!succ) {
-        UniError(EINVAL).ThrowErr(env, "Invalid arguments");
+        UniError(EINVAL).ThrowErr(env, "Failed GetWriteArg");
         return nullptr;
     }
 
