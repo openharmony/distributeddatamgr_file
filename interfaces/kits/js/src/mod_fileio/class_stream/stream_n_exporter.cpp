@@ -245,6 +245,7 @@ napi_value StreamNExporter::Read(napi_env env, napi_callback_info info)
     tie(succ, buf, len, hasPosition, position, ignore) =
         CommonFunc::GetReadArg(env, funcArg[NARG_POS::FIRST], funcArg[NARG_POS::SECOND]);
     if (!succ) {
+        UniError(EINVAL).ThrowErr(env, "Failed GetReadArg");
         return nullptr;
     }
 
