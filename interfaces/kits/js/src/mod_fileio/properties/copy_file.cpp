@@ -34,44 +34,44 @@ namespace ModuleFileIO {
 using namespace std;
 
 struct FileInfo {
-    bool isPath_ = false;
-    unique_ptr<char[]> path_;
-    FDGuard fdg_;
+    bool isPath = false;
+    unique_ptr<char[]> path;
+    FDGuard fdg;
 };
 
 static UniError CopyFileCore(FileInfo &srcFile, FileInfo &destFile)
 {
     int res = EINVAL;
-    if (srcFile.isPath_) {
-        srcFile.fdg_.SetFD(open(srcFile.path_.get(), O_RDONLY), true);
+    if (srcFile.isPath) {
+        srcFile.fdg.SetFD(open(srcFile.path.get(), O_RDONLY), true);
         res = errno;
     }
-    if (!srcFile.fdg_) {
+    if (!srcFile.fdg) {
         return UniError(res);
     }
     struct stat statbf;
-    if (fstat(srcFile.fdg_.GetFD(), &statbf) == -1) {
+    if (fstat(srcFile.fdg.GetFD(), &statbf) == -1) {
         return UniError(errno);
     }
 
-    if (destFile.isPath_) {
-        destFile.fdg_.SetFD(open(destFile.path_.get(), O_WRONLY | O_CREAT, statbf.st_mode), true);
+    if (destFile.isPath) {
+        destFile.fdg.SetFD(open(destFile.path.get(), O_WRONLY | O_CREAT, statbf.st_mode), true);
         res = errno;
     }
-    if (!destFile.fdg_) {
+    if (!destFile.fdg) {
         return UniError(res);
     }
 
     int block = 4096;
     auto copyBuf = make_unique<char[]>(block);
     do {
-        ssize_t readSize = read(srcFile.fdg_.GetFD(), copyBuf.get(), block);
+        ssize_t readSize = read(srcFile.fdg.GetFD(), copyBuf.get(), block);
         if (readSize == -1) {
             return UniError(errno);
         } else if (readSize == 0) {
             break;
         }
-        ssize_t writeSize = write(destFile.fdg_.GetFD(), copyBuf.get(), readSize);
+        ssize_t writeSize = write(destFile.fdg.GetFD(), copyBuf.get(), readSize);
         if (writeSize != readSize) {
             return UniError(errno);
         }
