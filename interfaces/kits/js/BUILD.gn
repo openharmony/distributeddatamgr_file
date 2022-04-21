@@ -215,8 +215,37 @@ ohos_shared_library("securitylabel") {
   external_deps = [ "hiviewdfx_hilog_native:libhilog" ]
 }
 
+ohos_shared_library("document") {
+  subsystem_name = "distributeddatamgr"
+  part_name = "distributedfilejs"
+
+  relative_install_dir = "module"
+
+  include_dirs = [
+    "//third_party/node/src",
+    "//foundation/ace/napi/interfaces/kits",
+    "//foundation/distributeddatamgr/distributedfile/interfaces/kits/js/src/common/napi/n_async",
+  ]
+
+  sources = [
+    "src/common/napi/n_async/n_async_work_callback.cpp",
+    "src/common/napi/n_async/n_async_work_promise.cpp",
+    "src/common/napi/n_async/n_ref.cpp",
+    "src/common/napi/n_func_arg.cpp",
+    "src/common/napi/n_val.cpp",
+    "src/common/uni_error.cpp",
+    "src/mod_document/document_n_exporter.cpp",
+    "src/mod_document/document_napi.cpp",
+  ]
+
+  deps = [ "//foundation/ace/napi:ace_napi" ]
+
+  external_deps = [ "hiviewdfx_hilog_native:libhilog" ]
+}
+
 group("build_kits_js") {
   deps = [
+    ":document",
     ":environment",
     ":file",
     ":fileio",
