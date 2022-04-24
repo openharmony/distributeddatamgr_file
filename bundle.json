@@ -1,0 +1,43 @@
+{
+    "name": "@ohos/distributeddatamgr_file",
+    "description": "provides the application with JS interfaces for IO",
+    "version": "3.1",
+    "license": "Apache License 2.0",
+    "publishAs": "code-segment",
+    "segment": {
+      "destPath": "foundation/distributeddatamgr/distributedfile"
+    },
+    "dirs": {},
+    "scripts": {},
+    "component": {
+      "name": "distributedfilejs",
+      "subsystem": "distributeddatamgr",
+      "syscap": [],
+      "features": [],
+      "adapted_system_type": ["standard"],
+      "rom": "",
+      "ram": "",
+      "deps": {
+        "components": [
+            "ability_base",
+            "ability_manager",
+            "appexecfwk_base",
+            "appexecfwk_core",
+            "want",
+            "libhilog",
+            "ipc_core",
+            "ace_napi",
+            "samgr_proxy"
+        ],
+        "third_party": [
+            "e2fsprogs"
+        ]
+      },
+      "build": {
+        "sub_component": [
+            "//foundation/distributeddatamgr/distributedfile/interfaces/kits/js:build_kits_js",
+            "//third_party/e2fsprogs:e2fsprogs"
+        ]
+      }
+    }
+  }
