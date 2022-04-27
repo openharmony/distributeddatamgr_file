@@ -32,7 +32,7 @@ ohos_shared_library("fileio") {
 
   include_dirs = [
     "//third_party/node/src",
-    "//foundation/ace/napi/interfaces/kits",
+    "//foundation/arkui/napi/interfaces/kits",
     "//utils/native/base/include",
     "//third_party/libuv/include",
     "//third_party/openssl/include",
@@ -85,7 +85,7 @@ ohos_shared_library("fileio") {
   ]
 
   deps = [
-    "//foundation/ace/napi:ace_napi",
+    "//foundation/arkui/napi:ace_napi",
     "//third_party/openssl:libcrypto_static",
     "//utils/native/base:utilsecurec",
   ]
@@ -101,7 +101,7 @@ ohos_shared_library("file") {
 
   include_dirs = [
     "//third_party/node/src",
-    "//foundation/ace/napi/interfaces/kits",
+    "//foundation/arkui/napi/interfaces/kits",
     "//utils/native/base/include",
     "//foundation/distributeddatamgr/distributedfile/interfaces/kits/js/src/common/napi",
     "//foundation/distributeddatamgr/distributedfile/interfaces/kits/js/src/common/napi/n_async",
@@ -118,7 +118,7 @@ ohos_shared_library("file") {
 
   deps = [
     "//foundation/aafwk/standard/frameworks/kits/ability/native:abilitykit_native",
-    "//foundation/ace/napi:ace_napi",
+    "//foundation/arkui/napi:ace_napi",
     "//utils/native/base:utilsecurec",
   ]
 
@@ -160,7 +160,7 @@ ohos_shared_library("environment") {
 
   include_dirs = [
     "//third_party/node/src",
-    "//foundation/ace/napi/interfaces/kits",
+    "//foundation/arkui/napi/interfaces/kits",
     "//foundation/distributeddatamgr/distributedfile/interfaces/kits/js/src/common/napi/n_async",
   ]
 
@@ -175,7 +175,7 @@ ohos_shared_library("environment") {
     "src/mod_environment/environment_napi.cpp",
   ]
 
-  deps = [ "//foundation/ace/napi:ace_napi" ]
+  deps = [ "//foundation/arkui/napi:ace_napi" ]
 
   external_deps = [ "hiviewdfx_hilog_native:libhilog" ]
 }
@@ -189,11 +189,11 @@ ohos_shared_library("securitylabel") {
   cflags = [ "-Wno-format" ]
 
   include_dirs = [
-    "//foundation/ace/napi/interfaces/kits",
+    "//foundation/arkui/napi/interfaces/kits",
     "//foundation/filemanagement/storage_service/interfaces/kits/js/storage_manager/include",
     "//foundation/multimodalinput/input/common/include",
-    "//foundation/ace/ace_engine/frameworks/base/utils",
-    "//foundation/ace/ace_engine/frameworks",
+    "//foundation/arkui/ace_engine/frameworks/base/utils",
+    "//foundation/arkui/ace_engine/frameworks",
     "//foundation/distributedschedule/safwk/services/safwk/include",
     "//foundation/distributeddatamgr/distributedfile/interfaces/kits/js/src/common/napi/n_async",
     "//foundation/distributeddatamgr/objectstore/frameworks/innerkitsimpl/include/common",
@@ -207,7 +207,7 @@ ohos_shared_library("securitylabel") {
 
   deps = [
     "//foundation/aafwk/standard/frameworks/kits/ability/native:abilitykit_native",
-    "//foundation/ace/napi:ace_napi",
+    "//foundation/arkui/napi:ace_napi",
     "//third_party/openssl:libcrypto_static",
     "//utils/native/base:utilsecurec",
   ]
@@ -223,7 +223,7 @@ ohos_shared_library("document") {
 
   include_dirs = [
     "//third_party/node/src",
-    "//foundation/ace/napi/interfaces/kits",
+    "//foundation/arkui/napi/interfaces/kits",
     "//foundation/distributeddatamgr/distributedfile/interfaces/kits/js/src/common/napi/n_async",
   ]
 
@@ -238,7 +238,7 @@ ohos_shared_library("document") {
     "src/mod_document/document_napi.cpp",
   ]
 
-  deps = [ "//foundation/ace/napi:ace_napi" ]
+  deps = [ "//foundation/arkui/napi:ace_napi" ]
 
   external_deps = [ "hiviewdfx_hilog_native:libhilog" ]
 }

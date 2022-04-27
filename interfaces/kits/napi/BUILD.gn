@@ -27,7 +27,7 @@ ohos_shared_library("fileshare") {
 
   include_dirs = [
     "//third_party/node/src",
-    "//foundation/ace/napi/interfaces/kits",
+    "//foundation/arkui/napi/interfaces/kits",
     "//utils/native/base/include",
   ]
 
@@ -39,7 +39,7 @@ ohos_shared_library("fileshare") {
 
   deps = [
     "//foundation/aafwk/standard/frameworks/kits/ability/native:abilitykit_native",
-    "//foundation/ace/napi:ace_napi",
+    "//foundation/arkui/napi:ace_napi",
     "//utils/native/base:utilsecurec",
   ]
 
@@ -60,7 +60,7 @@ ohos_shared_library("devicesmgr") {
 
   include_dirs = [
     "//third_party/node/src",
-    "//foundation/ace/napi/interfaces/kits",
+    "//foundation/arkui/napi/interfaces/kits",
     "//utils/native/base/include",
     "//utils/system/safwk/native/include",
   ]
@@ -73,7 +73,7 @@ ohos_shared_library("devicesmgr") {
 
   deps = [
     "//foundation/aafwk/standard/frameworks/kits/ability/native:abilitykit_native",
-    "//foundation/ace/napi:ace_napi",
+    "//foundation/arkui/napi:ace_napi",
     "//utils/native/base:utilsecurec",
   ]
 
@@ -96,7 +96,7 @@ ohos_shared_library("filepicker") {
 
   include_dirs = [
     "//third_party/node/src",
-    "//foundation/ace/napi/interfaces/kits",
+    "//foundation/arkui/napi/interfaces/kits",
     "//utils/native/base/include",
     "//utils/system/safwk/native/include",
   ]
@@ -109,7 +109,12 @@ ohos_shared_library("filepicker") {
 
   deps = [
     "//foundation/aafwk/standard/frameworks/kits/ability/native:abilitykit_native",
+<<<<<<< Updated upstream
     "//foundation/ace/napi:ace_napi",
+=======
+    "//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler:libeventhandler",
+    "//foundation/arkui/napi:ace_napi",
+>>>>>>> Stashed changes
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//utils/native/base:utilsecurec",
   ]
