@@ -35,7 +35,7 @@ ohos_shared_library("filemgmt_libn") {
 
   public_configs = [ ":libn_public_config" ]
   public_deps = [
-    "//foundation/ace/napi:ace_napi",
+    "//foundation/arkui/napi:ace_napi",
     "//foundation/distributeddatamgr/distributedfile/utils/filemgmt_libhilog",
   ]
 
