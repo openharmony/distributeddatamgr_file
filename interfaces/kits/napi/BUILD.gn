@@ -109,12 +109,7 @@ ohos_shared_library("filepicker") {
 
   deps = [
     "//foundation/aafwk/standard/frameworks/kits/ability/native:abilitykit_native",
-<<<<<<< Updated upstream
-    "//foundation/ace/napi:ace_napi",
-=======
-    "//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler:libeventhandler",
     "//foundation/arkui/napi:ace_napi",
->>>>>>> Stashed changes
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//utils/native/base:utilsecurec",
   ]
