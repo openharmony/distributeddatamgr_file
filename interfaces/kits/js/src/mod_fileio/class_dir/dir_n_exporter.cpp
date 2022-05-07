@@ -134,8 +134,13 @@ static NVal DoReadCompile(napi_env env, UniError err, shared_ptr<DirReadArgs> ar
         if (!direntEntity) {
             return { env, UniError(EINVAL).GetNapiErr(env) };
         }
-        direntEntity->dirent_ = arg->dirRes;
-        return { env, objDirent };
+
+        if (strlen(arg->dirRes.d_name) == 0) {
+            return { env, nullptr };
+        } else {
+            direntEntity->dirent_ = arg->dirRes;
+            return { env, objDirent };
+        }
     }
 }
 
