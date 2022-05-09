@@ -109,11 +109,11 @@ napi_value SetSecurityLabelSync(napi_env env, napi_callback_info info)
     }
     
     bool ret = SecurityLabel::SetSecurityLabel(path.get(), dataLevel.get());
-        if (!ret) {
-            return UniError(-1);
-        } else {
-            return UniError(ERRNO_NOERR);
-        }
+        // if (!ret) {
+        //     return UniError(-1);
+        // } else {
+        //     return UniError(ERRNO_NOERR);
+        // }
     return NVal::CreateUndefined(env).val_;
 }
 
@@ -175,7 +175,7 @@ napi_value GetSecurityLabelSync(napi_env env, napi_callback_info info)
     }
     auto result = std::make_shared<string>();
     *result = SecurityLabel::GetSecurityLabel(path.get());
-    return NVal::CreateUTF8String(env, *result);
+    return NVal::CreateUTF8String(env, *result).val_;
 }
 } // namespace ModuleSecurityLabel
 } // namespace DistributedFS
