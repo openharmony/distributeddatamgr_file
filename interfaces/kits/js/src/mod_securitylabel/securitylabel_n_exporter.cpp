@@ -86,6 +86,37 @@ napi_value SetSecurityLabel(napi_env env, napi_callback_info info)
     return NVal::CreateUndefined(env).val_;
 }
 
+napi_value SetSecurityLabelSync(napi_env env, napi_callback_info info)
+{
+    NFuncArg funcArg(env, info);
+    if (!funcArg.InitArgs(static_cast<int>(NARG_CNT::TWO), static_cast<int>(NARG_CNT::THREE))) {
+        UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
+        return nullptr;
+    }
+
+    bool succ = false;
+    std::unique_ptr<char []> path;
+    std::unique_ptr<char []> dataLevel;
+    tie(succ, path, std::ignore) = NVal(env, funcArg[static_cast<int>(NARG_POS::FIRST)]).ToUTF8String();
+    if (!succ) {
+        UniError(EINVAL).ThrowErr(env, "Invalid path");
+        return nullptr;
+    }
+    tie(succ, dataLevel, std::ignore) = NVal(env, funcArg[static_cast<int>(NARG_POS::SECOND)]).ToUTF8String();
+    if (!succ) {
+        UniError(EINVAL).ThrowErr(env, "Invalid dataLevel");
+        return nullptr;
+    }
+    
+    bool ret = SecurityLabel::SetSecurityLabel(path.get(), dataLevel.get());
+        if (!ret) {
+            return UniError(-1);
+        } else {
+            return UniError(ERRNO_NOERR);
+        }
+    return NVal::CreateUndefined(env).val_;
+}
+
 napi_value GetSecurityLabel(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
@@ -125,6 +156,26 @@ napi_value GetSecurityLabel(napi_env env, napi_callback_info info)
         }
     }
     return NVal::CreateUndefined(env).val_;
+}
+
+napi_value GetSecurityLabelSync(napi_env env, napi_callback_info info)
+{
+    NFuncArg funcArg(env, info);
+    if (!funcArg.InitArgs(static_cast<int>(NARG_CNT::ONE), static_cast<int>(NARG_CNT::TWO))) {
+        UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
+        return nullptr;
+    }
+
+    bool succ = false;
+    std::unique_ptr<char []> path;
+    tie(succ, path, std::ignore) = NVal(env, funcArg[static_cast<int>(NARG_POS::FIRST)]).ToUTF8String();
+    if (!succ) {
+        UniError(EINVAL).ThrowErr(env, "Invalid path");
+        return nullptr;
+    }
+    auto result = std::make_shared<string>();
+    *result = SecurityLabel::GetSecurityLabel(path.get());
+    return NVal::CreateUTF8String(env, *result);
 }
 } // namespace ModuleSecurityLabel
 } // namespace DistributedFS
