@@ -108,7 +108,11 @@ napi_value SetSecurityLabelSync(napi_env env, napi_callback_info info)
         return nullptr;
     }
     bool ret = SecurityLabel::SetSecurityLabel(path.get(), dataLevel.get());
-    return NVal::CreateUndefined(env).val_;
+    if (!ret){
+        return {UniError(-1).GetNapiErr(env)};
+    }else{
+        return NVal::CreateUndefined(env).val_;
+    }
 }
 
 napi_value GetSecurityLabel(napi_env env, napi_callback_info info)
