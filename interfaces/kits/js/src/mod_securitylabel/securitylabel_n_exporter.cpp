@@ -108,7 +108,7 @@ napi_value SetSecurityLabelSync(napi_env env, napi_callback_info info)
         return nullptr;
     }
     auto ret = std::make_shared<bool>();
-    auto ret = SecurityLabel::SetSecurityLabel(path.get(), dataLevel.get());
+    ret = SecurityLabel::SetSecurityLabel(path.get(), dataLevel.get());
     return NVal::CreateUndefined(env).val_;
 }
 
