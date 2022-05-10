@@ -107,7 +107,7 @@ napi_value SetSecurityLabelSync(napi_env env, napi_callback_info info)
         UniError(EINVAL).ThrowErr(env, "Invalid dataLevel");
         return nullptr;
     }
-    std::bool ret;
+    bool ret;
     ret = SecurityLabel::SetSecurityLabel(path.get(), dataLevel.get());
     return NVal::CreateUndefined(env).val_;
 }
