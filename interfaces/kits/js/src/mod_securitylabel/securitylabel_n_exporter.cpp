@@ -58,6 +58,11 @@ napi_value SetSecurityLabel(napi_env env, napi_callback_info info)
 
     std::string pathString(path.get());
     std::string dataLevelString(dataLevel.get());
+    auto iter = DATA_LEVEL.find(dataLevelString);
+    if (iter == DATA_LEVEL.end()) {
+        UniError(EINVAL).ThrowErr(env, "Invalid Argument of dataLevelEnum");
+        return nullptr;
+    }
     auto cbExec = [pathString, dataLevelString](napi_env env) -> UniError {
         bool ret = SecurityLabel::SetSecurityLabel(pathString, dataLevelString);
         if (!ret) {
@@ -105,6 +110,11 @@ napi_value SetSecurityLabelSync(napi_env env, napi_callback_info info)
     tie(succ, dataLevel, std::ignore) = NVal(env, funcArg[static_cast<int>(NARG_POS::SECOND)]).ToUTF8String();
     if (!succ) {
         UniError(EINVAL).ThrowErr(env, "Invalid dataLevel");
+        return nullptr;
+    }
+    auto iter = DATA_LEVEL.find(dataLevel.get());
+    if (iter == DATA_LEVEL.end()) {
+        UniError(EINVAL).ThrowErr(env, "Invalid Argument of dataLevelEnum");
         return nullptr;
     }
     bool ret = SecurityLabel::SetSecurityLabel(path.get(), dataLevel.get());
