@@ -13,6 +13,8 @@
 
 import("//build/ohos.gni")
 
+aakits_path = "//foundation/aafwk/standard/frameworks/kits"
+
 file_common_src = [
   "src/common/file_helper/fd_guard.cpp",
   "src/common/napi/n_async/n_async_work_callback.cpp",
@@ -117,7 +119,7 @@ ohos_shared_library("file") {
   ]
 
   deps = [
-    "//foundation/aafwk/standard/frameworks/kits/ability/native:abilitykit_native",
+    "${aakits_path}/ability/native:abilitykit_native",
     "//foundation/arkui/napi:ace_napi",
     "//utils/native/base:utilsecurec",
   ]
@@ -206,7 +208,7 @@ ohos_shared_library("securitylabel") {
   ]
 
   deps = [
-    "//foundation/aafwk/standard/frameworks/kits/ability/native:abilitykit_native",
+    "${aakits_path}/ability/native:abilitykit_native",
     "//foundation/arkui/napi:ace_napi",
     "//third_party/openssl:libcrypto_static",
     "//utils/native/base:utilsecurec",
