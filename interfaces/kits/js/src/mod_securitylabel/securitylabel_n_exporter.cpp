@@ -55,12 +55,10 @@ napi_value SetSecurityLabel(napi_env env, napi_callback_info info)
         UniError(EINVAL).ThrowErr(env, "Invalid dataLevel");
         return nullptr;
     }
-
     std::string pathString(path.get());
     std::string dataLevelString(dataLevel.get());
     auto iter = DATA_LEVEL.find(dataLevelString);
     if (iter == DATA_LEVEL.end()) {
-        UniError(EINVAL).ThrowErr(env, "Invalid Argument of dataLevelEnum");
         return nullptr;
     }
     auto cbExec = [pathString, dataLevelString](napi_env env) -> UniError {
