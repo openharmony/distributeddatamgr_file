@@ -57,8 +57,7 @@ napi_value SetSecurityLabel(napi_env env, napi_callback_info info)
     }
     std::string pathString(path.get());
     std::string dataLevelString(dataLevel.get());
-    auto iter = DATA_LEVEL.find(dataLevelString);
-    if (iter == DATA_LEVEL.end()) {
+    if (DATA_LEVEL.find(dataLevelString) == DATA_LEVEL.end()) {
         UniError(EINVAL).ThrowErr(env, "Invalid Argument of dataLevelEnum");
         return nullptr;
     }
