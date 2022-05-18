@@ -110,8 +110,7 @@ napi_value SetSecurityLabelSync(napi_env env, napi_callback_info info)
         UniError(EINVAL).ThrowErr(env, "Invalid dataLevel");
         return nullptr;
     }
-    auto iter = DATA_LEVEL.find(dataLevel.get());
-    if (iter == DATA_LEVEL.end()) {
+    if (DATA_LEVEL.find(dataLevel.get()) == DATA_LEVEL.end()) {
         UniError(EINVAL).ThrowErr(env, "Invalid Argument of dataLevelEnum");
         return nullptr;
     }
