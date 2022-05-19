@@ -12,8 +12,8 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
-
-aakits_path = "//foundation/aafwk/standard/frameworks/kits"
+import(
+    "//foundation/distributeddatamgr/distributedfile/distributedfile_aafwk.gni")
 
 file_common_src = [
   "src/common/file_helper/fd_guard.cpp",
@@ -119,7 +119,7 @@ ohos_shared_library("file") {
   ]
 
   deps = [
-    "${aakits_path}/ability/native:abilitykit_native",
+    "${aafwk_kits_path}/ability/native:abilitykit_native",
     "//foundation/arkui/napi:ace_napi",
     "//utils/native/base:utilsecurec",
   ]
@@ -208,7 +208,7 @@ ohos_shared_library("securitylabel") {
   ]
 
   deps = [
-    "${aakits_path}/ability/native:abilitykit_native",
+    "${aafwk_kits_path}/ability/native:abilitykit_native",
     "//foundation/arkui/napi:ace_napi",
     "//third_party/openssl:libcrypto_static",
     "//utils/native/base:utilsecurec",
