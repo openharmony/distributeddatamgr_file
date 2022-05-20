@@ -29,7 +29,9 @@ napi_value SecurityLabelExport(napi_env env, napi_value exports)
 {
     static napi_property_descriptor desc[] = {
         DECLARE_NAPI_FUNCTION("setSecurityLabel", SetSecurityLabel),
+        DECLARE_NAPI_FUNCTION("setSecurityLabelSync", SetSecurityLabelSync),
         DECLARE_NAPI_FUNCTION("getSecurityLabel", GetSecurityLabel),
+        DECLARE_NAPI_FUNCTION("getSecurityLabelSync", GetSecurityLabelSync),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc));
     return exports;
