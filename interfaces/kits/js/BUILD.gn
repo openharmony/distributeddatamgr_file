@@ -35,7 +35,7 @@ ohos_shared_library("fileio") {
   include_dirs = [
     "//third_party/node/src",
     "//foundation/arkui/napi/interfaces/kits",
-    "//utils/native/base/include",
+    "//third_party/bounds_checking_function/include",
     "//third_party/libuv/include",
     "//third_party/openssl/include",
     "//foundation/distributeddatamgr/distributedfile/interfaces/kits/js/src/common/napi",
@@ -88,8 +88,8 @@ ohos_shared_library("fileio") {
 
   deps = [
     "//foundation/arkui/napi:ace_napi",
+    "//third_party/bounds_checking_function:libsec_static",
     "//third_party/openssl:libcrypto_static",
-    "//utils/native/base:utilsecurec",
   ]
 
   external_deps = [ "hiviewdfx_hilog_native:libhilog" ]
@@ -104,7 +104,7 @@ ohos_shared_library("file") {
   include_dirs = [
     "//third_party/node/src",
     "//foundation/arkui/napi/interfaces/kits",
-    "//utils/native/base/include",
+    "//third_party/bounds_checking_function/include",
     "//foundation/distributeddatamgr/distributedfile/interfaces/kits/js/src/common/napi",
     "//foundation/distributeddatamgr/distributedfile/interfaces/kits/js/src/common/napi/n_async",
     "//foundation/distributeddatamgr/distributedfile/interfaces/kits/js/src/common/file_helper",
@@ -121,7 +121,7 @@ ohos_shared_library("file") {
   deps = [
     "${aakits_path}/ability/native:abilitykit_native",
     "//foundation/arkui/napi:ace_napi",
-    "//utils/native/base:utilsecurec",
+    "//third_party/bounds_checking_function:libsec_static",
   ]
 
   external_deps = [
@@ -199,6 +199,7 @@ ohos_shared_library("securitylabel") {
     "//foundation/distributedschedule/safwk/services/safwk/include",
     "//foundation/distributeddatamgr/distributedfile/interfaces/kits/js/src/common/napi/n_async",
     "//foundation/distributeddatamgr/objectstore/frameworks/innerkitsimpl/include/common",
+    "//third_party/bounds_checking_function/include",
   ]
 
   sources = file_common_src
@@ -210,8 +211,8 @@ ohos_shared_library("securitylabel") {
   deps = [
     "${aakits_path}/ability/native:abilitykit_native",
     "//foundation/arkui/napi:ace_napi",
+    "//third_party/bounds_checking_function:libsec_static",
     "//third_party/openssl:libcrypto_static",
-    "//utils/native/base:utilsecurec",
   ]
 
   external_deps = [ "hiviewdfx_hilog_native:libhilog" ]

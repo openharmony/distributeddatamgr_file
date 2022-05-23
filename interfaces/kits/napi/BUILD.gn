@@ -30,7 +30,7 @@ ohos_shared_library("fileshare") {
   include_dirs = [
     "//third_party/node/src",
     "//foundation/arkui/napi/interfaces/kits",
-    "//utils/native/base/include",
+    "//third_party/bounds_checking_function/include",
   ]
 
   sources = common_src
@@ -42,7 +42,7 @@ ohos_shared_library("fileshare") {
   deps = [
     "${aakits_path}/ability/native:abilitykit_native",
     "//foundation/arkui/napi:ace_napi",
-    "//utils/native/base:utilsecurec",
+    "//third_party/bounds_checking_function:libsec_static",
   ]
 
   external_deps = [
@@ -63,7 +63,7 @@ ohos_shared_library("devicesmgr") {
   include_dirs = [
     "//third_party/node/src",
     "//foundation/arkui/napi/interfaces/kits",
-    "//utils/native/base/include",
+    "//third_party/bounds_checking_function/include",
     "//utils/system/safwk/native/include",
   ]
 
@@ -76,7 +76,7 @@ ohos_shared_library("devicesmgr") {
   deps = [
     "${aakits_path}/ability/native:abilitykit_native",
     "//foundation/arkui/napi:ace_napi",
-    "//utils/native/base:utilsecurec",
+    "//third_party/bounds_checking_function:libsec_static",
   ]
 
   external_deps = [
@@ -99,7 +99,7 @@ ohos_shared_library("filepicker") {
   include_dirs = [
     "//third_party/node/src",
     "//foundation/arkui/napi/interfaces/kits",
-    "//utils/native/base/include",
+    "//third_party/bounds_checking_function/include",
     "//utils/system/safwk/native/include",
   ]
 
@@ -113,7 +113,7 @@ ohos_shared_library("filepicker") {
     "${aakits_path}/ability/native:abilitykit_native",
     "//foundation/arkui/napi:ace_napi",
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
-    "//utils/native/base:utilsecurec",
+    "//third_party/bounds_checking_function:libsec_static",
   ]
 
   external_deps = [
