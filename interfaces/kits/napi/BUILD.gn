@@ -12,8 +12,8 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
-
-aakits_path = "//foundation/aafwk/standard/frameworks/kits"
+import(
+    "//foundation/distributeddatamgr/distributedfile/distributedfile_aafwk.gni")
 
 common_src = [
   "common/napi/n_class.cpp",
@@ -40,7 +40,7 @@ ohos_shared_library("fileshare") {
   ]
 
   deps = [
-    "${aakits_path}/ability/native:abilitykit_native",
+    "${aafwk_kits_path}/ability/native:abilitykit_native",
     "//foundation/arkui/napi:ace_napi",
     "//third_party/bounds_checking_function:libsec_static",
   ]
@@ -74,7 +74,7 @@ ohos_shared_library("devicesmgr") {
   ]
 
   deps = [
-    "${aakits_path}/ability/native:abilitykit_native",
+    "${aafwk_kits_path}/ability/native:abilitykit_native",
     "//foundation/arkui/napi:ace_napi",
     "//third_party/bounds_checking_function:libsec_static",
   ]
@@ -110,7 +110,7 @@ ohos_shared_library("filepicker") {
   ]
 
   deps = [
-    "${aakits_path}/ability/native:abilitykit_native",
+    "${aafwk_kits_path}/ability/native:abilitykit_native",
     "//foundation/arkui/napi:ace_napi",
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//third_party/bounds_checking_function:libsec_static",
