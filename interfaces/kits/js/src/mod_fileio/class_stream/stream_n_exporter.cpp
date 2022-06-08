@@ -167,9 +167,8 @@ napi_value StreamNExporter::Write(napi_env env, napi_callback_info info)
     if (!streamEntity || !streamEntity->fp) {
         UniError(EBADF).ThrowErr(env, "Stream may has been closed");
         return nullptr;
-    } else {
-        filp = streamEntity->fp.get();
     }
+    filp = streamEntity->fp.get();
 
     unique_ptr<char[]> bufGuard;
     void *buf = nullptr;
@@ -190,7 +189,7 @@ napi_value StreamNExporter::Write(napi_env env, napi_callback_info info)
     auto cbExec = [arg, buf, len, filp, hasPosition, position](napi_env env) -> UniError {
         if (hasPosition && (fseek(filp, position, SEEK_SET) == -1)) {
             UniError(errno).ThrowErr(env);
-            return UniError(errno);;
+            return UniError(errno);
         }
         arg->actLen = fwrite(buf, 1, len, filp);
         if (arg->actLen != static_cast<size_t>(len) && ferror(filp)) {
@@ -262,7 +261,7 @@ napi_value StreamNExporter::Read(napi_env env, napi_callback_info info)
     auto cbExec = [arg, buf, position, filp, len, hasPosition, offset](napi_env env) -> UniError {
         if (hasPosition && (fseek(filp, position, SEEK_SET) == -1)) {
             UniError(errno).ThrowErr(env);
-            return UniError(errno);;
+            return UniError(errno);
         }
         size_t actLen = fread(buf, 1, len, filp);
         if (actLen != static_cast<size_t>(len) && ferror(filp)) {
