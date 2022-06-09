@@ -203,7 +203,7 @@ ohos_shared_library("securitylabel") {
     "src/mod_securitylabel/securitylabel_napi.cpp",
   ]
 
-  deps = ["//foundation/arkui/napi:ace_napi"]
+  deps = [ "//foundation/arkui/napi:ace_napi" ]
 
   external_deps = [ "hiviewdfx_hilog_native:libhilog" ]
 }
