@@ -161,18 +161,19 @@ napi_value StreamNExporter::Write(napi_env env, napi_callback_info info)
 
     bool succ = false;
     FILE *filp = nullptr;
+    bool hasPosition = false;
+    size_t position;
     auto streamEntity = NClass::GetEntityOf<StreamEntity>(env, funcArg.GetThisVar());
     if (!streamEntity || !streamEntity->fp) {
         UniError(EBADF).ThrowErr(env, "Stream may has been closed");
         return nullptr;
-    } else {
-        filp = streamEntity->fp.get();
     }
+    filp = streamEntity->fp.get();
 
     unique_ptr<char[]> bufGuard;
     void *buf = nullptr;
     size_t len;
-    tie(succ, bufGuard, buf, len, ignore, ignore) =
+    tie(succ, bufGuard, buf, len, hasPosition, position) =
         CommonFunc::GetWriteArg(env, funcArg[NARG_POS::FIRST], funcArg[NARG_POS::SECOND]);
     if (!succ) {
         return nullptr;
@@ -185,13 +186,16 @@ napi_value StreamNExporter::Write(napi_env env, napi_callback_info info)
         arg = make_shared<AsyncWrtieArg>(NVal(env, funcArg[NARG_POS::FIRST]));
     }
 
-    auto cbExec = [arg, buf, len, filp](napi_env env) -> UniError {
+    auto cbExec = [arg, buf, len, filp, hasPosition, position](napi_env env) -> UniError {
+        if (hasPosition && (fseek(filp, position, SEEK_SET) == -1)) {
+            UniError(errno).ThrowErr(env);
+            return UniError(errno);
+        }
         arg->actLen = fwrite(buf, 1, len, filp);
         if (arg->actLen != static_cast<size_t>(len) && ferror(filp)) {
             return UniError(errno);
-        } else {
-            return UniError(ERRNO_NOERR);
         }
+        return UniError(ERRNO_NOERR);
     };
 
     auto cbCompl = [arg](napi_env env, UniError err) -> NVal {
@@ -215,6 +219,7 @@ napi_value StreamNExporter::Write(napi_env env, napi_callback_info info)
 struct AsyncReadArg {
     size_t lenRead { 0 };
     NRef refReadBuf;
+    int offset { 0 };
 
     explicit AsyncReadArg(NVal jsReadBuf) : refReadBuf(jsReadBuf) {}
     ~AsyncReadArg() = default;
@@ -243,7 +248,8 @@ napi_value StreamNExporter::Read(napi_env env, napi_callback_info info)
     int64_t len;
     bool hasPosition = false;
     size_t position;
-    tie(succ, buf, len, hasPosition, position, ignore) =
+    int offset;
+    tie(succ, buf, len, hasPosition, position, offset) =
         CommonFunc::GetReadArg(env, funcArg[NARG_POS::FIRST], funcArg[NARG_POS::SECOND]);
     if (!succ) {
         UniError(EINVAL).ThrowErr(env, "Failed GetReadArg");
@@ -251,12 +257,17 @@ napi_value StreamNExporter::Read(napi_env env, napi_callback_info info)
     }
 
     auto arg = make_shared<AsyncReadArg>(NVal(env, funcArg[NARG_POS::FIRST]));
-    auto cbExec = [arg, buf, len, filp](napi_env env) -> UniError {
+    auto cbExec = [arg, buf, position, filp, len, hasPosition, offset](napi_env env) -> UniError {
+        if (hasPosition && (fseek(filp, position, SEEK_SET) == -1)) {
+            UniError(errno).ThrowErr(env);
+            return UniError(errno);
+        }
         size_t actLen = fread(buf, 1, len, filp);
         if (actLen != static_cast<size_t>(len) && ferror(filp)) {
             return UniError(errno);
         } else {
             arg->lenRead = actLen;
+            arg->offset = offset;
             return UniError(ERRNO_NOERR);
         }
     };
@@ -268,7 +279,8 @@ napi_value StreamNExporter::Read(napi_env env, napi_callback_info info)
         NVal obj = NVal::CreateObject(env);
         obj.AddProp({
             NVal::DeclareNapiProperty("bytesRead", NVal::CreateInt64(env, arg->lenRead).val_),
-            NVal::DeclareNapiProperty("buffer", arg->refReadBuf.Deref(env).val_)
+            NVal::DeclareNapiProperty("buffer", arg->refReadBuf.Deref(env).val_),
+            NVal::DeclareNapiProperty("offset", NVal::CreateInt64(env, arg->offset).val_)
             });
         return { obj };
     };

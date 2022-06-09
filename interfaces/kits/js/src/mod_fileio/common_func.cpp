@@ -133,10 +133,16 @@ tuple<bool, void *, int64_t, bool, int64_t, int> CommonFunc::GetReadArg(napi_env
         return { false, nullptr, 0, posAssigned, position, offset };
     }
 
-    tie(succ, position) = op.GetProp("position").ToInt64();
-    if (succ && position >= 0) {
-        posAssigned = true;
+    if (op.HasProp("position")) {
+        tie(succ, position) = op.GetProp("position").ToInt64();
+        if (succ && position >= 0) {
+            posAssigned = true;
+        } else {
+            UniError(EINVAL).ThrowErr(env, "option.position shall be positive number");
+            return { false, nullptr, 0, posAssigned, position, offset };
+        }
     }
+
     return { true, retBuf, retLen, posAssigned, position, offset };
 }
 
