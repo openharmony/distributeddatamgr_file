@@ -192,14 +192,9 @@ ohos_shared_library("securitylabel") {
 
   include_dirs = [
     "//foundation/arkui/napi/interfaces/kits",
-    "//foundation/filemanagement/storage_service/interfaces/kits/js/storage_manager/include",
-    "//foundation/multimodalinput/input/common/include",
     "//foundation/arkui/ace_engine/frameworks/base/utils",
     "//foundation/arkui/ace_engine/frameworks",
-    "//foundation/distributedschedule/safwk/services/safwk/include",
     "//foundation/distributeddatamgr/distributedfile/interfaces/kits/js/src/common/napi/n_async",
-    "//foundation/distributeddatamgr/objectstore/frameworks/innerkitsimpl/include/common",
-    "//third_party/bounds_checking_function/include",
   ]
 
   sources = file_common_src
@@ -208,12 +203,7 @@ ohos_shared_library("securitylabel") {
     "src/mod_securitylabel/securitylabel_napi.cpp",
   ]
 
-  deps = [
-    "${aafwk_kits_path}/ability/native:abilitykit_native",
-    "//foundation/arkui/napi:ace_napi",
-    "//third_party/bounds_checking_function:libsec_static",
-    "//third_party/openssl:libcrypto_static",
-  ]
+  deps = [ "//foundation/arkui/napi:ace_napi" ]
 
   external_deps = [ "hiviewdfx_hilog_native:libhilog" ]
 }
