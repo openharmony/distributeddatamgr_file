@@ -89,12 +89,25 @@ static UniError HandleCopyFile(FileInfo srcFileInfo, FileInfo destFileInfo,
     if (ofd.GetFD() == -1) {
         return UniError(errno);
     }
-    if (sendfile(ofd.GetFD(), sfd.GetFD(), nullptr, statbf.st_size) == -1) {
-        return UniError(errno);
-    }
-    if (ftruncate(ofd.GetFD(), statbf.st_size) == -1) {
-        return UniError(errno);
-    }
+
+    int block = 4096;
+    auto copyBuf = make_unique<char[]>(block);
+    do {
+        ssize_t readSize = read(sfd.GetFD(), copyBuf.get(), block);
+        if (readSize == -1) {
+            return UniError(errno);
+        } else if (readSize == 0) {
+            break;
+        }
+        ssize_t writeSize = write(ofd.GetFD(), copyBuf.get(), readSize);
+        if (writeSize != readSize) {
+            return UniError(errno);
+        }
+        if (readSize != block) {
+            break;
+        }
+    } while (true);
+
     return UniError(ERRNO_NOERR);
 }
 
