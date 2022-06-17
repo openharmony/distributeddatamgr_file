@@ -440,8 +440,8 @@ napi_value PropNExporter::ReadSync(napi_env env, napi_callback_info info)
 }
 
 struct AsyncIOReadArg {
-    ssize_t readed = 0;
-    int offset = 0;
+    ssize_t lenRead { 0 };
+    int offset { 0 };
     NRef refReadBuf;
 
     explicit AsyncIOReadArg(NVal jsReadBuf) : refReadBuf(jsReadBuf) {}
@@ -472,7 +472,7 @@ napi_value PropNExporter::Read(napi_env env, napi_callback_info info)
     tie(succ, buf, len, hasPos, pos, offset) =
         CommonFunc::GetReadArg(env, funcArg[NARG_POS::SECOND], funcArg[NARG_POS::THIRD]);
     if (!succ) {
-        UniError(EINVAL).ThrowErr(env, "Invalid arguments");
+        UniError(EINVAL).ThrowErr(env, "Failed GetReadArg");
         return nullptr;
     }
 
@@ -487,7 +487,7 @@ napi_value PropNExporter::Read(napi_env env, napi_callback_info info)
         if (actLen == -1) {
             return UniError(errno);
         } else {
-            arg->readed = actLen;
+            arg->lenRead = actLen;
             arg->offset = offset;
             return UniError(ERRNO_NOERR);
         }
@@ -499,7 +499,7 @@ napi_value PropNExporter::Read(napi_env env, napi_callback_info info)
         }
         NVal obj = NVal::CreateObject(env);
         obj.AddProp({
-            NVal::DeclareNapiProperty("bytesRead", NVal::CreateInt64(env, arg->readed).val_),
+            NVal::DeclareNapiProperty("bytesRead", NVal::CreateInt64(env, arg->lenRead).val_),
             NVal::DeclareNapiProperty("buffer", arg->refReadBuf.Deref(env).val_),
             NVal::DeclareNapiProperty("offset", NVal::CreateInt64(env, arg->offset).val_)
             });
@@ -565,7 +565,7 @@ napi_value PropNExporter::Write(napi_env env, napi_callback_info info)
     tie(succ, bufGuard, buf, len, hasPos, position) =
         CommonFunc::GetWriteArg(env, funcArg[NARG_POS::SECOND], funcArg[NARG_POS::THIRD]);
     if (!succ) {
-        UniError(EINVAL).ThrowErr(env, "Invalid arguments");
+        UniError(EINVAL).ThrowErr(env, "Failed GetWriteArg");
         return nullptr;
     }
 
