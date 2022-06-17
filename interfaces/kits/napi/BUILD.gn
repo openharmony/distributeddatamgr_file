@@ -40,7 +40,7 @@ ohos_shared_library("fileshare") {
   ]
 
   deps = [
-    "${aafwk_kits_path}/ability/native:abilitykit_native",
+    "${aafwk_path}/frameworks/native/ability/native:abilitykit_native",
     "//foundation/arkui/napi:ace_napi",
     "//third_party/bounds_checking_function:libsec_static",
   ]
@@ -74,7 +74,7 @@ ohos_shared_library("devicesmgr") {
   ]
 
   deps = [
-    "${aafwk_kits_path}/ability/native:abilitykit_native",
+    "${aafwk_path}/frameworks/native/ability/native:abilitykit_native",
     "//foundation/arkui/napi:ace_napi",
     "//third_party/bounds_checking_function:libsec_static",
   ]
@@ -110,7 +110,7 @@ ohos_shared_library("filepicker") {
   ]
 
   deps = [
-    "${aafwk_kits_path}/ability/native:abilitykit_native",
+    "${aafwk_path}/frameworks/native/ability/native:abilitykit_native",
     "//foundation/arkui/napi:ace_napi",
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//third_party/bounds_checking_function:libsec_static",
