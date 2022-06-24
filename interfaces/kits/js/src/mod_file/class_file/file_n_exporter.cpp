@@ -461,6 +461,60 @@ void ListComp(napi_env env, napi_status status, void *data)
     delete asyncCallbackInfo;
 }
 
+int FileCopy(const string& srcPath, const string& dstPath)
+{
+    bool ret = FILE_IO_ERROR;
+    string src = srcPath;
+    string dest = dstPath;
+    if (GetRealPath(src) == 0) {
+        if (GetRealPath(dest) == ENOENT) {
+            FDGuard sfd;
+            sfd.SetFD(open((char *)src.c_str(), O_RDONLY));
+            struct stat attrSrc;
+            if (stat((char *)src.c_str(), &attrSrc) == FAILED) {
+                return FILE_IO_ERROR;
+            }
+            dest = UriToAbsolute(dest);
+            FDGuard ofd;
+            ofd.SetFD(open((char *)dest.c_str(), O_WRONLY | O_CREAT, attrSrc.st_mode));
+            if (sfd.GetFD() == FAILED || ofd.GetFD() == FAILED) {
+                return FILE_IO_ERROR;
+            }
+
+            if (sendfile(ofd.GetFD(), sfd.GetFD(), nullptr, attrSrc.st_size) != FAILED) {
+                ret = SUCCESS;
+            } else {
+                remove((char *)dest.c_str());
+            }
+        } else if (GetRealPath(dest) == 0) {
+            return (dest == src) ? SUCCESS : FILE_IO_ERROR;
+        }
+    }
+    return ret;
+}
+
+int DirCopy(const string& srcPath, const string& dstPath)
+{
+    string src = srcPath;
+    string dest = dstPath;
+    if (GetRealPath(src) == ENOENT) {
+        return FILE_PATH_ERROR;
+    }
+    if (GetRealPath(dest) == ENOENT) {
+        struct stat attrSrc;
+        if (stat((char *)src.c_str(), &attrSrc) == FAILED || !S_ISDIR(attrSrc.st_mode)) {
+            return FILE_IO_ERROR;
+        }
+        dest = UriToAbsolute(dest);
+        if (mkdir(dest.c_str(), attrSrc.st_mode) == FAILED) {
+            return FILE_IO_ERROR;
+        }
+    } else {
+        return (dest == src) ? SUCCESS : FILE_IO_ERROR;
+    }
+    return SUCCESS;
+}
+
 void CopyExec(napi_env env, void *data)
 {
     auto *asyncCallbackInfo = (AsyncCopyCallbackInfo *)data;
@@ -468,25 +522,32 @@ void CopyExec(napi_env env, void *data)
     string pathDst = asyncCallbackInfo->urlDst;
     asyncCallbackInfo->result = FAILED;
     asyncCallbackInfo->errorType = FILE_IO_ERROR;
-    int statPath = GetRealPath(path);
-    int statDst = GetRealPath(pathDst);
-    if (statPath == COMMON_NUM::ZERO && statDst == ENOENT) {
-        pathDst = UriToAbsolute(pathDst);
-        struct stat statbf;
-        FDGuard sfd;
-        FDGuard ofd;
-        sfd.SetFD(open((char *)path.c_str(), O_RDONLY));
-        int res = stat((char *)path.c_str(), &statbf);
-        ofd.SetFD(open((char *)pathDst.c_str(), O_WRONLY | O_CREAT, statbf.st_mode));
-        if (sfd.GetFD() != FAILED && ofd.GetFD() != FAILED && res != FAILED &&
-            sendfile(ofd.GetFD(), sfd.GetFD(), nullptr, statbf.st_size) != FAILED) {
-            asyncCallbackInfo->result = SUCCESS;
-        }
-        if (asyncCallbackInfo->result == FAILED) {
-            remove((char *)pathDst.c_str());
-        }
-    } else if (statPath == ENOENT) {
+    if (GetRealPath(path) == ENOENT) {
         asyncCallbackInfo->errorType = FILE_PATH_ERROR;
+        return;
+    }
+
+    struct stat statbf;
+    if (stat((char *)path.c_str(), &statbf) == FAILED) {
+        asyncCallbackInfo->errorType = FILE_IO_ERROR;
+        return;
+    }
+
+    int retval;
+    if (S_ISREG(statbf.st_mode)) {
+        retval = FileCopy(path, pathDst);
+        if (retval == SUCCESS) {
+            asyncCallbackInfo->result = SUCCESS;
+        } else {
+            asyncCallbackInfo->errorType = retval;
+        }
+    } else if (S_ISDIR(statbf.st_mode)) {
+        retval = DirCopy(path, pathDst);
+        if (retval == SUCCESS) {
+            asyncCallbackInfo->result = SUCCESS;
+        } else {
+            asyncCallbackInfo->errorType = retval;
+        }
     }
 }
 
@@ -509,6 +570,60 @@ void CopyComp(napi_env env, napi_status status, void *data)
     delete asyncCallbackInfo;
 }
 
+int DirMove(const string& srcPath, const string& dstPath)
+{
+    string src = srcPath;
+    string dest = dstPath;
+    if (GetRealPath(src) == ENOENT) {
+        return FILE_PATH_ERROR;
+    }
+
+    auto res = GetRealPath(dest);
+    if (res == 0 && dest == src) {
+        return SUCCESS;
+    } else if (res != ENOENT) {
+        return FILE_PATH_ERROR;
+    }
+
+    struct stat attrSrc;
+    if (stat((char *)src.c_str(), &attrSrc) == FAILED || !S_ISDIR(attrSrc.st_mode)) {
+        return FILE_IO_ERROR;
+    }
+    dest = UriToAbsolute(dest);
+    if (FAILED == mkdir(dest.c_str(), attrSrc.st_mode)) {
+        return FILE_IO_ERROR;
+    }
+    DIR *dirp = opendir(src.c_str());
+    if (dirp == nullptr) {
+        return FILE_IO_ERROR;
+    }
+    struct dirent *entp;
+    while ((entp = readdir(dirp)) != nullptr) {
+        if (string(entp->d_name) == "." || string(entp->d_name) == "..") {
+            continue;
+        }
+        string srcBuf = src + "/" + string(entp->d_name);
+        string dstBuf = dest + "/" + string(entp->d_name);
+        if (entp->d_type == DT_DIR && DirMove(srcBuf.c_str(), dstBuf.c_str()) != SUCCESS) {
+            closedir(dirp);
+            return FILE_IO_ERROR;
+        }
+
+        if (entp->d_type == DT_REG) {
+            if (FileCopy(srcBuf.c_str(), dstBuf.c_str()) != SUCCESS) {
+                closedir(dirp);
+                return FILE_IO_ERROR;
+            } else {
+                remove(srcBuf.c_str());
+            }
+        }
+    }
+    closedir(dirp);
+    rmdir(src.c_str());
+
+    return SUCCESS;
+}
+
 void MoveExec(napi_env env, void *data)
 {
     auto *asyncCallbackInfo = (AsyncMoveCallbackInfo *)data;
@@ -516,27 +631,32 @@ void MoveExec(napi_env env, void *data)
     string pathDst = asyncCallbackInfo->urlDst;
     asyncCallbackInfo->result = FAILED;
     asyncCallbackInfo->errorType = FILE_IO_ERROR;
-    int statPath = GetRealPath(path);
-    int statDst = GetRealPath(pathDst);
-    if (statPath == COMMON_NUM::ZERO && statDst == ENOENT) {
-        pathDst = UriToAbsolute(pathDst);
-        struct stat statbf;
-        FDGuard sfd;
-        FDGuard ofd;
-        sfd.SetFD(open((char *)path.c_str(), O_RDONLY));
-        int res = stat((char *)path.c_str(), &statbf);
-        ofd.SetFD(open((char *)pathDst.c_str(), O_WRONLY | O_CREAT, statbf.st_mode));
-        if (sfd.GetFD() != FAILED && ofd.GetFD() != FAILED && res != FAILED &&
-            sendfile(ofd.GetFD(), sfd.GetFD(), nullptr, statbf.st_size) != FAILED) {
+    if (GetRealPath(path) == ENOENT) {
+        asyncCallbackInfo->errorType = FILE_PATH_ERROR;
+        return;
+    }
+
+    struct stat statbf;
+    if (stat((char *)path.c_str(), &statbf) == FAILED) {
+        asyncCallbackInfo->errorType = FILE_IO_ERROR;
+        return;
+    }
+
+    if (S_ISREG(statbf.st_mode)) {
+        int retval = FileCopy(path, pathDst);
+        if (retval == SUCCESS) {
             asyncCallbackInfo->result = SUCCESS;
             remove((char *)path.c_str());
+        } else {
+            asyncCallbackInfo->errorType = retval;
         }
-        if (asyncCallbackInfo->result == FAILED) {
-            asyncCallbackInfo->errorType = FILE_IO_ERROR;
-            remove((char *)pathDst.c_str());
+    } else if (S_ISDIR(statbf.st_mode)) {
+        int retval = DirMove(path, pathDst);
+        if (retval == SUCCESS) {
+            asyncCallbackInfo->result = SUCCESS;
+        } else {
+            asyncCallbackInfo->errorType = retval;
         }
-    } else if (statPath == ENOENT) {
-        asyncCallbackInfo->errorType = FILE_PATH_ERROR;
     }
 }
 
