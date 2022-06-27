@@ -27,6 +27,36 @@ namespace DistributedFS {
 namespace ModuleFileIO {
 using namespace std;
 
+int AdaptToAbi(int &flags)
+{
+    static constexpr int USR_O_RDONLY = 00;
+    static constexpr int USR_O_WRONLY = 01;
+    static constexpr int USR_O_RDWR = 02;
+    static constexpr int USR_O_CREAT = 0100;
+    static constexpr int USR_O_EXCL = 0200;
+    static constexpr int USR_O_TRUNC = 01000;
+    static constexpr int USR_O_APPEND = 02000;
+    static constexpr int USR_O_NONBLOCK = 04000;
+    static constexpr int USR_O_DIRECTORY = 0200000;
+    static constexpr int USR_O_NOFOLLOW = 0400000;
+    static constexpr int USR_O_SYNC = 04010000;
+
+    int flagsABI = 0;
+    flagsABI |= ((flags & USR_O_RDONLY) == USR_O_RDONLY) ? O_RDONLY : 0;
+    flagsABI |= ((flags & USR_O_WRONLY) == USR_O_WRONLY) ? O_WRONLY : 0;
+    flagsABI |= ((flags & USR_O_RDWR) == USR_O_RDWR) ? O_RDWR : 0;
+    flagsABI |= ((flags & USR_O_CREAT) == USR_O_CREAT) ? O_CREAT : 0;
+    flagsABI |= ((flags & USR_O_EXCL) == USR_O_EXCL) ? O_EXCL : 0;
+    flagsABI |= ((flags & USR_O_TRUNC) == USR_O_TRUNC) ? O_TRUNC : 0;
+    flagsABI |= ((flags & USR_O_APPEND) == USR_O_APPEND) ? O_APPEND : 0;
+    flagsABI |= ((flags & USR_O_NONBLOCK) == USR_O_NONBLOCK) ? O_NONBLOCK : 0;
+    flagsABI |= ((flags & USR_O_DIRECTORY) == USR_O_DIRECTORY) ? O_DIRECTORY : 0;
+    flagsABI |= ((flags & USR_O_NOFOLLOW) == USR_O_NOFOLLOW) ? O_NOFOLLOW : 0;
+    flagsABI |= ((flags & USR_O_SYNC) == USR_O_SYNC) ? O_SYNC : 0;
+    flags = flagsABI;
+    return flagsABI;
+}
+
 napi_value Open::Sync(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
@@ -52,6 +82,7 @@ napi_value Open::Sync(napi_env env, napi_callback_info info)
             return nullptr;
         }
     }
+    (void)AdaptToAbi(flags);
 
     int fd = -1;
     size_t argc = funcArg.GetArgc();
@@ -114,6 +145,7 @@ napi_value Open::Async(napi_env env, napi_callback_info info)
             return nullptr;
         }
     }
+    (void)AdaptToAbi(flags);
     int mode = 0;
     if (argc == NARG_CNT::FOUR ||
         (argc == NARG_CNT::THREE && NVal(env, funcArg[NARG_POS::THIRD]).TypeIs(napi_number))) {
