@@ -70,7 +70,7 @@ static void CallbackComplete(napi_env env, napi_status status, void *data)
 NVal NAsyncWorkCallback::Schedule(string procedureName, NContextCBExec cbExec, NContextCBComplete cbComplete)
 {
     if (!ctx_->cb_ || !ctx_->cb_.Deref(env_).TypeIs(napi_function)) {
-        NError(EINVAL).ThrowErr(env_, "The callback shall be a funciton");
+        NError(EINVAL).ThrowErr(env_, "The callback shall be a function");
         return NVal();
     }
 
