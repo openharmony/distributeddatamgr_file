@@ -16,6 +16,11 @@
 #ifndef N_ASYNC_WORK_PROMISE_H
 #define N_ASYNC_WORK_PROMISE_H
 
+#include <iosfwd>
+
+#include "../n_val.h"
+#include "js_native_api_types.h"
+#include "n_async_context.h"
 #include "n_async_work_factory.h"
 
 namespace OHOS {

@@ -16,8 +16,14 @@
 #ifndef N_VAL_H
 #define N_VAL_H
 
-#include "sys/types.h"
-#include "uni_header.h"
+#include <iosfwd>
+#include <memory>
+#include <tuple>
+#include <vector>
+
+#include "node_api.h"
+#include "js_native_api_types.h"
+#include "napi/native_node_api.h"
 
 namespace OHOS {
 namespace DistributedFS {

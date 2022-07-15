@@ -14,6 +14,7 @@
  */
 
 #include "n_ref.h"
+#include "js_native_api.h"
 
 namespace OHOS {
 namespace FileManagement {

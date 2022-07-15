@@ -17,6 +17,7 @@
 #define N_REF_H
 
 #include "../n_val.h"
+#include "js_native_api_types.h"
 
 namespace OHOS {
 namespace DistributedFS {

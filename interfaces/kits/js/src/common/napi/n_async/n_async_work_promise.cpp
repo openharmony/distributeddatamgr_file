@@ -14,7 +14,16 @@
  */
 
 #include "n_async_work_promise.h"
+
+#include <functional>
+#include <new>
+#include <string>
+#include <type_traits>
+
 #include "../../log.h"
+#include "../../uni_error.h"
+#include "js_native_api.h"
+#include "node_api.h"
 
 namespace OHOS {
 namespace DistributedFS {

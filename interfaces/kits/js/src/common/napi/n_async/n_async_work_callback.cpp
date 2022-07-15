@@ -14,7 +14,20 @@
  */
 
 #include "n_async_work_callback.h"
+
+#include <bits/errno.h>
+
+#include <functional>
+#include <new>
+#include <string>
+#include <type_traits>
+#include <vector>
+
 #include "../../log.h"
+#include "../../uni_error.h"
+#include "js_native_api.h"
+#include "n_ref.h"
+#include "node_api.h"
 
 namespace OHOS {
 namespace DistributedFS {

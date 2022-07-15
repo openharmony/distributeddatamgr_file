@@ -16,9 +16,10 @@
 #include "n_val.h"
 
 #include <string>
+#include <type_traits>
 
 #include "../log.h"
-#include "../uni_error.h"
+#include "js_native_api.h"
 
 namespace OHOS {
 namespace DistributedFS {

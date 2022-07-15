@@ -15,6 +15,9 @@
 
 #include "n_ref.h"
 
+#include "../n_val.h"
+#include "js_native_api.h"
+
 namespace OHOS {
 namespace DistributedFS {
 NRef::NRef() {}

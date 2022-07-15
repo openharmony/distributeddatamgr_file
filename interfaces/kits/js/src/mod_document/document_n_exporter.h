@@ -16,7 +16,8 @@
 #ifndef DOCUMENT_N_EXPORTER_H
 #define DOCUMENT_N_EXPORTER_H
 
-#include "../common/napi/n_exporter.h"
+#include "node_api.h"
+#include "js_native_api_types.h"
 
 namespace OHOS {
 namespace DistributedFS {

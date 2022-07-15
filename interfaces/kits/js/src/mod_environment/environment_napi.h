@@ -16,8 +16,6 @@
 #ifndef ENVIRONMENT_NAPI_H
 #define ENVIRONMENT_NAPI_H
 
-#include "napi/native_api.h"
-
 namespace OHOS {
 namespace DistributedFS {
 namespace ModuleEnvironment {

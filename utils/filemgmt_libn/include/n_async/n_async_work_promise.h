@@ -16,7 +16,13 @@
 #ifndef FILEMGMT_LIBN_N_ASYNC_WORK_PROMISE_H
 #define FILEMGMT_LIBN_N_ASYNC_WORK_PROMISE_H
 
+#include <iosfwd>
+
+#include "node_api.h"
+#include "js_native_api_types.h"
+#include "n_async_context.h"
 #include "n_async_work.h"
+#include "n_val.h"
 
 namespace OHOS {
 namespace FileManagement {

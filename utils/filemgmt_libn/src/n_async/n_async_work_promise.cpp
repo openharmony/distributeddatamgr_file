@@ -14,7 +14,16 @@
  */
 
 #include "n_async_work_promise.h"
+
+#include <functional>
+#include <new>
+#include <string>
+#include <type_traits>
+
 #include "filemgmt_libhilog.h"
+#include "js_native_api.h"
+#include "n_error.h"
+#include "node_api.h"
 
 namespace OHOS {
 namespace FileManagement {
