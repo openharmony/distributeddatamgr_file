@@ -15,6 +15,7 @@
 
 #include "n_func_arg.h"
 
+#include "js_native_api.h"
 #include "../log.h"
 
 namespace OHOS {

@@ -16,6 +16,8 @@
 #ifndef FILEMGMT_LIBN_N_REF_H
 #define FILEMGMT_LIBN_N_REF_H
 
+#include "node_api.h"
+#include "js_native_api_types.h"
 #include "n_val.h"
 
 namespace OHOS {

@@ -15,16 +15,10 @@
 
 #include "document_n_exporter.h"
 
-#include <sys/statvfs.h>
-#include <tuple>
+#include <bits/errno.h>
 
-#include "../common/napi/n_class.h"
-#include "../common/napi/n_func_arg.h"
-#include "../common/napi/n_val.h"
 #include "../common/uni_error.h"
-
-#include "../common/napi/n_async/n_async_work_callback.h"
-#include "../common/napi/n_async/n_async_work_promise.h"
+#include "napi/native_node_api.h"
 
 namespace OHOS {
 namespace DistributedFS {

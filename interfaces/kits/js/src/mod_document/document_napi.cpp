@@ -13,11 +13,14 @@
  * limitations under the License.
  */
 
-#include "napi/native_api.h"
-#include "napi/native_node_api.h"
+#include "document_napi.h"
 
 #include "document_n_exporter.h"
-#include "document_napi.h"
+#include "js_native_api.h"
+#include "js_native_api_types.h"
+#include "napi/native_api.h"
+#include "napi/native_common.h"
+#include "node_api.h"
 
 namespace OHOS {
 namespace DistributedFS {

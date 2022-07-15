@@ -15,9 +15,10 @@
 
 #include "uni_error.h"
 
-#include <cstring>
+#include <bits/errno.h>
 #include <string>
 
+#include "js_native_api.h"
 #include "log.h"
 #include "napi/n_val.h"
 

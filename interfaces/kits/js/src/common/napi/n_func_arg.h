@@ -16,7 +16,11 @@
 #ifndef INTERFACES_KITS_NAPI_COMMON_NAPI_N_FUNC_ARG_H
 #define INTERFACES_KITS_NAPI_COMMON_NAPI_N_FUNC_ARG_H
 
-#include "uni_header.h"
+#include <functional>
+#include <memory>
+
+#include "node_api.h"
+#include "js_native_api_types.h"
 
 namespace OHOS {
 namespace DistributedFS {

@@ -16,7 +16,10 @@
 #ifndef INTERFACES_KITS_NAPI_COMMON_UNI_ERROR_H
 #define INTERFACES_KITS_NAPI_COMMON_UNI_ERROR_H
 
-#include "napi/uni_header.h"
+#include <iosfwd>
+
+#include "node_api.h"
+#include "js_native_api_types.h"
 
 namespace OHOS {
 namespace DistributedFS {

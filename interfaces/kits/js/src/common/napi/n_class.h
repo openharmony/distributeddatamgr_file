@@ -16,11 +16,10 @@
 #ifndef INTERFACES_KITS_NAPI_COMMON_NAPI_N_CLASS_H
 #define INTERFACES_KITS_NAPI_COMMON_NAPI_N_CLASS_H
 
-#include "uni_header.h"
-
 #include <map>
 
 #include "../log.h"
+#include "uni_header.h"
 
 namespace OHOS {
 namespace DistributedFS {
