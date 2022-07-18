@@ -15,7 +15,7 @@
 
 #include "uni_error.h"
 
-#include <bits/errno.h>
+#include <cerrno>
 #include <string>
 
 #include "js_native_api.h"
