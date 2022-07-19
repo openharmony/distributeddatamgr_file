@@ -15,7 +15,7 @@
 
 #include "document_n_exporter.h"
 
-#include <bits/errno.h>
+#include <cerrno>
 
 #include "../common/uni_error.h"
 #include "napi/native_node_api.h"

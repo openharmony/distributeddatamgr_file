@@ -15,7 +15,7 @@
 
 #include "n_async_work_callback.h"
 
-#include <bits/errno.h>
+#include <cerrno>
 
 #include <functional>
 #include <new>
