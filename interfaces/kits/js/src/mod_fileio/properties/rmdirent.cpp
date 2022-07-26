@@ -30,37 +30,44 @@ namespace DistributedFS {
 namespace ModuleFileIO {
 using namespace std;
 
-int rmdirent(string path)
+static UniError rmdirent(string path)
 {
     if (rmdir(path.c_str()) == 0) {
-        return 0;
+        return UniError(ERRNO_NOERR);
     }
     auto dir = opendir(path.c_str());
     if (!dir) {
-        return -1;
+        return UniError(errno);
     }
     struct dirent* entry = readdir(dir);
-    int state = 0;
     while (entry) {
         if (strcmp(entry->d_name, "") != 0 && strcmp(entry->d_name, ".") != 0 && strcmp(entry->d_name, "..") != 0) {
             struct stat fileInformation;
             string filePath = path + '/';
             filePath.insert(filePath.length(), entry->d_name);
-            stat(filePath.c_str(), &fileInformation);
+            if (stat(filePath.c_str(), &fileInformation) == -1) {
+                return UniError(errno);
+            }
             if ((fileInformation.st_mode & S_IFMT) == S_IFDIR) {
-                state = rmdirent(filePath);
+                auto err = rmdirent(filePath);
+                if (err) {
+                    return err;
+                }
             } else {
-                state = unlink(filePath.c_str());
+                if (unlink(filePath.c_str()) == -1){
+                    return UniError(errno);
+                }
             }
         }
         entry = readdir(dir);
     }
     closedir(dir);
-    if (rmdir(path.c_str()) == 0) {
-        return 0;
+    if (rmdir(path.c_str()) == -1) {
+        return UniError(errno);
     }
-    return state;
+    return UniError(ERRNO_NOERR);
 }
+
 
 napi_value Rmdirent::Sync(napi_env env, napi_callback_info info)
 {
@@ -78,12 +85,12 @@ napi_value Rmdirent::Sync(napi_env env, napi_callback_info info)
         UniError(EINVAL).ThrowErr(env, "Invalid path");
         return nullptr;
     }
-    if (rmdirent(string(path.get())) == 0) {
-        return NVal::CreateUndefined(env).val_;
-    } else {
-        UniError(errno).ThrowErr(env);
+    auto err = rmdirent(string(path.get()));
+    if (err) {
+        err.ThrowErr(env);
         return nullptr;
     }
+    return NVal::CreateUndefined(env).val_;
 }
 
 napi_value Rmdirent::Async(napi_env env, napi_callback_info info)
@@ -103,12 +110,7 @@ napi_value Rmdirent::Async(napi_env env, napi_callback_info info)
     }
 
     auto cbExec = [path = string(path.get())](napi_env env) -> UniError {
-        int res = rmdirent(path);
-        if (res == -1) {
-            return UniError(errno);
-        } else {
-            return UniError(ERRNO_NOERR);
-        }
+        return rmdirent(path);
     };
     auto cbCompl = [](napi_env env, UniError err) -> NVal {
         if (err) {
@@ -117,7 +119,7 @@ napi_value Rmdirent::Async(napi_env env, napi_callback_info info)
             return NVal::CreateUndefined(env);
         }
     };
-    string procedureName = "FileIORmdirent";
+    string procedureName = "FileIORmDirent";
     NVal thisVar(env, funcArg.GetThisVar());
     size_t argc = funcArg.GetArgc();
     if (argc == NARG_CNT::ONE) {
