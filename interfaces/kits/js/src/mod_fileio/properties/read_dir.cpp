@@ -17,6 +17,7 @@
 #include <memory>
 #include <string>
 #include <tuple>
+#include <dirent.h>
 
 #include "../../common/napi/n_async/n_async_work_callback.h"
 #include "../../common/napi/n_async/n_async_work_promise.h"
@@ -24,8 +25,6 @@
 #include "../../common/napi/n_func_arg.h"
 #include "../../common/napi/n_val.h"
 #include "../../common/uni_error.h"
-#include "../class_dir/dir_entity.h"
-#include "../class_dir/dir_n_exporter.h"
 
 namespace OHOS {
 namespace DistributedFS {
@@ -40,18 +39,18 @@ napi_value ReadDir::Sync(napi_env env, napi_callback_info info)
     }
 
     bool succ = false;
-    std::unique_ptr<char[]> path;
+    unique_ptr<char[]> path;
     tie(succ, path, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
     if (!succ) {
         UniError(EINVAL).ThrowErr(env, "Invalid path");
         return nullptr;
     }
-    std::unique_ptr<DIR, std::function<void(DIR *)>> dir = { opendir(path.get()), closedir };
+    unique_ptr<DIR, function<void(DIR *)>> dir = { opendir(path.get()), closedir };
     if (!dir) {
         UniError(errno).ThrowErr(env);
         return nullptr;
     }
-    std::vector<std::string> dirFiles;
+    vector<string> dirFiles;
     struct dirent* entry = readdir(dir.get());
     while (entry) {
         if (strcmp(entry->d_name, "") != 0 && strcmp(entry->d_name, ".") != 0 && strcmp(entry->d_name, "..") != 0) {
@@ -63,10 +62,10 @@ napi_value ReadDir::Sync(napi_env env, napi_callback_info info)
 }
 
 struct ReadDirArgs {
-    std::vector<std::string> dirFiles;
+    vector<string> dirFiles;
     explicit ReadDirArgs()
     {
-        dirFiles = std::vector<std::string>();
+        dirFiles = vector<string>();
     }
     ~ReadDirArgs() = default;
 };
@@ -78,8 +77,8 @@ napi_value ReadDir::Async(napi_env env, napi_callback_info info)
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
-    std::string path;
-    std::unique_ptr<char[]> tmp;
+    string path;
+    unique_ptr<char[]> tmp;
     bool succ = false;
     tie(succ, tmp, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
     if (!succ) {
@@ -96,7 +95,7 @@ napi_value ReadDir::Async(napi_env env, napi_callback_info info)
             return UniError(errno);
         }
         struct dirent* entry = readdir(dir);
-        std::vector<std::string> dirnames;
+        vector<string> dirnames;
         while (entry) {
             if (strcmp(entry->d_name, "") != 0 && strcmp(entry->d_name, ".") != 0 && strcmp(entry->d_name, "..") != 0) {
                 dirnames.push_back(entry->d_name);

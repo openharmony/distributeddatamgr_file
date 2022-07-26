@@ -260,6 +260,17 @@ NVal NVal::CreateUint8Array(napi_env env, void *buf, size_t bufLen)
     return { env, output_array };
 }
 
+NVal NVal::CreateArrayString(napi_env env, std::vector<string> strs){
+    napi_value res = nullptr;
+    napi_create_array(env, &res);
+    for(std::size_t i=0;i<strs.size();i++){
+        napi_value filename;
+        napi_create_string_utf8(env, strs[i].c_str(), strs[i].length(), &filename);
+        napi_set_element(env, res, i, filename);
+    }
+    return {env, res};
+}
+
 tuple<NVal, void *> NVal::CreateArrayBuffer(napi_env env, size_t len)
 {
     napi_value val;

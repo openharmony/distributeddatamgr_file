@@ -62,6 +62,7 @@ public:
     static NVal CreateUTF8String(napi_env env, std::string str);
     static NVal CreateUTF8String(napi_env env, const char* str, ssize_t len);
     static NVal CreateUint8Array(napi_env env, void *buf, size_t bufLen);
+    static NVal CreateArrayString(napi_env env, std::vector<std::string> strs);
     static std::tuple<NVal, void *> CreateArrayBuffer(napi_env env, size_t len);
     /* SHOULD ONLY BE USED FOR OBJECT */
     bool HasProp(std::string propName) const;
