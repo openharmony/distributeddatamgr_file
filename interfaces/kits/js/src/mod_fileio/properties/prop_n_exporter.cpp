@@ -42,10 +42,12 @@
 #include "mkdtemp.h"
 #include "open.h"
 #include "open_dir.h"
+#include "read_dir.h"
 #include "posix_fallocate.h"
 #include "read_text.h"
 #include "rename.h"
 #include "rmdir.h"
+#include "rmdirent.h"
 #include "stat.h"
 #include "symlink.h"
 #include "truncate.h"
@@ -719,9 +721,11 @@ bool PropNExporter::Export()
         NVal::DeclareNapiFunction("mkdtemp", Mkdtemp::Async),
         NVal::DeclareNapiFunction("mkdtempSync", Mkdtemp::Sync),
         NVal::DeclareNapiFunction("open", Open::Async),
+        NVal::DeclareNapiFunction("openSync", Open::Sync),
         NVal::DeclareNapiFunction("opendir", OpenDir::Async),
         NVal::DeclareNapiFunction("opendirSync", OpenDir::Sync),
-        NVal::DeclareNapiFunction("openSync", Open::Sync),
+        NVal::DeclareNapiFunction("readdir", ReadDir::Async),
+        NVal::DeclareNapiFunction("readdirSync", ReadDir::Sync),
         NVal::DeclareNapiFunction("posixFallocate", PosixFallocate::Async),
         NVal::DeclareNapiFunction("posixFallocateSync", PosixFallocate::Sync),
         NVal::DeclareNapiFunction("read", Read),
@@ -732,6 +736,8 @@ bool PropNExporter::Export()
         NVal::DeclareNapiFunction("renameSync", Rename::Sync),
         NVal::DeclareNapiFunction("rmdir", Rmdir::Async),
         NVal::DeclareNapiFunction("rmdirSync", Rmdir::Sync),
+        NVal::DeclareNapiFunction("rmdirent", Rmdirent::Async),
+        NVal::DeclareNapiFunction("rmdirentSync", Rmdirent::Sync),
         NVal::DeclareNapiFunction("stat", Stat::Async),
         NVal::DeclareNapiFunction("statSync", Stat::Sync),
         NVal::DeclareNapiFunction("symlink", Symlink::Async),
