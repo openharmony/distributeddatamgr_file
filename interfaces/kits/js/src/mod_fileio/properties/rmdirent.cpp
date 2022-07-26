@@ -60,7 +60,7 @@ static UniError rmdirent(string path)
             if (unlink(filePath.c_str()) == -1) {
                 return UniError(errno);
             }
-        }    
+        }
         entry = readdir(dir);
     }
     closedir(dir);
