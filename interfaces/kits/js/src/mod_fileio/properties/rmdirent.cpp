@@ -41,24 +41,26 @@ static UniError rmdirent(string path)
     }
     struct dirent* entry = readdir(dir);
     while (entry) {
-        if (strcmp(entry->d_name, "") != 0 && strcmp(entry->d_name, ".") != 0 && strcmp(entry->d_name, "..") != 0) {
-            struct stat fileInformation;
-            string filePath = path + '/';
-            filePath.insert(filePath.length(), entry->d_name);
-            if (stat(filePath.c_str(), &fileInformation) == -1) {
+        if (strcmp(entry->d_name, "") == 0 || strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {
+            entry = readdir(dir);
+            continue;
+        }
+        struct stat fileInformation;
+        string filePath = path + '/';
+        filePath.insert(filePath.length(), entry->d_name);
+        if (stat(filePath.c_str(), &fileInformation) == -1) {
+            return UniError(errno);
+        }
+        if ((fileInformation.st_mode & S_IFMT) == S_IFDIR) {
+            auto err = rmdirent(filePath);
+            if (err) {
+                return err;
+            }
+        } else {
+            if (unlink(filePath.c_str()) == -1) {
                 return UniError(errno);
             }
-            if ((fileInformation.st_mode & S_IFMT) == S_IFDIR) {
-                auto err = rmdirent(filePath);
-                if (err) {
-                    return err;
-                }
-            } else {
-                if (unlink(filePath.c_str()) == -1){
-                    return UniError(errno);
-                }
-            }
-        }
+        }    
         entry = readdir(dir);
     }
     closedir(dir);
