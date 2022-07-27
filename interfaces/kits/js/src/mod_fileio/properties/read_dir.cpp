@@ -13,24 +13,22 @@
  * limitations under the License.
  */
 
-#include "read_dir.h"
-#include <memory>
-#include <string>
+#include "rmdirent.h"
+
+#include <cstring>
 #include <tuple>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <dirent.h>
 
 #include "../../common/napi/n_async/n_async_work_callback.h"
 #include "../../common/napi/n_async/n_async_work_promise.h"
-#include "../../common/napi/n_class.h"
 #include "../../common/napi/n_func_arg.h"
-#include "../../common/napi/n_val.h"
-#include "../../common/uni_error.h"
-
 namespace OHOS {
 namespace DistributedFS {
 namespace ModuleFileIO {
 using namespace std;
-#define pathCmpBits 2
 
 static tuple<bool, unique_ptr<char[]>> ParseJsPath(napi_env env, napi_value pathFromJs)
 {
@@ -38,99 +36,112 @@ static tuple<bool, unique_ptr<char[]>> ParseJsPath(napi_env env, napi_value path
     return {succ, move(path)};
 }
 
-static bool verifyFilePath(char* path)
-{   
-    if (strncmp(path, "", pathCmpBits) != 0 && strncmp(path, ".", pathCmpBits) != 0 &&
-        strncmp(path, "..", pathCmpBits) != 0) {
-        return true;
-    } else {
-        return false;
+static UniError rmdirent(napi_env env, string path)
+{
+    if (rmdir(path.c_str()) == 0) {
+        return UniError(ERRNO_NOERR);
     }
+    auto dir = opendir(path.c_str());
+    if (!dir) {
+        auto err = UniError(errno);
+        err.ThrowErr(env, "Cannot open dir");
+        return err;
+    }
+    struct dirent* entry = readdir(dir);
+    while (entry) {
+        if (strcmp(entry->d_name, "") == 0 || strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {
+            entry = readdir(dir);
+            continue;
+        }
+        struct stat fileInformation;
+        string filePath = path + '/';
+        filePath.insert(filePath.length(), entry->d_name);
+        if (stat(filePath.c_str(), &fileInformation) != 0) {
+            closedir(dir);
+            auto err = UniError(errno);
+            err.ThrowErr(env, "Cannot get file information");
+            return err;
+        }
+        if ((fileInformation.st_mode & S_IFMT) == S_IFDIR) {
+            auto err = rmdirent(env, filePath);
+            if (err) {
+                closedir(dir);
+                return err;
+            }
+        } else {
+            if (unlink(filePath.c_str()) != 0) {
+                closedir(dir);
+                auto err = UniError(errno);
+                err.ThrowErr(env, "Cannot unlink file");
+                return err;
+            }
+        }
+        entry = readdir(dir);
+    }
+    closedir(dir);
+    if (rmdir(path.c_str()) != 0) {
+        auto err = UniError(errno);
+        err.ThrowErr(env, "Cannot rmdir empty dir");
+        return err;
+    }
+    return UniError(ERRNO_NOERR);
 }
 
-napi_value ReadDir::Sync(napi_env env, napi_callback_info info)
+napi_value Rmdirent::Sync(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
+
     if (!funcArg.InitArgs(NARG_CNT::ONE)) {
+        UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
+
     auto [succ, path] = ParseJsPath(env, funcArg[NARG_POS::FIRST]);
     if (!succ) {
         UniError(EINVAL).ThrowErr(env, "Invalid path");
         return nullptr;
     }
-    unique_ptr<DIR, function<void(DIR *)>> dir = { opendir(path.get()), closedir };
-    if (!dir) {
-        UniError(errno).ThrowErr(env);
+
+    auto err = rmdirent(env, string(path.get()));
+    if (err) {
+        err.ThrowErr(env);
         return nullptr;
     }
-    vector<string> dirFiles;
-    struct dirent* entry = readdir(dir.get());
-    while (entry) {
-        if (verifyFilePath(entry->d_name)) {
-            dirFiles.push_back(entry->d_name);
-        }
-        entry = readdir(dir.get());
-    }
-    return NVal::CreateArrayString(env, dirFiles).val_;
+    return NVal::CreateUndefined(env).val_;
 }
 
-struct ReadDirArgs {
-    vector<string> dirFiles;
-    explicit ReadDirArgs()
-    {
-        dirFiles = vector<string>();
-    }
-    ~ReadDirArgs() = default;
-};
-
-napi_value ReadDir::Async(napi_env env, napi_callback_info info)
+napi_value Rmdirent::Async(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
     if (!funcArg.InitArgs(NARG_CNT::ONE, NARG_CNT::TWO)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
-    string path;
-    auto [succ, tmp] = ParseJsPath(env, funcArg[NARG_POS::FIRST]);
+
+    auto [succ, path] = ParseJsPath(env, funcArg[NARG_POS::FIRST]);
     if (!succ) {
         UniError(EINVAL).ThrowErr(env, "Invalid path");
         return nullptr;
     }
-    path = tmp.get();
-    auto arg = make_shared<ReadDirArgs>();
-    auto cbExec = [arg, path](napi_env env) -> UniError {
-        DIR *dir = nullptr;
-        dir = opendir(path.c_str());
-        if (!dir) {
-            return UniError(errno);
-        }
-        struct dirent* entry = readdir(dir);
-        vector<string> dirnames;
-        while (entry) {
-            if (verifyFilePath(entry->d_name)) {
-                dirnames.push_back(entry->d_name);
-            }
-            entry = readdir(dir);
-        }
-        arg->dirFiles = dirnames;
-        closedir(dir);
-        return UniError(ERRNO_NOERR);
+
+    auto cbExec = [path = string(path.get())](napi_env env) -> UniError {
+        return rmdirent(env, path);
     };
-    auto cbCompl = [arg](napi_env env, UniError err) -> NVal {
+    auto cbCompl = [](napi_env env, UniError err) -> NVal {
         if (err) {
             return { env, err.GetNapiErr(env) };
         } else {
-            return NVal::CreateArrayString(env, arg->dirFiles);
+            return NVal::CreateUndefined(env);
         }
     };
-
+    
     NVal thisVar(env, funcArg.GetThisVar());
-    if (funcArg.GetArgc() == NARG_CNT::ONE) {
-        return NAsyncWorkPromise(env, thisVar).Schedule(readdirProcedureName, cbExec, cbCompl).val_;
+    size_t argc = funcArg.GetArgc();
+    if (argc == NARG_CNT::ONE) {
+        return NAsyncWorkPromise(env, thisVar).Schedule(rmdirProcedureName, cbExec, cbCompl).val_;
     } else {
         NVal cb(env, funcArg[NARG_POS::SECOND]);
-        return NAsyncWorkCallback(env, thisVar, cb).Schedule(readdirProcedureName, cbExec, cbCompl).val_;
+        return NAsyncWorkCallback(env, thisVar, cb).Schedule(rmdirProcedureName, cbExec, cbCompl).val_;
     }
 }
 } // namespace ModuleFileIO
