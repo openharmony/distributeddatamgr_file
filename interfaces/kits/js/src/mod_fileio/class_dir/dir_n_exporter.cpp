@@ -136,7 +136,7 @@ static NVal DoReadCompile(napi_env env, UniError err, shared_ptr<DirReadArgs> ar
         }
 
         if (strlen(arg->dirRes.d_name) == 0) {
-            return { env, nullptr };
+            return { env, NVal::CreateUndefined(env).val_ };
         } else {
             direntEntity->dirent_ = arg->dirRes;
             return { env, objDirent };
@@ -191,7 +191,6 @@ napi_value DirNExporter::Read(napi_env env, napi_callback_info info)
         return DoReadCompile(env, err, arg);
     };
     NVal thisVar(env, funcArg.GetThisVar());
-
     if (funcArg.GetArgc() == NARG_CNT::ZERO) {
         return NAsyncWorkPromise(env, thisVar).Schedule("fileioDirRead", cbExec, cbCompl).val_;
     } else {
