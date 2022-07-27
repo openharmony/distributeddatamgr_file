@@ -29,9 +29,10 @@ namespace OHOS {
 namespace DistributedFS {
 namespace ModuleFileIO {
 using namespace std;
+#define pathCmpBits 2
 
 static tuple<bool, unique_ptr<char[]>> ParseJsPath(napi_env env, napi_value pathFromJs)
-{   
+{
     auto [succ, path, ignore] = NVal(env, pathFromJs).ToUTF8String();
     return {succ, move(path)};
 }
@@ -49,8 +50,8 @@ static UniError rmdirent(napi_env env, string path)
     }
     struct dirent* entry = readdir(dir);
     while (entry) {
-        if (strncmp(entry->d_name, "", 2) == 0 || strncmp(entry->d_name, ".", 2) == 0 || 
-            strncmp(entry->d_name, "..", 2) == 0) {
+        if (strncmp(entry->d_name, "", pathCmpBits) == 0 || strncmp(entry->d_name, ".", pathCmpBits) == 0 ||
+            strncmp(entry->d_name, "..", pathCmpBits) == 0) {
             entry = readdir(dir);
             continue;
         }

@@ -30,15 +30,18 @@ namespace OHOS {
 namespace DistributedFS {
 namespace ModuleFileIO {
 using namespace std;
+#define pathCmpBits 2
 
 static tuple<bool, unique_ptr<char[]>> ParseJsPath(napi_env env, napi_value pathFromJs)
-{   
+{
     auto [succ, path, ignore] = NVal(env, pathFromJs).ToUTF8String();
     return {succ, move(path)};
 }
 
-static bool verifyFilePath(char* path){
-    if (strncmp(path, "", 2) != 0 && strncmp(path, ".", 2) != 0 && strncmp(path, "..", 2) != 0) {
+static bool verifyFilePath(char* path)
+{   
+    if (strncmp(path, "", pathCmpBits) != 0 && strncmp(path, ".", pathCmpBits) != 0 &&
+        strncmp(path, "..", pathCmpBits) != 0) {
         return true;
     } else {
         return false;
