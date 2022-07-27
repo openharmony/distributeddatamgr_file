@@ -103,6 +103,7 @@ napi_value ReadDir::Async(napi_env env, napi_callback_info info)
             entry = readdir(dir);
         }
         arg->dirFiles = dirnames;
+        closedir(dir);
         return UniError(ERRNO_NOERR);
     };
     auto cbCompl = [arg](napi_env env, UniError err) -> NVal {
