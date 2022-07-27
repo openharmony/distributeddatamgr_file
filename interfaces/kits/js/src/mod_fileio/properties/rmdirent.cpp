@@ -30,46 +30,63 @@ namespace DistributedFS {
 namespace ModuleFileIO {
 using namespace std;
 
-static UniError rmdirent(string path)
+static tuple<bool, unique_ptr<char[]>> ParseJsPath(napi_env env, napi_value pathFromJs)
+{   
+    auto [succ, path, ignore] = NVal(env, pathFromJs).ToUTF8String();
+    return {succ, move(path)};
+}
+
+static UniError rmdirent(napi_env env, string path)
 {
     if (rmdir(path.c_str()) == 0) {
         return UniError(ERRNO_NOERR);
     }
     auto dir = opendir(path.c_str());
     if (!dir) {
-        return UniError(errno);
+        auto err = UniError(errno);
+        err.ThrowErr(env, "Cannot open dir");
+        return err;
     }
     struct dirent* entry = readdir(dir);
     while (entry) {
-        if (strcmp(entry->d_name, "") == 0 || strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {
+        if (strncmp(entry->d_name, "", 2) == 0 || strncmp(entry->d_name, ".", 2) == 0 || 
+            strncmp(entry->d_name, "..", 2) == 0) {
             entry = readdir(dir);
             continue;
         }
         struct stat fileInformation;
         string filePath = path + '/';
         filePath.insert(filePath.length(), entry->d_name);
-        if (stat(filePath.c_str(), &fileInformation) == -1) {
-            return UniError(errno);
+        if (stat(filePath.c_str(), &fileInformation) != 0) {
+            closedir(dir);
+            auto err = UniError(errno);
+            err.ThrowErr(env, "Cannot get file information");
+            return err;
         }
         if ((fileInformation.st_mode & S_IFMT) == S_IFDIR) {
-            auto err = rmdirent(filePath);
+            auto err = rmdirent(env, filePath);
             if (err) {
+                closedir(dir);
                 return err;
             }
         } else {
-            if (unlink(filePath.c_str()) == -1) {
-                return UniError(errno);
+            if (unlink(filePath.c_str()) != 0) {
+                closedir(dir);
+                auto err = UniError(errno);
+                err.ThrowErr(env, "Cannot unlink file");
+                return err;
             }
         }
         entry = readdir(dir);
     }
     closedir(dir);
-    if (rmdir(path.c_str()) == -1) {
-        return UniError(errno);
+    if (rmdir(path.c_str()) != 0) {
+        auto err = UniError(errno);
+        err.ThrowErr(env, "Cannot rmdir empty dir");
+        return err;
     }
     return UniError(ERRNO_NOERR);
 }
-
 
 napi_value Rmdirent::Sync(napi_env env, napi_callback_info info)
 {
@@ -80,14 +97,13 @@ napi_value Rmdirent::Sync(napi_env env, napi_callback_info info)
         return nullptr;
     }
 
-    bool succ = false;
-    unique_ptr<char[]> path;
-    tie(succ, path, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
+    auto [succ, path] = ParseJsPath(env, funcArg[NARG_POS::FIRST]);
     if (!succ) {
         UniError(EINVAL).ThrowErr(env, "Invalid path");
         return nullptr;
     }
-    auto err = rmdirent(string(path.get()));
+
+    auto err = rmdirent(env, string(path.get()));
     if (err) {
         err.ThrowErr(env);
         return nullptr;
@@ -103,16 +119,14 @@ napi_value Rmdirent::Async(napi_env env, napi_callback_info info)
         return nullptr;
     }
 
-    bool succ = false;
-    unique_ptr<char[]> path;
-    tie(succ, path, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
+    auto [succ, path] = ParseJsPath(env, funcArg[NARG_POS::FIRST]);
     if (!succ) {
         UniError(EINVAL).ThrowErr(env, "Invalid path");
         return nullptr;
     }
 
     auto cbExec = [path = string(path.get())](napi_env env) -> UniError {
-        return rmdirent(path);
+        return rmdirent(env, path);
     };
     auto cbCompl = [](napi_env env, UniError err) -> NVal {
         if (err) {
@@ -121,14 +135,14 @@ napi_value Rmdirent::Async(napi_env env, napi_callback_info info)
             return NVal::CreateUndefined(env);
         }
     };
-    string procedureName = "FileIORmDirent";
+    
     NVal thisVar(env, funcArg.GetThisVar());
     size_t argc = funcArg.GetArgc();
     if (argc == NARG_CNT::ONE) {
-        return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbCompl).val_;
+        return NAsyncWorkPromise(env, thisVar).Schedule(rmdirProcedureName, cbExec, cbCompl).val_;
     } else {
         NVal cb(env, funcArg[NARG_POS::SECOND]);
-        return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbCompl).val_;
+        return NAsyncWorkCallback(env, thisVar, cb).Schedule(rmdirProcedureName, cbExec, cbCompl).val_;
     }
 }
 } // namespace ModuleFileIO

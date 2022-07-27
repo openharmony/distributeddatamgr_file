@@ -31,16 +31,27 @@ namespace DistributedFS {
 namespace ModuleFileIO {
 using namespace std;
 
+static tuple<bool, unique_ptr<char[]>> ParseJsPath(napi_env env, napi_value pathFromJs)
+{   
+    auto [succ, path, ignore] = NVal(env, pathFromJs).ToUTF8String();
+    return {succ, move(path)};
+}
+
+static bool verifyFilePath(char* path){
+    if (strncmp(path, "", 2) != 0 && strncmp(path, ".", 2) != 0 && strncmp(path, "..", 2) != 0) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 napi_value ReadDir::Sync(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
     if (!funcArg.InitArgs(NARG_CNT::ONE)) {
         return nullptr;
     }
-
-    bool succ = false;
-    unique_ptr<char[]> path;
-    tie(succ, path, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
+    auto [succ, path] = ParseJsPath(env, funcArg[NARG_POS::FIRST]);
     if (!succ) {
         UniError(EINVAL).ThrowErr(env, "Invalid path");
         return nullptr;
@@ -53,7 +64,7 @@ napi_value ReadDir::Sync(napi_env env, napi_callback_info info)
     vector<string> dirFiles;
     struct dirent* entry = readdir(dir.get());
     while (entry) {
-        if (strcmp(entry->d_name, "") != 0 && strcmp(entry->d_name, ".") != 0 && strcmp(entry->d_name, "..") != 0) {
+        if (verifyFilePath(entry->d_name)) {
             dirFiles.push_back(entry->d_name);
         }
         entry = readdir(dir.get());
@@ -78,26 +89,23 @@ napi_value ReadDir::Async(napi_env env, napi_callback_info info)
         return nullptr;
     }
     string path;
-    unique_ptr<char[]> tmp;
-    bool succ = false;
-    tie(succ, tmp, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
+    auto [succ, tmp] = ParseJsPath(env, funcArg[NARG_POS::FIRST]);
     if (!succ) {
         UniError(EINVAL).ThrowErr(env, "Invalid path");
         return nullptr;
     }
-
     path = tmp.get();
     auto arg = make_shared<ReadDirArgs>();
     auto cbExec = [arg, path](napi_env env) -> UniError {
         DIR *dir = nullptr;
         dir = opendir(path.c_str());
-        if (dir == nullptr) {
+        if (!dir) {
             return UniError(errno);
         }
         struct dirent* entry = readdir(dir);
         vector<string> dirnames;
         while (entry) {
-            if (strcmp(entry->d_name, "") != 0 && strcmp(entry->d_name, ".") != 0 && strcmp(entry->d_name, "..") != 0) {
+            if (verifyFilePath(entry->d_name)) {
                 dirnames.push_back(entry->d_name);
             }
             entry = readdir(dir);
@@ -116,10 +124,10 @@ napi_value ReadDir::Async(napi_env env, napi_callback_info info)
 
     NVal thisVar(env, funcArg.GetThisVar());
     if (funcArg.GetArgc() == NARG_CNT::ONE) {
-        return NAsyncWorkPromise(env, thisVar).Schedule("fileIOReadDir", cbExec, cbCompl).val_;
+        return NAsyncWorkPromise(env, thisVar).Schedule(readdirProcedureName, cbExec, cbCompl).val_;
     } else {
         NVal cb(env, funcArg[NARG_POS::SECOND]);
-        return NAsyncWorkCallback(env, thisVar, cb).Schedule("fileIOReadDir", cbExec, cbCompl).val_;
+        return NAsyncWorkCallback(env, thisVar, cb).Schedule(readdirProcedureName, cbExec, cbCompl).val_;
     }
 }
 } // namespace ModuleFileIO

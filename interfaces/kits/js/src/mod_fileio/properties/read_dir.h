@@ -26,6 +26,7 @@ public:
     static napi_value Async(napi_env env, napi_callback_info info);
     static napi_value Sync(napi_env env, napi_callback_info info);
 };
+const std::string readdirProcedureName = "fileIOReadDir";
 } // namespace ModuleFileIO
 } // namespace DistributedFS
 } // namespace OHOS
