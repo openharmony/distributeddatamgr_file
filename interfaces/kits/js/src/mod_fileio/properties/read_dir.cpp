@@ -61,7 +61,7 @@ napi_value ReadDir::Sync(napi_env env, napi_callback_info info)
     vector<string> dirFiles;
     struct dirent* entry = readdir(dir.get());
     while (entry) {
-        if (verifyFilePath(entry->d_name)) {
+        if (VerifyFilePath(entry->d_name)) {
             dirFiles.push_back(entry->d_name);
         }
         entry = readdir(dir.get());
@@ -102,7 +102,7 @@ napi_value ReadDir::Async(napi_env env, napi_callback_info info)
         struct dirent* entry = readdir(dir);
         vector<string> dirnames;
         while (entry) {
-            if (verifyFilePath(entry->d_name)) {
+            if (VerifyFilePath(entry->d_name)) {
                 dirnames.push_back(entry->d_name);
             }
             entry = readdir(dir);
