@@ -41,6 +41,7 @@ public:
     DirNExporter(napi_env env, napi_value exports);
     ~DirNExporter() override;
 };
+const std::string listfileProcedureName = "fileioDirListFile";
 } // namespace ModuleFileIO
 } // namespace DistributedFS
 } // namespace OHOS

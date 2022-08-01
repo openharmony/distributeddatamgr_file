@@ -355,10 +355,10 @@ napi_value DirNExporter::ListFile(napi_env env, napi_callback_info info)
     NVal thisVar(env, funcArg.GetThisVar());
 
     if (funcArg.GetArgc() == NARG_CNT::ONE) {
-        return NAsyncWorkPromise(env, thisVar).Schedule("fileioDirListFile", cbExec, cbCompl).val_;
+        return NAsyncWorkPromise(env, thisVar).Schedule(listfileProcedureName, cbExec, cbCompl).val_;
     } else {
         NVal cb(env, funcArg[NARG_POS::SECOND]);
-        return NAsyncWorkCallback(env, thisVar, cb).Schedule("fileioDirListFile", cbExec, cbCompl).val_;
+        return NAsyncWorkCallback(env, thisVar, cb).Schedule(listfileProcedureName, cbExec, cbCompl).val_;
     }
 }
 
