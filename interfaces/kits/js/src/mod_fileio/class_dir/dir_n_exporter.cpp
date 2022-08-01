@@ -249,7 +249,7 @@ napi_value DirNExporter::ReadSync(napi_env env, napi_callback_info info)
     return objDirent;
 }
 
-struct DirListFileArgs{
+struct DirListFileArgs {
     vector<dirent> dirents;
     explicit DirListFileArgs()
     {
