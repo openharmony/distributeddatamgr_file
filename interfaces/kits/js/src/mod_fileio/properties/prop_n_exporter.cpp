@@ -42,7 +42,6 @@
 #include "mkdtemp.h"
 #include "open.h"
 #include "open_dir.h"
-#include "read_dir.h"
 #include "posix_fallocate.h"
 #include "read_text.h"
 #include "rename.h"
@@ -724,8 +723,6 @@ bool PropNExporter::Export()
         NVal::DeclareNapiFunction("openSync", Open::Sync),
         NVal::DeclareNapiFunction("opendir", OpenDir::Async),
         NVal::DeclareNapiFunction("opendirSync", OpenDir::Sync),
-        NVal::DeclareNapiFunction("readdir", ReadDir::Async),
-        NVal::DeclareNapiFunction("readdirSync", ReadDir::Sync),
         NVal::DeclareNapiFunction("posixFallocate", PosixFallocate::Async),
         NVal::DeclareNapiFunction("posixFallocateSync", PosixFallocate::Sync),
         NVal::DeclareNapiFunction("read", Read),
