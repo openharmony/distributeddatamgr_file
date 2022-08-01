@@ -333,7 +333,6 @@ napi_value DirNExporter::ListFile(napi_env env, napi_callback_info info)
         lock_guard(dirEntity->lock_);
         errno = 0;
         dirent *res = nullptr;
-        vector<napi_value> dirs;
         int listCount = 0;
         do {
             res = readdir(dir);
