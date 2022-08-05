@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,11 +16,11 @@
 #include "rmdirent.h"
 
 #include <cstring>
+#include <dirent.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <tuple>
 #include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <dirent.h>
 
 #include "../../common/napi/n_async/n_async_work_callback.h"
 #include "../../common/napi/n_async/n_async_work_promise.h"
@@ -50,7 +50,7 @@ static UniError rmdirent(napi_env env, string path)
     }
     struct dirent* entry = readdir(dir);
     while (entry) {
-        if (strcmp(entry->d_name, "") == 0 || strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {
+        if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {
             entry = readdir(dir);
             continue;
         }

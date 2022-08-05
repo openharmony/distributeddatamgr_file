@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,12 +14,12 @@
  */
 
 #include "dir_n_exporter.h"
+
 #include <dirent.h>
 #include <iostream>
 #include <memory>
 #include <mutex>
 #include <sstream>
-#include "dir_entity.h"
 #include "securec.h"
 
 #include "../../common/napi/n_async/n_async_work_callback.h"
@@ -28,6 +28,7 @@
 #include "../../common/napi/n_func_arg.h"
 #include "../class_dirent/dirent_entity.h"
 #include "../class_dirent/dirent_n_exporter.h"
+#include "dir_entity.h"
 #include "../common_func.h"
 
 namespace OHOS {
@@ -340,7 +341,7 @@ napi_value DirNExporter::ListFile(napi_env env, napi_callback_info info)
                 return UniError(errno);
             } else if (res == nullptr) {
                 return UniError(ERRNO_NOERR);
-            } else if (string(res->d_name) == "." || string(res->d_name) == ".." || string(res->d_name) == "") {
+            } else if (string(res->d_name) == "." || string(res->d_name) == "..") {
                 continue;
             } else {
                 arg->dirents.push_back(*res);
@@ -393,7 +394,7 @@ napi_value DirNExporter::ListFileSync(napi_env env, napi_callback_info info)
                 return nullptr;
             } else if (res == nullptr) {
                 break;
-            } else if (string(res->d_name) == "." || string(res->d_name) == ".." || string(res->d_name) == "") {
+            } else if (string(res->d_name) == "." || string(res->d_name) == "..") {
                 continue;
             } else {
                 dirents.push_back(*res);

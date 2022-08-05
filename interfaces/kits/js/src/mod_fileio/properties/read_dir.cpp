@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,10 +14,11 @@
  */
 
 #include "read_dir.h"
+
+#include <dirent.h>
 #include <memory>
 #include <string>
 #include <tuple>
-#include <dirent.h>
 
 #include "../../common/napi/n_async/n_async_work_callback.h"
 #include "../../common/napi/n_async/n_async_work_promise.h"
@@ -39,7 +40,7 @@ static tuple<bool, unique_ptr<char[]>> ParseJsPath(napi_env env, napi_value path
 
 static bool VerifyFilePath(char* path)
 {
-    return strcmp(path, "") != 0 && strcmp(path, ".") != 0 && strcmp(path, "..") != 0;
+    return strcmp(path, ".") != 0 && strcmp(path, "..") != 0;
 }
 
 napi_value ReadDir::Sync(napi_env env, napi_callback_info info)
@@ -94,21 +95,19 @@ napi_value ReadDir::Async(napi_env env, napi_callback_info info)
     path = tmp.get();
     auto arg = make_shared<ReadDirArgs>();
     auto cbExec = [arg, path](napi_env env) -> UniError {
-        DIR *dir = nullptr;
-        dir = opendir(path.c_str());
+        unique_ptr<DIR, function<void(DIR *)>> dir = { opendir(path.c_str()), closedir };
         if (!dir) {
             return UniError(errno);
         }
-        struct dirent* entry = readdir(dir);
+        struct dirent* entry = readdir(dir.get());
         vector<string> dirnames;
         while (entry) {
             if (VerifyFilePath(entry->d_name)) {
                 dirnames.push_back(entry->d_name);
             }
-            entry = readdir(dir);
+            entry = readdir(dir.get());
         }
         arg->dirFiles = dirnames;
-        closedir(dir);
         return UniError(ERRNO_NOERR);
     };
     auto cbCompl = [arg](napi_env env, UniError err) -> NVal {
