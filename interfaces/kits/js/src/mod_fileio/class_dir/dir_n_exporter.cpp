@@ -28,8 +28,8 @@
 #include "../../common/napi/n_func_arg.h"
 #include "../class_dirent/dirent_entity.h"
 #include "../class_dirent/dirent_n_exporter.h"
-#include "dir_entity.h"
 #include "../common_func.h"
+#include "dir_entity.h"
 
 namespace OHOS {
 namespace DistributedFS {
