@@ -16,7 +16,7 @@
 #ifndef DOCUMENT_NAPI_H
 #define DOCUMENT_NAPI_H
 
-#include "napi/native_api.h"
+#include "filemgmt_libn.h"
 
 namespace OHOS {
 namespace DistributedFS {
