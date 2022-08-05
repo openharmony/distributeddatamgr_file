@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -62,6 +62,7 @@ public:
     static NVal CreateUTF8String(napi_env env, std::string str);
     static NVal CreateUTF8String(napi_env env, const char* str, ssize_t len);
     static NVal CreateUint8Array(napi_env env, void *buf, size_t bufLen);
+    static NVal CreateArrayString(napi_env env, std::vector<std::string> strs);
     static std::tuple<NVal, void *> CreateArrayBuffer(napi_env env, size_t len);
     /* SHOULD ONLY BE USED FOR OBJECT */
     bool HasProp(std::string propName) const;
