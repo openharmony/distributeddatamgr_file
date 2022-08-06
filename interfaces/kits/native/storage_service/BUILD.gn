@@ -17,7 +17,7 @@ ohos_shared_library("ss_crypto_api") {
   sources = [ "ss_crypto_api.cpp" ]
   include_dirs = [
     "include",
-    "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy/include",
+    "//foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy/include",
     "//third_party/openssl/include/openssl",
     "//base/security/huks/interfaces/innerkits/huks_standard/main/include",
     "//utils/system/safwk/native/include",
@@ -31,7 +31,7 @@ ohos_shared_library("ss_crypto_api") {
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
-    "samgr_standard:samgr_proxy",
+    "samgr:samgr_proxy",
   ]
   subsystem_name = "distributeddatamgr"
 }
