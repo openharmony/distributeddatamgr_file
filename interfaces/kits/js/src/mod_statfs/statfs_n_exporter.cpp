@@ -89,11 +89,9 @@ napi_value GetFrSize(napi_env env, napi_callback_info info)
     NVal thisVar(env, funcArg.GetThisVar());
     if (funcArg.GetArgc() == NARG_CNT::ONE) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
-    } else {
-        NVal cb(env, funcArg[NARG_POS::SECOND]);
-        return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
     }
-    return NVal::CreateUndefined(env).val_;
+    NVal cb(env, funcArg[NARG_POS::SECOND]);
+    return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
 }
 
 napi_value GetBSizeSync(napi_env env, napi_callback_info info)
@@ -159,11 +157,9 @@ napi_value GetBSize(napi_env env, napi_callback_info info)
     NVal thisVar(env, funcArg.GetThisVar());
     if (funcArg.GetArgc() == NARG_CNT::ONE) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
-    } else {
-        NVal cb(env, funcArg[NARG_POS::SECOND]);
-        return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
     }
-    return NVal::CreateUndefined(env).val_;
+    NVal cb(env, funcArg[NARG_POS::SECOND]);
+    return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
 }
 
 napi_value GetBAvailSync(napi_env env, napi_callback_info info)
@@ -229,11 +225,9 @@ napi_value GetBAvail(napi_env env, napi_callback_info info)
     NVal thisVar(env, funcArg.GetThisVar());
     if (funcArg.GetArgc() == NARG_CNT::ONE) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
-    } else {
-        NVal cb(env, funcArg[NARG_POS::SECOND]);
-        return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
     }
-    return NVal::CreateUndefined(env).val_;
+    NVal cb(env, funcArg[NARG_POS::SECOND]);
+    return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
 }
 
 napi_value GetBlocksSync(napi_env env, napi_callback_info info)
@@ -299,11 +293,9 @@ napi_value GetBlocks(napi_env env, napi_callback_info info)
     NVal thisVar(env, funcArg.GetThisVar());
     if (funcArg.GetArgc() == NARG_CNT::ONE) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
-    } else {
-        NVal cb(env, funcArg[NARG_POS::SECOND]);
-        return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
     }
-    return NVal::CreateUndefined(env).val_;
+    NVal cb(env, funcArg[NARG_POS::SECOND]);
+    return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
 }
 
 napi_value GetBFreeSync(napi_env env, napi_callback_info info)
@@ -369,11 +361,9 @@ napi_value GetBFree(napi_env env, napi_callback_info info)
     NVal thisVar(env, funcArg.GetThisVar());
     if (funcArg.GetArgc() == NARG_CNT::ONE) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
-    } else {
-        NVal cb(env, funcArg[NARG_POS::SECOND]);
-        return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
     }
-    return NVal::CreateUndefined(env).val_;
+    NVal cb(env, funcArg[NARG_POS::SECOND]);
+    return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
 }
 
 napi_value GetFreeBytesSync(napi_env env, napi_callback_info info)
@@ -442,11 +432,9 @@ napi_value GetFreeBytes(napi_env env, napi_callback_info info)
     NVal thisVar(env, funcArg.GetThisVar());
     if (funcArg.GetArgc() == NARG_CNT::ONE) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
-    } else {
-        NVal cb(env, funcArg[NARG_POS::SECOND]);
-        return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
     }
-    return NVal::CreateUndefined(env).val_;
+    NVal cb(env, funcArg[NARG_POS::SECOND]);
+    return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
 }
 
 napi_value GetTotalBytesSync(napi_env env, napi_callback_info info)
@@ -515,11 +503,9 @@ napi_value GetTotalBytes(napi_env env, napi_callback_info info)
     NVal thisVar(env, funcArg.GetThisVar());
     if (funcArg.GetArgc() == NARG_CNT::ONE) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
-    } else {
-        NVal cb(env, funcArg[NARG_POS::SECOND]);
-        return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
     }
-    return NVal::CreateUndefined(env).val_;
+    NVal cb(env, funcArg[NARG_POS::SECOND]);
+    return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
 }
 
 napi_value GetAvailableBytes(napi_env env, napi_callback_info info)
@@ -561,11 +547,9 @@ napi_value GetAvailableBytes(napi_env env, napi_callback_info info)
     NVal thisVar(env, funcArg.GetThisVar());
     if (funcArg.GetArgc() == NARG_CNT::ONE) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
-    } else {
-        NVal cb(env, funcArg[NARG_POS::SECOND]);
-        return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
     }
-    return NVal::CreateUndefined(env).val_;
+    NVal cb(env, funcArg[NARG_POS::SECOND]);
+    return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
 }
 
 napi_value GetAvailableBytesSync(napi_env env, napi_callback_info info)
