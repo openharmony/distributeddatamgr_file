@@ -16,7 +16,7 @@
 #ifndef DOCUMENT_N_EXPORTER_H
 #define DOCUMENT_N_EXPORTER_H
 
-#include "../common/napi/n_exporter.h"
+#include "filemgmt_libn.h"
 
 namespace OHOS {
 namespace DistributedFS {
