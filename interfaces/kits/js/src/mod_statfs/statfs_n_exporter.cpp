@@ -589,8 +589,7 @@ napi_value GetAvailableBytesSync(napi_env env, napi_callback_info info)
     if (ret != 0) {
         NError(errno).ThrowErr(env);
         return nullptr;
-    }
-    
+    }    
     unsigned long long totalSize = static_cast<unsigned long long>(diskInfo.f_bsize) *
                                    static_cast<unsigned long long>(diskInfo.f_bavail);
     return NVal::CreateInt64(env, totalSize).val_;
