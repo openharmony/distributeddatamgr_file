@@ -557,7 +557,7 @@ napi_value GetAvailableBytes(napi_env env, napi_callback_info info)
         return { NVal::CreateInt64(env, *resultSize) };
     };
 
-    std::string procedureName = "GetAvailableBytes";
+    const std::string procedureName = "GetAvailableBytes";
     NVal thisVar(env, funcArg.GetThisVar());
     if (funcArg.GetArgc() == NARG_CNT::ONE) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
@@ -590,6 +590,7 @@ napi_value GetAvailableBytesSync(napi_env env, napi_callback_info info)
         NError(errno).ThrowErr(env);
         return nullptr;
     }
+    
     unsigned long long totalSize = static_cast<unsigned long long>(diskInfo.f_bsize) *
                                    static_cast<unsigned long long>(diskInfo.f_bavail);
     return NVal::CreateInt64(env, totalSize).val_;
