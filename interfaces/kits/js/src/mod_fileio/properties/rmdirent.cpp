@@ -44,9 +44,7 @@ static UniError rmdirent(napi_env env, string path)
     }
     auto dir = opendir(path.c_str());
     if (!dir) {
-        auto err = UniError(errno);
-        err.ThrowErr(env, "Cannot open dir");
-        return err;
+        return UniError(errno);
     }
     struct dirent* entry = readdir(dir);
     while (entry) {
@@ -59,9 +57,7 @@ static UniError rmdirent(napi_env env, string path)
         filePath.insert(filePath.length(), entry->d_name);
         if (stat(filePath.c_str(), &fileInformation) != 0) {
             closedir(dir);
-            auto err = UniError(errno);
-            err.ThrowErr(env, "Cannot get file information");
-            return err;
+            return UniError(errno);
         }
         if ((fileInformation.st_mode & S_IFMT) == S_IFDIR) {
             auto err = rmdirent(env, filePath);
@@ -72,18 +68,14 @@ static UniError rmdirent(napi_env env, string path)
         } else {
             if (unlink(filePath.c_str()) != 0) {
                 closedir(dir);
-                auto err = UniError(errno);
-                err.ThrowErr(env, "Cannot unlink file");
-                return err;
+                return UniError(errno);
             }
         }
         entry = readdir(dir);
     }
     closedir(dir);
     if (rmdir(path.c_str()) != 0) {
-        auto err = UniError(errno);
-        err.ThrowErr(env, "Cannot rmdir empty dir");
-        return err;
+        return UniError(errno);
     }
     return UniError(ERRNO_NOERR);
 }
