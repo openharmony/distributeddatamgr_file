@@ -41,6 +41,9 @@ napi_value GetFreeBytes(napi_env env, napi_callback_info info);
 
 napi_value GetTotalBytesSync(napi_env env, napi_callback_info info);
 napi_value GetTotalBytes(napi_env env, napi_callback_info info);
+
+napi_value GetAvailableBytesSync(napi_env env, napi_callback_info info);
+napi_value GetAvailableBytes(napi_env env, napi_callback_info info);
 } // namespace ModuleStatfs
 } // namespace DistributedFS
 } // namespace OHOS

@@ -36,6 +36,13 @@ declare namespace Statfs {
    */
   function getTotalBytes(path: string, callback: AsyncCallback<number>): void;
   function getTotalBytes(path: string): Promise<number>;
+  /**
+   * Get the number of available bytes of the specified path.
+   *
+   * @since 9
+   */
+   function getAvailableBytes(path: string, callback: AsyncCallback<number>): void;
+   function getAvailableBytes(path: string): Promise<number>;
 }
 
 export default Statfs;
