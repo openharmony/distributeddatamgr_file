@@ -60,7 +60,6 @@ int AdaptToAbi(int &flags)
 napi_value Open::Sync(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-
     if (!funcArg.InitArgs(NARG_CNT::ONE, NARG_CNT::THREE)) {
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
@@ -104,6 +103,10 @@ napi_value Open::Sync(napi_env env, napi_callback_info info)
     }
 
     if (fd == -1) {
+        if (errno == ENAMETOOLONG) {
+            UniError(errno).ThrowErr(env, "Filename too long");
+            return nullptr;
+        }
         UniError(errno).ThrowErr(env);
         return nullptr;
     }
@@ -129,14 +132,13 @@ napi_value Open::Async(napi_env env, napi_callback_info info)
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
-    bool succ = false;
-    size_t argc = funcArg.GetArgc();
-    unique_ptr<char[]> path;
-    tie(succ, path, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
+
+    auto [succ, path, unuse] = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
     if (!succ) {
         UniError(EINVAL).ThrowErr(env, "Invalid path");
         return nullptr;
     }
+
     int flags = O_RDONLY;
     if (funcArg.GetArgc() >= NARG_CNT::TWO && !NVal(env, funcArg[NARG_POS::SECOND]).TypeIs(napi_function)) {
         tie(succ, flags) = NVal(env, funcArg[NARG_POS::SECOND]).ToInt32();
@@ -144,9 +146,11 @@ napi_value Open::Async(napi_env env, napi_callback_info info)
             UniError(EINVAL).ThrowErr(env, "Invalid flags");
             return nullptr;
         }
+        (void)AdaptToAbi(flags);
     }
-    (void)AdaptToAbi(flags);
+
     int mode = 0;
+    size_t argc = funcArg.GetArgc();
     if (argc == NARG_CNT::FOUR ||
         (argc == NARG_CNT::THREE && NVal(env, funcArg[NARG_POS::THIRD]).TypeIs(napi_number))) {
         tie(succ, mode) = NVal(env, funcArg[NARG_POS::THIRD]).ToInt32();
@@ -155,23 +159,28 @@ napi_value Open::Async(napi_env env, napi_callback_info info)
             return nullptr;
         }
     }
+
     auto arg = make_shared<int32_t>();
     auto cbExec = [path = string(path.get()), flags, mode, arg](napi_env env) -> UniError {
         return DoOpenExec(path, flags, mode, arg);
     };
+
     auto cbComplCallback = [arg](napi_env env, UniError err) -> NVal {
         if (err) {
+            if (err.GetErrno(ERR_CODE_SYSTEM_POSIX) == ENAMETOOLONG) {
+                return {env, err.GetNapiErr(env, "Filename too long")};
+            }
             return { env, err.GetNapiErr(env) };
         }
         return { NVal::CreateInt64(env, *arg) };
     };
+
     NVal thisVar(env, funcArg.GetThisVar());
     if (argc == NARG_CNT::ONE || (argc == NARG_CNT::TWO && NVal(env, funcArg[NARG_POS::SECOND]).TypeIs(napi_number)) ||
         (argc == NARG_CNT::THREE && (NVal(env, funcArg[NARG_POS::THIRD]).TypeIs(napi_number)))) {
         return NAsyncWorkPromise(env, thisVar).Schedule("FileIOOpen", cbExec, cbComplCallback).val_;
     } else {
-        size_t cbIdx = argc - 1;
-        NVal cb(env, funcArg[cbIdx]);
+        NVal cb(env, funcArg[argc - 1]);
         return NAsyncWorkCallback(env, thisVar, cb).Schedule("FileIOOpen", cbExec, cbComplCallback).val_;
     }
 }
