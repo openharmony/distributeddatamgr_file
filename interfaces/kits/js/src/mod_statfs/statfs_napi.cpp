@@ -27,7 +27,6 @@ napi_value StatfsExport(napi_env env, napi_value exports)
     static napi_property_descriptor desc[] = {
         DECLARE_NAPI_FUNCTION("getFreeBytes", GetFreeBytes),
         DECLARE_NAPI_FUNCTION("getTotalBytes", GetTotalBytes),
-        DECLARE_NAPI_FUNCTION("getAvailableBytes", GetAvailableBytes),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc));
     return exports;
