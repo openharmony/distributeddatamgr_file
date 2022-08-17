@@ -142,6 +142,11 @@ napi_value CopyFile::Sync(napi_env env, napi_callback_info info)
 
     auto err = CopyFileCore(src, dest);
     if (err) {
+        if (err.GetErrno(ERR_CODE_SYSTEM_POSIX) == ENAMETOOLONG) {
+            UniError(EINVAL).ThrowErr(env, "Filename too long");
+            return nullptr;
+        }
+
         err.ThrowErr(env);
         return nullptr;
     }
@@ -184,6 +189,9 @@ napi_value CopyFile::Async(napi_env env, napi_callback_info info)
 
     auto cbCompl = [](napi_env env, UniError err) -> NVal {
         if (err) {
+            if (err.GetErrno(ERR_CODE_SYSTEM_POSIX) == ENAMETOOLONG) {
+                return {env, err.GetNapiErr(env, "Filename too long")};
+            }
             return {env, err.GetNapiErr(env)};
         }
         return {NVal::CreateUndefined(env)};
