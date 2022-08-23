@@ -37,8 +37,7 @@
         "group_type": {
           "base_group": [],
           "fwk_group": [
-            "//foundation/distributeddatamgr/distributedfile/interfaces/kits/js:build_kits_js",
-            "//third_party/e2fsprogs:e2fsprogs"
+            "//foundation/distributeddatamgr/distributedfile/interfaces/kits/js:build_kits_js"
           ],
           "service_group": []
         }
