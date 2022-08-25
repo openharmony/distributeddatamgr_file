@@ -38,7 +38,7 @@ static tuple<bool, unique_ptr<char[]>> ParseJsPath(napi_env env, napi_value path
     return {succ, move(path)};
 }
 
-static bool VerifyFilePath(char* path)
+static bool VerifyFilePath(const char* path)
 {
     return strcmp(path, ".") != 0 && strcmp(path, "..") != 0;
 }
