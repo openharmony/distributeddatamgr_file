@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,12 +16,10 @@
 #ifndef FOUNDATION_FILEMANAGEMENT_FILEAPI_INTERFACES_INNERKITS_SECURITY_LABEL_H
 #define FOUNDATION_FILEMANAGEMENT_FILEAPI_INTERFACES_INNERKITS_SECURITY_LABEL_H
 
-
-#include <set>
-#include <string>
-
 #include <cerrno>
 #include <memory>
+#include <set>
+#include <string>
 #include <sys/xattr.h>
 
 namespace OHOS {
@@ -45,7 +43,7 @@ public:
 
     static std::string GetSecurityLabel(const std::string &path)
     {
-        auto xattrValueSize = getxattr(path.c_str(), XATTR_KEY, NULL, 0);
+        auto xattrValueSize = getxattr(path.c_str(), XATTR_KEY, nullptr, 0);
         if (xattrValueSize == -1 || errno == ENOTSUP) {
             return "";
         }
