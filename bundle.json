@@ -12,7 +12,11 @@
     "component": {
       "name": "distributedfilejs",
       "subsystem": "distributeddatamgr",
-      "syscap": [],
+      "syscap": [
+        "SystemCapability.FileManagement.File.FileIO",
+        "SystemCapability.FileManagement.File.Environment",
+        "SystemCapability.FileManagement.File.DistributedFile"
+      ],
       "features": [],
       "adapted_system_type": ["standard"],
       "rom": "",
