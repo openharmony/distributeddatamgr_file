@@ -24,6 +24,7 @@ namespace ModuleFileIO {
 constexpr int64_t INVALID_POSITION = std::numeric_limits<decltype(INVALID_POSITION)>::max();
 
 struct CommonFunc {
+    static int ConvertJsFlags(int &flags);
     static std::tuple<bool, void *, int64_t, bool, int64_t, int> GetReadArg(napi_env env,
                                                                        napi_value readBuf,
                                                                        napi_value option);
