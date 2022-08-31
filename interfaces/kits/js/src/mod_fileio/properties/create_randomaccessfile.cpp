@@ -20,7 +20,6 @@
 #include <memory>
 #include <sstream>
 #include <uv.h>
-#include "securec.h"
 
 #include "../../common/log.h"
 #include "../../common/napi/n_async/n_async_work_callback.h"
@@ -28,6 +27,7 @@
 #include "../../common/napi/n_class.h"
 #include "../../common/napi/n_func_arg.h"
 #include "../../common/uni_error.h"
+#include "../common_func.h"
 
 #include "../class_randomaccessfile/randomaccessfile_entity.h"
 #include "../class_randomaccessfile/randomaccessfile_n_exporter.h"
@@ -85,11 +85,11 @@ static tuple<bool, FileInfo, size_t> ParseJsFileAndFP(napi_env env, napi_value p
     return { false, FileInfo { false, {}, {} }, -1 };
 };
 
-static tuple<bool, int> GetJsFlags(napi_env env, const NFuncArg &funcArg, FileInfo &fileinfo)
+static tuple<bool, int> GetJsFlags(napi_env env, const NFuncArg &funcArg, FileInfo &fileInfo)
 {
     int flags = O_RDONLY;
-    bool succ;
-    if (fileinfo.isPath) {
+    bool succ = false;
+    if (fileInfo.isPath) {
         if (funcArg.GetArgc() >= NARG_CNT::THREE && !NVal(env, funcArg[NARG_POS::THIRD]).TypeIs(napi_function)) {
             tie(succ, flags) = NVal(env, funcArg[NARG_POS::THIRD]).ToInt32();
             if (!succ) {
@@ -128,29 +128,29 @@ napi_value CreateRandomAccessFile::Sync(napi_env env, napi_callback_info info)
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
-    auto [succ, fileinfo, fp] = ParseJsFileAndFP(env, funcArg[NARG_POS::FIRST], funcArg[NARG_POS::SECOND]);
+    auto [succ, fileInfo, fp] = ParseJsFileAndFP(env, funcArg[NARG_POS::FIRST], funcArg[NARG_POS::SECOND]);
     if (!succ) {
         return nullptr;
     }
 
-    if (fileinfo.isPath) {
-        auto [succFlags, flags] = GetJsFlags(env, funcArg, fileinfo);
+    if (fileInfo.isPath) {
+        auto [succFlags, flags] = GetJsFlags(env, funcArg, fileInfo);
         if (!succFlags) {
             return nullptr;
         }
         uv_loop_s *loop = nullptr;
         napi_get_uv_event_loop(env, &loop);
         uv_fs_t open_req;
-        int ret = uv_fs_open(loop, &open_req, fileinfo.path.get(), flags, S_IRUSR |
-            S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH, NULL);
+        int ret = uv_fs_open(loop, &open_req, fileInfo.path.get(), flags, S_IRUSR |
+            S_IWUSR | S_IRGRP | S_IWGRP, NULL);
         if (ret < 0) {
             UniError(errno).ThrowErr(env);
             return nullptr;
         }
-        fileinfo.fdg.SetFD(open_req.result, false);
+        fileInfo.fdg.SetFD(open_req.result, false);
         uv_fs_req_cleanup(&open_req);
     }
-    return InstantiateRandomAccessFile(env, fileinfo.fdg.GetFD(), fp).val_;
+    return InstantiateRandomAccessFile(env, fileInfo.fdg.GetFD(), fp).val_;
 }
 
 struct AsyncCreateRandomAccessFileArg {
@@ -165,30 +165,30 @@ napi_value CreateRandomAccessFile::Async(napi_env env, napi_callback_info info)
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
-    auto [succ, fileinfo, fp] = ParseJsFileAndFP(env, funcArg[NARG_POS::FIRST], funcArg[NARG_POS::SECOND]);
+    auto [succ, fileInfo, fp] = ParseJsFileAndFP(env, funcArg[NARG_POS::FIRST], funcArg[NARG_POS::SECOND]);
     if (!succ) {
         return nullptr;
     }
-    auto [succFlags, flags] = GetJsFlags(env, funcArg, fileinfo);
+    auto [succFlags, flags] = GetJsFlags(env, funcArg, fileInfo);
     if (!succFlags) {
         return nullptr;
     }
     auto arg = make_shared<AsyncCreateRandomAccessFileArg>();
-    auto cbExec = [arg, fileinfo = make_shared<FileInfo>(move(fileinfo)), fp = fp, flags =
+    auto cbExec = [arg, fileInfo = make_shared<FileInfo>(move(fileInfo)), fp = fp, flags =
         flags](napi_env env) -> UniError {
-        if (fileinfo->isPath) {
+        if (fileInfo->isPath) {
             uv_loop_s *loop = nullptr;
             napi_get_uv_event_loop(env, &loop);
             uv_fs_t open_req;
-            int ret = uv_fs_open(loop, &open_req, fileinfo->path.get(), flags, S_IRUSR |
-                S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH, NULL);
+            int ret = uv_fs_open(loop, &open_req, fileInfo->path.get(), flags, S_IRUSR |
+                S_IWUSR | S_IRGRP | S_IWGRP, NULL);
             if (ret < 0) {
                 return UniError(errno);
             }
-            fileinfo->fdg.SetFD(open_req.result, false);
+            fileInfo->fdg.SetFD(open_req.result, false);
             uv_fs_req_cleanup(&open_req);
         }
-        arg->fd = fileinfo->fdg.GetFD();
+        arg->fd = fileInfo->fdg.GetFD();
         arg->fp = fp;
         return UniError(ERRNO_NOERR);
     };
@@ -199,8 +199,8 @@ napi_value CreateRandomAccessFile::Async(napi_env env, napi_callback_info info)
         return InstantiateRandomAccessFile(env, arg->fd, arg->fp);
     };
     NVal thisVar(env, funcArg.GetThisVar());
-    if (funcArg.GetArgc() == NARG_CNT::TWO || (funcArg.GetArgc() == NARG_CNT::THREE
-        && NVal(env, funcArg[NARG_POS::THIRD]).TypeIs(napi_number))) {
+    if (funcArg.GetArgc() == NARG_CNT::TWO || (funcArg.GetArgc() == NARG_CNT::THREE &&
+        NVal(env, funcArg[NARG_POS::THIRD]).TypeIs(napi_number))) {
         return NAsyncWorkPromise(env, thisVar).Schedule(createRAFProcedureName, cbExec, cbCompl).val_;
     } else {
         int cbIdx = ((funcArg.GetArgc() == NARG_CNT::FOUR) ? NARG_POS::FOURTH : NARG_POS::THIRD);

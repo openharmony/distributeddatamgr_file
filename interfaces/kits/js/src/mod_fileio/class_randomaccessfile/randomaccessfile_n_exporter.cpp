@@ -21,7 +21,6 @@
 #include <memory>
 #include <sstream>
 #include <uv.h>
-#include "securec.h"
 
 #include "../../common/log.h"
 #include "../../common/napi/n_async/n_async_work_callback.h"
@@ -46,7 +45,7 @@ static RandomAccessFileEntity *GetRAFEntity(napi_env env, napi_value raf_entity)
         UniError(EINVAL).ThrowErr(env, "Cannot get entity of RandomAccessFile");
         return nullptr;
     }
-    if (!rafEntity || !rafEntity->fd_) {
+    if (!rafEntity->fd_) {
         UniError(EINVAL).ThrowErr(env, "RandomAccessFile has been closed yet");
         return nullptr;
     }
@@ -64,7 +63,7 @@ static tuple<bool, void*, size_t, bool, size_t, size_t> GetRAFReadArg(napi_env e
 {
     bool succ = false, hasPos = false;
     void *buf = nullptr;
-    size_t len, pos = 0, offset = 0;
+    size_t len, pos, offset;
     tie(succ, buf, len, hasPos, pos, offset) = CommonFunc::GetReadArg(env, ReadBuf, option);
     if (!succ) {
         return { false, nullptr, 0, false, 0, 0 };
@@ -77,7 +76,7 @@ static tuple<bool, void *, size_t, bool, size_t> GetRAFWriteArg(napi_env env,
 {
     bool succ = false, hasPos = false;
     void *buf = nullptr;
-    size_t len, pos = 0;
+    size_t len, pos;
     tie(succ, ignore, buf, len, hasPos, pos) = CommonFunc::GetWriteArg(env, WriteBuf, option);
     if (!succ) {
         return  { false, nullptr, 0, false, 0 };
@@ -193,9 +192,9 @@ napi_value RandomAccessFileNExporter::Read(napi_env env, napi_callback_info info
     if (!rafEntity) {
         return nullptr;
     }
-    bool succ, hasPos;
+    bool succ = false, hasPos = false;
     size_t len, pos, offset;
-    void* buf;
+    void* buf = nullptr;
     tie(succ, buf, len, hasPos, pos, offset) = GetRAFReadArg(env, funcArg[NARG_POS::FIRST], funcArg[NARG_POS::SECOND]);
     if (!succ) {
         UniError(EINVAL).ThrowErr(env, "Invalid buffer/options");
