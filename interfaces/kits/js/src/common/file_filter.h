@@ -18,7 +18,6 @@
 #include <string>
 #include <vector>
 
-#include "log.h"
 #include "parcel.h"
 
 namespace OHOS {
@@ -29,7 +28,7 @@ public:
     ~FileFilter() = default;
 
     FileFilter(std::vector<std::string> suffix, std::vector<std::string> displayName,
-        std::vector<std::string> mimeType, size_t fileSizeOver,
+        std::vector<std::string> mimeType, int64_t fileSizeOver,
         double lastModifiedAfter, bool excludeMedia, bool hasFilter)
         : suffix_(suffix), displayName_(displayName), mimeType_(mimeType), fileSizeOver_(fileSizeOver),
         lastModifiedAfter_(lastModifiedAfter), excludeMedia_(excludeMedia), hasFilter_(hasFilter) {}
@@ -67,12 +66,12 @@ public:
         return mimeType_;
     }
 
-    void SetFileSizeOver(const size_t &fileSizeOver)
+    void SetFileSizeOver(const int64_t &fileSizeOver)
     {
         fileSizeOver_ = fileSizeOver;
     }
-    
-    size_t GetFileSizeOver() const
+
+    int64_t GetFileSizeOver() const
     {
         return fileSizeOver_;
     }
@@ -165,7 +164,7 @@ private:
     std::vector<std::string> suffix_ = std::vector<std::string>();
     std::vector<std::string> displayName_ = std::vector<std::string>();
     std::vector<std::string> mimeType_ = std::vector<std::string>();
-    size_t fileSizeOver_ = 0;
+    int64_t fileSizeOver_ = 0;
     double lastModifiedAfter_ = 0;
     bool excludeMedia_ = false;
     bool hasFilter_ = false;
