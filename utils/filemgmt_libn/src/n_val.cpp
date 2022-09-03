@@ -128,21 +128,7 @@ tuple<bool, double> NVal::ToDouble() const
 {
     double res = 0;
     napi_status status = napi_get_value_double(env_, val_, &res);
-    if (status != napi_ok) {
-        HILOGE("tag dsa NVal::ToDouble status:%{public}d", status);
-    }
     return make_tuple(status == napi_ok, res);
-}
-
-tuple<bool, uint64_t, bool> NVal::ToUint64() const
-{
-    uint64_t res = 0;
-    bool lossless = false;
-    napi_status status = napi_get_value_bigint_uint64(env_, val_, &res, &lossless);
-    if (status != napi_ok) {
-        HILOGE("tag dsa NVal::ToDouble status:%{public}d", status);
-    }
-    return make_tuple(status == napi_ok, res, lossless);
 }
 
 tuple<bool, vector<string>, uint32_t> NVal::ToStringArray()
