@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,6 +18,7 @@
 #include "../../common/napi/n_async/n_async_work_callback.h"
 #include "../../common/napi/n_async/n_async_work_promise.h"
 #include "../../common/napi/n_func_arg.h"
+
 namespace OHOS {
 namespace DistributedFS {
 namespace ModuleFileIO {
@@ -30,7 +31,6 @@ napi_value Mkdtemp::Sync(napi_env env, napi_callback_info info)
         return nullptr;
     }
 
-    string path;
     unique_ptr<char[]> tmp;
     bool succ = false;
     tie(succ, tmp, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
@@ -38,12 +38,13 @@ napi_value Mkdtemp::Sync(napi_env env, napi_callback_info info)
         UniError(EINVAL).ThrowErr(env, "Invalid path");
         return nullptr;
     }
-    path = tmp.get();
-    if (mkdtemp(const_cast<char *>(path.c_str())) == nullptr) {
+
+    if (mkdtemp(tmp.get()) == nullptr) {
         UniError(errno).ThrowErr(env);
         return nullptr;
     }
-    return NVal::CreateUTF8String(env, path).val_;
+
+    return NVal::CreateUTF8String(env, tmp.get()).val_;
 }
 
 napi_value Mkdtemp::Async(napi_env env, napi_callback_info info)
@@ -53,6 +54,7 @@ napi_value Mkdtemp::Async(napi_env env, napi_callback_info info)
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
+
     unique_ptr<char[]> tmp;
     bool succ = false;
     tie(succ, tmp, ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
@@ -60,6 +62,7 @@ napi_value Mkdtemp::Async(napi_env env, napi_callback_info info)
         UniError(EINVAL).ThrowErr(env, "Invalid path");
         return nullptr;
     }
+
     string path = tmp.get();
     auto arg = make_shared<string>();
     auto cbExec = [path, arg](napi_env env) -> UniError {
