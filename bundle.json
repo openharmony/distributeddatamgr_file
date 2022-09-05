@@ -44,7 +44,18 @@
             "//foundation/distributeddatamgr/distributedfile/interfaces/kits/js:build_kits_js"
           ],
           "service_group": []
-        }
+        },
+        "inner_kits": [
+          {
+            "name": "//foundation/distributeddatamgr/distributedfile/interfaces/kits/native:remote_uri_native",
+            "header": {
+              "header_files": [
+                "remote_uri.h"
+              ],
+              "header_base": "//foundation/distributeddatamgr/distributedfile/interfaces/kits/native/remote_uri"
+            }
+          }
+        ]
       }
     }
   }

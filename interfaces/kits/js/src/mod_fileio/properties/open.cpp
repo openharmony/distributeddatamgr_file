@@ -18,10 +18,12 @@
 #include <fcntl.h>
 #include <tuple>
 #include <unistd.h>
+#include "remote_uri.h"
 
 #include "../../common/napi/n_async/n_async_work_callback.h"
 #include "../../common/napi/n_async/n_async_work_promise.h"
 #include "../../common/napi/n_func_arg.h"
+
 namespace OHOS {
 namespace DistributedFS {
 namespace ModuleFileIO {
@@ -82,8 +84,11 @@ napi_value Open::Sync(napi_env env, napi_callback_info info)
         }
     }
     (void)AdaptToAbi(flags);
-
     int fd = -1;
+    if (ModuleRemoteUri::RemoteUri::IsRemoteUri(path.get(), fd, flags)) {
+        return NVal::CreateInt64(env, fd).val_;
+    }
+
     size_t argc = funcArg.GetArgc();
     if (argc != NARG_CNT::THREE) {
         size_t flagsFirst { flags };
@@ -116,9 +121,12 @@ napi_value Open::Sync(napi_env env, napi_callback_info info)
 
 static UniError DoOpenExec(const std::string& path, const int flags, const int mode, shared_ptr<int32_t> arg)
 {
-    int ret = open(path.c_str(), flags, mode);
-    *arg = ret;
-    if (ret == -1) {
+    int fd = -1;
+    if (!ModuleRemoteUri::RemoteUri::IsRemoteUri(path, fd, flags)) {
+        fd = open(path.c_str(), flags, mode);
+    }
+    *arg = fd;
+    if (fd == -1) {
         return UniError(errno);
     } else {
         return UniError(ERRNO_NOERR);
