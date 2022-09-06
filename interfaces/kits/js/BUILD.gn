@@ -128,9 +128,7 @@ ohos_shared_library("file") {
     "//third_party/bounds_checking_function:libsec_static",
   ]
 
-  external_deps = [
-    "hiviewdfx_hilog_native:libhilog",
-  ]
+  external_deps = [ "hiviewdfx_hilog_native:libhilog" ]
 }
 
 ohos_shared_library("statfs") {
@@ -148,7 +146,6 @@ ohos_shared_library("statfs") {
     "//foundation/distributeddatamgr/distributedfile/utils/filemgmt_libhilog",
     "//foundation/distributeddatamgr/distributedfile/utils/filemgmt_libn",
   ]
-
 }
 
 ohos_shared_library("environment") {
