@@ -129,13 +129,7 @@ ohos_shared_library("file") {
   ]
 
   external_deps = [
-    "ability_base:want",
-    "ability_runtime:ability_manager",
-    "bundle_framework:appexecfwk_base",
-    "bundle_framework:appexecfwk_core",
-    "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
-    "ipc:ipc_core",
   ]
 }
 
@@ -155,7 +149,6 @@ ohos_shared_library("statfs") {
     "//foundation/distributeddatamgr/distributedfile/utils/filemgmt_libn",
   ]
 
-  external_deps = [ "hiviewdfx_hilog_native:libhilog" ]
 }
 
 ohos_shared_library("environment") {
