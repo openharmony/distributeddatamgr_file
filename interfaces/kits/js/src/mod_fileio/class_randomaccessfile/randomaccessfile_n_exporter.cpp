@@ -364,9 +364,7 @@ napi_value RandomAccessFileNExporter::Constructor(napi_env env, napi_callback_in
 
     auto rafEntity = make_unique<RandomAccessFileEntity>();
     if (!NClass::SetEntityFor<RandomAccessFileEntity>(env, funcArg.GetThisVar(), move(rafEntity))) {
-        stringstream ss;
-        ss << "INNER BUG. Failed to wrap entity for obj RandomAccessFile";
-        UniError(EIO).ThrowErr(env, ss.str());
+        UniError(EIO).ThrowErr(env, "INNER BUG. Failed to wrap entity for obj RandomAccessFile");
         return nullptr;
     }
     return funcArg.GetThisVar();
