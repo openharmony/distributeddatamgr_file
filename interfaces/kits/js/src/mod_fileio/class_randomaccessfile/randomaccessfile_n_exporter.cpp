@@ -35,8 +35,6 @@ namespace OHOS {
 namespace DistributedFS {
 namespace ModuleFileIO {
 using namespace std;
-uv_fs_t read_req;
-uv_fs_t write_req;
 
 static RandomAccessFileEntity *GetRAFEntity(napi_env env, napi_value raf_entity)
 {
@@ -87,17 +85,23 @@ static tuple<bool, void *, size_t, bool, size_t> GetRAFWriteArg(napi_env env,
 static size_t DoReadRAF(napi_env env, void* buf, size_t len, int fd, size_t pos)
 {
     uv_loop_s *loop = nullptr;
+    uv_fs_t read_req;
     napi_get_uv_event_loop(env, &loop);
     uv_buf_t iov = uv_buf_init((char *)buf, len);
-    return uv_fs_read(loop, &read_req, fd, &iov, 1, pos, NULL);
+    size_t ret = uv_fs_read(loop, &read_req, fd, &iov, 1, pos, NULL);
+    uv_fs_req_cleanup(&read_req);
+    return ret;
 }
 
 static size_t DoWriteRAF(napi_env env, void* buf, size_t len, int fd, size_t pos)
 {
     uv_loop_s *loop = nullptr;
+    uv_fs_t write_req;
     napi_get_uv_event_loop(env, &loop);
     uv_buf_t iov = uv_buf_init((char *)buf, len);
-    return uv_fs_write(loop, &write_req, fd, &iov, 1, pos, NULL);
+    size_t ret = uv_fs_write(loop, &write_req, fd, &iov, 1, pos, NULL);
+    uv_fs_req_cleanup(&write_req);
+    return ret;
 }
 
 napi_value RandomAccessFileNExporter::GetFD(napi_env env, napi_callback_info info)
@@ -349,8 +353,6 @@ napi_value RandomAccessFileNExporter::CloseSync(napi_env env, napi_callback_info
         return nullptr;
     }
     rafEntity->fd_.reset();
-    uv_fs_req_cleanup(&read_req);
-    uv_fs_req_cleanup(&write_req);
     return NVal::CreateUndefined(env).val_;
 }
 
