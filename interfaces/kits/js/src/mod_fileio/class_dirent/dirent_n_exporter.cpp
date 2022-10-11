@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -115,9 +115,7 @@ napi_value DirentNExporter::Constructor(napi_env env, napi_callback_info info)
 
     auto direntEntity = make_unique<DirentEntity>();
     if (!NClass::SetEntityFor<DirentEntity>(env, funcArg.GetThisVar(), move(direntEntity))) {
-        stringstream ss;
-        ss << "INNER BUG. Failed to wrap entity for obj dirent";
-        UniError(EIO).ThrowErr(env, ss.str());
+        UniError(EIO).ThrowErr(env, "INNER BUG. Failed to wrap entity for obj dirent");
         return nullptr;
     }
     return funcArg.GetThisVar();
