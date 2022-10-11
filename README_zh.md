@@ -3,7 +3,7 @@
 -   [简介](#section104mcpsimp)
     -   [系统架构](#section110mcpsimp)
 
--   [目录结构](#section113mcpsimp)
+-   [目录](#section113mcpsimp)
 -   [约束](#section117mcpsimp)
 -   [说明](#section125mcpsimp)
     -   [接口说明](#section127mcpsimp)
@@ -22,13 +22,16 @@
 **图 1**  分布式文件子系统架构图<a name="fig174088216114"></a>  
 ![](figures/分布式文件子系统架构图.png "分布式文件子系统架构图")
 
-## 目录结构<a name="section113mcpsimp"></a>
+## 目录<a name="section113mcpsimp"></a>
 
 ```
 foundation/distributeddatamgr/distributedfile
 ├── figures                     # 仓库图床
-└── interfaces                  # 接口代码
-    └── kits                    # 对外接口代码
+├── interfaces                  # 接口代码
+├    └── kits                   # 对外接口代码
+├── utils                       # 公共组件
+├    └── filemgmt_libhilog      # 日志组件
+├    └── filemgmt_libn          # 平台相关组件
 ```
 
 ## 约束<a name="section117mcpsimp"></a>
@@ -277,5 +280,9 @@ foundation/distributeddatamgr/distributedfile
 
 **分布式文件**
 
-distributeddatamgr_distributedfile
+- [**分布式文件子系统**](https://gitee.com/openharmony/distributeddatamgr_file)
+- [分布式文件服务](https://gitee.com/openharmony/filemanagement_dfs_service)
+- [公共文件访问框架](https://gitee.com/openharmony/filemanagement_user_file_service)
+- [存储管理服务](https://gitee.com/openharmony/filemanagement_storage_service)
+- [应用文件服务](https://gitee.com/openharmony/filemanagement_app_file_service)
 

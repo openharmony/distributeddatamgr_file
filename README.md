@@ -3,7 +3,7 @@
 -   [Introduction](#section104mcpsimp)
     -   [Architecture](#section110mcpsimp)
 
--   [Directory Structure](#section113mcpsimp)
+-   [Directory](#section113mcpsimp)
 -   [Constraints](#section117mcpsimp)
 -   [Usage](#section125mcpsimp)
     -   [Available APIs](#section127mcpsimp)
@@ -22,12 +22,16 @@ Currently, the Distributed File subsystem provides only local JavaScript file AP
 **Figure  1**  Distributed File subsystem architecture<a name="fig174088216114"></a>  
 ![](figures/distributed-file-subsystem-architecture.png "distributed-file-subsystem-architecture")
 
-## Directory Structure<a name="section113mcpsimp"></a>
+## Directory<a name="section113mcpsimp"></a>
 
 ```
 foundation/distributeddatamgr/distributedfile
-└── interfaces                  # APIs
-    └── kits                    # APIs exposed externally
+├── figures                     # Figures
+├── interfaces                  # APIs
+├    └── kits                   # APIs exposed externally
+├── utils                       # Common Components
+├    └── filemgmt_libhilog      # Log Components
+├    └── filemgmt_libn          # Platform related components
 ```
 
 ## Constraints<a name="section117mcpsimp"></a>
@@ -276,5 +280,9 @@ The I/O APIs provided by the Distributed File subsystem can be classified into t
 
 **Distributed File subsystem**
 
-distributeddatamgr_distributedfile
+- [**distributeddatamgr_file**](https://gitee.com/openharmony/distributeddatamgr_file)
+- [filemanagement_dfs_service](https://gitee.com/openharmony/filemanagement_dfs_service)
+- [filemanagement_user_file_service](https://gitee.com/openharmony/filemanagement_user_file_service)
+- [filemanagement_storage_service](https://gitee.com/openharmony/filemanagement_storage_service)
+- [filemanagement_app_file_service](https://gitee.com/openharmony/filemanagement_app_file_service)
 
