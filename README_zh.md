@@ -172,7 +172,7 @@ foundation/distributeddatamgr/distributedfile
     import fileio from '@OHOS.distributedfile.fileio';
 
     try {
-        var ss = fileio.Stream.createStreamSync("tmp", "r")
+        var ss = fileio.createStreamSync("tmp", "r")
         buf = new ArrayBuffer(4096)
         ss.readSync(buf)
         console.log(String.fromCharCode.apply(null, new Uint8Array(buf)))
@@ -195,7 +195,7 @@ foundation/distributeddatamgr/distributedfile
 
     try {
         let openedStream
-        fileio.Stream.createStream("test.txt", "r")
+        fileio.createStream("test.txt", "r")
             .then(function (ss) {
                 openedStream = ss;
                 return ss.read(new ArrayBuffer(4096))
@@ -227,7 +227,7 @@ foundation/distributeddatamgr/distributedfile
     import fileio from '@OHOS.distributedfile.fileio';
 
     try {
-        fileio.Stream.createStream("./testdir/test_stream.txt", "r", function (err, ss) {
+        fileio.createStream("./testdir/test_stream.txt", "r", function (err, ss) {
             if (!err) {
                 ss.read(new ArrayBuffer(4096), {}, function (err, buf, readLen) {
                     if (!err) {
@@ -256,24 +256,6 @@ foundation/distributeddatamgr/distributedfile
 
     下例异步判断 URI 所指向的文件是否存在，并相应提供三个回调用于打印判断结果。
 
-    ```
-    import file from '@system.file'
-
-    file.access({
-        uri: 'internal://app/test.txt',
-        success: function() {
-            console.log('call access success.');
-        },
-        fail: function(data, code) {
-            console.error('call fail callback fail, code: ' + code + ', data: ' + data);
-        },
-        complete: function () {
-            console.log('call access finally.');
-        }
-    });
-
-    console.log("file access tested done")
-    ```
 
 
 ## 相关仓<a name="section178mcpsimp"></a>
