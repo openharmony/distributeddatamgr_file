@@ -3,7 +3,7 @@
 -   [简介](#section104mcpsimp)
     -   [系统架构](#section110mcpsimp)
 
--   [目录结构](#section113mcpsimp)
+-   [目录](#section113mcpsimp)
 -   [约束](#section117mcpsimp)
 -   [说明](#section125mcpsimp)
     -   [接口说明](#section127mcpsimp)
@@ -22,13 +22,16 @@
 **图 1**  分布式文件子系统架构图<a name="fig174088216114"></a>  
 ![](figures/分布式文件子系统架构图.png "分布式文件子系统架构图")
 
-## 目录结构<a name="section113mcpsimp"></a>
+## 目录<a name="section113mcpsimp"></a>
 
 ```
 foundation/distributeddatamgr/distributedfile
 ├── figures                     # 仓库图床
-└── interfaces                  # 接口代码
-    └── kits                    # 对外接口代码
+├── interfaces                  # 接口代码
+├    └── kits                   # 对外接口代码
+├── utils                       # 公共组件
+├    └── filemgmt_libhilog      # 日志组件
+├    └── filemgmt_libn          # 平台相关组件
 ```
 
 ## 约束<a name="section117mcpsimp"></a>
@@ -169,7 +172,7 @@ foundation/distributeddatamgr/distributedfile
     import fileio from '@OHOS.distributedfile.fileio';
 
     try {
-        var ss = fileio.Stream.createStreamSync("tmp", "r")
+        var ss = fileio.createStreamSync("tmp", "r")
         buf = new ArrayBuffer(4096)
         ss.readSync(buf)
         console.log(String.fromCharCode.apply(null, new Uint8Array(buf)))
@@ -192,7 +195,7 @@ foundation/distributeddatamgr/distributedfile
 
     try {
         let openedStream
-        fileio.Stream.createStream("test.txt", "r")
+        fileio.createStream("test.txt", "r")
             .then(function (ss) {
                 openedStream = ss;
                 return ss.read(new ArrayBuffer(4096))
@@ -224,7 +227,7 @@ foundation/distributeddatamgr/distributedfile
     import fileio from '@OHOS.distributedfile.fileio';
 
     try {
-        fileio.Stream.createStream("./testdir/test_stream.txt", "r", function (err, ss) {
+        fileio.createStream("./testdir/test_stream.txt", "r", function (err, ss) {
             if (!err) {
                 ss.read(new ArrayBuffer(4096), {}, function (err, buf, readLen) {
                     if (!err) {
@@ -253,29 +256,13 @@ foundation/distributeddatamgr/distributedfile
 
     下例异步判断 URI 所指向的文件是否存在，并相应提供三个回调用于打印判断结果。
 
-    ```
-    import file from '@system.file'
-
-    file.access({
-        uri: 'internal://app/test.txt',
-        success: function() {
-            console.log('call access success.');
-        },
-        fail: function(data, code) {
-            console.error('call fail callback fail, code: ' + code + ', data: ' + data);
-        },
-        complete: function () {
-            console.log('call access finally.');
-        }
-    });
-
-    console.log("file access tested done")
-    ```
 
 
 ## 相关仓<a name="section178mcpsimp"></a>
 
-**分布式文件**
-
-distributeddatamgr_distributedfile
+- [**分布式文件子系统**](https://gitee.com/openharmony/distributeddatamgr_file)
+- [分布式文件服务](https://gitee.com/openharmony/filemanagement_dfs_service)
+- [公共文件访问框架](https://gitee.com/openharmony/filemanagement_user_file_service)
+- [存储管理服务](https://gitee.com/openharmony/filemanagement_storage_service)
+- [应用文件服务](https://gitee.com/openharmony/filemanagement_app_file_service)
 

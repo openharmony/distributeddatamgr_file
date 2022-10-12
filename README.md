@@ -3,7 +3,7 @@
 -   [Introduction](#section104mcpsimp)
     -   [Architecture](#section110mcpsimp)
 
--   [Directory Structure](#section113mcpsimp)
+-   [Directory](#section113mcpsimp)
 -   [Constraints](#section117mcpsimp)
 -   [Usage](#section125mcpsimp)
     -   [Available APIs](#section127mcpsimp)
@@ -22,12 +22,16 @@ Currently, the Distributed File subsystem provides only local JavaScript file AP
 **Figure  1**  Distributed File subsystem architecture<a name="fig174088216114"></a>  
 ![](figures/distributed-file-subsystem-architecture.png "distributed-file-subsystem-architecture")
 
-## Directory Structure<a name="section113mcpsimp"></a>
+## Directory<a name="section113mcpsimp"></a>
 
 ```
 foundation/distributeddatamgr/distributedfile
-└── interfaces                  # APIs
-    └── kits                    # APIs exposed externally
+├── figures                     # Figures
+├── interfaces                  # APIs
+├    └── kits                   # APIs exposed externally
+├── utils                       # Common Components
+├    └── filemgmt_libhilog      # Log Components
+├    └── filemgmt_libn          # Platform related components
 ```
 
 ## Constraints<a name="section117mcpsimp"></a>
@@ -168,7 +172,7 @@ The I/O APIs provided by the Distributed File subsystem can be classified into t
     import fileio from '@OHOS.distributedfile.fileio';
     
     try {
-        var ss = fileio.Stream.createStreamSync("tmp", "r")
+        var ss = fileio.createStreamSync("tmp", "r")
         buf = new ArrayBuffer(4096)
         ss.readSync(buf)
         console.log(String.fromCharCode.apply(null, new Uint8Array(buf)))
@@ -180,37 +184,6 @@ The I/O APIs provided by the Distributed File subsystem can be classified into t
     ```
 
 
--   Asynchronous programming model: Promise
-
-    In the  **@OHOS.distributedfile.fileio**  module, the APIs whose names do not contain  **Sync**  and to which a callback is not passed as their input parameter are implemented as the Promise asynchronous model. The Promise asynchronous model is one of the OHOS standard asynchronous models. When an asynchronous API using the Promise model is called, the API returns a Promise object while executing the concerned task asynchronously. The Promise object represents the asynchronous operation result. When there is more than one result, the results are returned as properties of the Promise object.
-
-    In the following example, a Promise chain is used to open a file stream in read-only mode, attempt to read the first 4096 bytes of the file, display the length of the content read, and then close the file:
-
-    ```
-    import fileio from '@OHOS.distributedfile.fileio';
-    
-    try {
-        let openedStream
-        fileio.Stream.createStream("test.txt", "r")
-            .then(function (ss) {
-                openedStream = ss;
-                return ss.read(new ArrayBuffer(4096))
-            })
-            .then(function (res) {
-                console.log(res.bytesRead);
-                console.log(String.fromCharCode.apply(null, new Uint8Array(res.buffer)))
-                return openedStream.close()
-            })
-            .then(function (undefined) {
-                console.log("Stream is closed")
-            })
-            .catch(function (e) {
-                console.log(e)
-            })
-    } catch (e) {
-        console.log(e)
-    }
-    ```
 
 
 -   Asynchronous programming model: Callback
@@ -223,7 +196,7 @@ The I/O APIs provided by the Distributed File subsystem can be classified into t
     import fileio from '@OHOS.distributedfile.fileio';
     
     try {
-        fileio.Stream.createStream("./testdir/test_stream.txt", "r", function (err, ss) {
+        fileio.createStream("./testdir/test_stream.txt", "r", function (err, ss) {
             if (!err) {
                 ss.read(new ArrayBuffer(4096), {}, function (err, buf, readLen) {
                     if (!err) {
@@ -274,7 +247,9 @@ The I/O APIs provided by the Distributed File subsystem can be classified into t
 
 ## Repositories Involved<a name="section178mcpsimp"></a>
 
-**Distributed File subsystem**
-
-distributeddatamgr_distributedfile
+- [**distributeddatamgr_file**](https://gitee.com/openharmony/distributeddatamgr_file)
+- [filemanagement_dfs_service](https://gitee.com/openharmony/filemanagement_dfs_service)
+- [filemanagement_user_file_service](https://gitee.com/openharmony/filemanagement_user_file_service)
+- [filemanagement_storage_service](https://gitee.com/openharmony/filemanagement_storage_service)
+- [filemanagement_app_file_service](https://gitee.com/openharmony/filemanagement_app_file_service)
 
