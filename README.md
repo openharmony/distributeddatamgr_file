@@ -247,8 +247,6 @@ The I/O APIs provided by the Distributed File subsystem can be classified into t
 
 ## Repositories Involved<a name="section178mcpsimp"></a>
 
-**Distributed File subsystem**
-
 - [**distributeddatamgr_file**](https://gitee.com/openharmony/distributeddatamgr_file)
 - [filemanagement_dfs_service](https://gitee.com/openharmony/filemanagement_dfs_service)
 - [filemanagement_user_file_service](https://gitee.com/openharmony/filemanagement_user_file_service)
