@@ -260,8 +260,6 @@ foundation/distributeddatamgr/distributedfile
 
 ## 相关仓<a name="section178mcpsimp"></a>
 
-**分布式文件**
-
 - [**分布式文件子系统**](https://gitee.com/openharmony/distributeddatamgr_file)
 - [分布式文件服务](https://gitee.com/openharmony/filemanagement_dfs_service)
 - [公共文件访问框架](https://gitee.com/openharmony/filemanagement_user_file_service)
