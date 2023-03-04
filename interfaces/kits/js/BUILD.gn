@@ -93,7 +93,6 @@ ohos_shared_library("fileio") {
 
   deps = [
     "//foundation/arkui/napi:ace_napi",
-    "//foundation/distributeddatamgr/distributedfile/interfaces/kits/native:remote_uri_native",
     "//third_party/bounds_checking_function:libsec_static",
     "//third_party/openssl:libcrypto_static",
   ]
