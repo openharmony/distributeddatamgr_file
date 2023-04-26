@@ -41,13 +41,12 @@ struct FileInfo {
 
 static UniError CopyFileCore(FileInfo &srcFile, FileInfo &destFile)
 {
-    int res = EINVAL;
     if (srcFile.isPath) {
-        srcFile.fdg.SetFD(open(srcFile.path.get(), O_RDONLY), true);
-        res = errno;
-    }
-    if (!srcFile.fdg) {
-        return UniError(res);
+        int ret = open(srcFile.path.get(), O_RDONLY);
+        if (ret < 0) {
+            return UniError(errno);
+        }
+        srcFile.fdg.SetFD(ret, true);
     }
     struct stat statbf;
     if (fstat(srcFile.fdg.GetFD(), &statbf) == -1) {
@@ -55,11 +54,11 @@ static UniError CopyFileCore(FileInfo &srcFile, FileInfo &destFile)
     }
 
     if (destFile.isPath) {
-        destFile.fdg.SetFD(open(destFile.path.get(), O_WRONLY | O_CREAT, statbf.st_mode), true);
-        res = errno;
-    }
-    if (!destFile.fdg) {
-        return UniError(res);
+        int ret = open(destFile.path.get(), O_WRONLY | O_CREAT, statbf.st_mode);
+        if (ret < 0) {
+            return UniError(errno);
+        }
+        destFile.fdg.SetFD(ret, true);
     }
 
     int block = 4096;
