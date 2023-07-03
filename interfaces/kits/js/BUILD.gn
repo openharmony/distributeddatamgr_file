@@ -97,7 +97,7 @@ ohos_shared_library("fileio") {
     "//third_party/openssl:libcrypto_static",
   ]
 
-  external_deps = [ "hiviewdfx_hilog_native:libhilog" ]
+  external_deps = [ "hilog:libhilog" ]
 }
 
 ohos_shared_library("file") {
@@ -129,7 +129,7 @@ ohos_shared_library("file") {
     "//third_party/bounds_checking_function:libsec_static",
   ]
 
-  external_deps = [ "hiviewdfx_hilog_native:libhilog" ]
+  external_deps = [ "hilog:libhilog" ]
 }
 
 ohos_shared_library("statfs") {
@@ -174,7 +174,7 @@ ohos_shared_library("environment") {
 
   deps = [ "//foundation/arkui/napi:ace_napi" ]
 
-  external_deps = [ "hiviewdfx_hilog_native:libhilog" ]
+  external_deps = [ "hilog:libhilog" ]
 }
 
 ohos_shared_library("securitylabel") {
@@ -200,7 +200,7 @@ ohos_shared_library("securitylabel") {
 
   deps = [ "//foundation/arkui/napi:ace_napi" ]
 
-  external_deps = [ "hiviewdfx_hilog_native:libhilog" ]
+  external_deps = [ "hilog:libhilog" ]
 }
 
 ohos_shared_library("document") {
@@ -228,7 +228,7 @@ ohos_shared_library("document") {
 
   deps = [ "//foundation/arkui/napi:ace_napi" ]
 
-  external_deps = [ "hiviewdfx_hilog_native:libhilog" ]
+  external_deps = [ "hilog:libhilog" ]
 }
 
 group("build_kits_js") {
