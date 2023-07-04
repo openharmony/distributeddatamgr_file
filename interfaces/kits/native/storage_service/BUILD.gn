@@ -27,7 +27,7 @@ ohos_shared_library("ss_crypto_api") {
   external_deps = [
     "ability_base:want",
     "c_utils:utils",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
     "huks:libhukssdk",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
